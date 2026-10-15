@@ -1,88 +1,601 @@
 ```html
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แนะนำรถรับจำนำยอดฮิต - เพจรับจำนำรถ</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>ศูนย์รับจำนำรถยนต์และยานพาหนะทุกชนิด - อนุมัติไว ได้เงินทันที</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body { font-family: 'Prompt', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-card-amber {
+            background: rgba(245, 158, 11, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        .glow-effect {
+            box-shadow: 0 0 35px rgba(245, 158, 11, 0.25);
+        }
+        .tab-btn.active {
+            background-color: #f59e0b;
+            color: #0f172a;
+            font-weight: 700;
+        }
     </style>
 </head>
-<body class="bg-gray-900 flex justify-center items-center min-h-screen p-4">
+<body class="bg-slate-950 text-gray-100 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
 
-    <!-- ภาพจำลองขนาด Cover Page (อัตราส่วนแนะนำสำหรับ Facebook Cover หรือ โพสต์ปักหมุด) -->
-    <div class="w-full max-w-4xl bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-amber-500/30 relative">
-        
-        <!-- แสงนีออนตกแต่งพื้นหลัง -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <!-- เนื้อหาภายในภาพ -->
-        <div class="p-8 md:p-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            
-            <!-- ฝั่งซ้าย: ข้อความโปรโมทและจุดเด่น -->
-            <div class="flex-1 text-center md:text-left">
-                <div class="inline-block bg-amber-500/20 text-amber-400 px-4 py-1.5 rounded-full text-sm font-semibold mb-4 border border-amber-500/40">
-                    ✨ เงินด่วนทันใจ ปลอดภัย ถูกกฎหมาย 100%
-                </div>
-                <h1 class="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
-                    รับจำนำรถ <span class="text-amber-400">ให้วงเงินสูง</span> อนุมัติไวใน 15 นาที
-                </h1>
-                <p class="text-gray-300 text-base md:text-lg mb-6 leading-relaxed">
-                    เก๋ง กระบะ SUV รับหมด! จอดรถในร่มปลอดภัย มีโกดังมิดชิด กล้องวงจรปิด 24 ชม. ไม่เอาไปใช้ ไม่ช้ำแน่นอน
-                </p>
-
-                <!-- จุดเด่น 3 ข้อ -->
-                <div class="grid grid-cols-3 gap-3 mb-8 text-center">
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-                        <span class="block text-amber-400 font-bold text-lg">ดอกต่ำ</span>
-                        <span class="text-gray-300 text-xs">ตามกฎหมายกำหนด</span>
-                    </div>
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-                        <span class="block text-amber-400 font-bold text-lg">ปลอดภัย</span>
-                        <span class="text-gray-300 text-xs">มีสถานที่จริงตรวจสอบได้</span>
-                    </div>
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-                        <span class="block text-amber-400 font-bold text-lg">รับเงินสด</span>
-                        <span class="text-gray-300 text-xs">โอนเข้าบัญชีทันที</span>
-                    </div>
-                </div>
-
-                <!-- ปุ่มติดต่อดึงดูดใจ -->
-                <div class="flex flex-wrap justify-center md:justify-start gap-4">
-                    <a href="tel:0886241830" class="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold px-6 py-3 rounded-xl shadow-lg flex items-center gap-2">
-                        <span>📞 โทรด่วน: 088-624-1830</span>
-                    </a>
-                    <a href="https://line.me/ti/p/~ballzaa789" target="_blank" class="bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg flex items-center gap-2">
-                        <span>💬 Line: ballzaa789</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- ฝั่งขวา: ภาพรถตัวอย่างแนะนำ -->
-            <div class="w-full md:w-96 flex flex-col gap-4">
-                <div class="bg-white/10 p-4 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl text-center">
-                    <span class="text-amber-400 text-xs font-bold uppercase tracking-wider block mb-2">🚗 รถแนะนำยอดนิยม / วงเงินสูง</span>
-                    
-                    <div class="bg-gray-800 rounded-xl h-48 flex items-center justify-center overflow-hidden relative border border-white/10 mb-3">
-                        <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80" alt="รถยนต์กระบะและเก๋ง" class="w-full h-full object-cover">
-                        <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            ประเมินราคาฟรี
-                        </div>
-                    </div>
-                    
-                    <p class="text-white text-sm font-semibold">รับทุกรุ่น โตโยต้า ฮอนด้า อีซูซุ ฟอร์ด และอื่นๆ</p>
-                    <p class="text-gray-400 text-xs mt-1">ทะเบียนบ้าน/ต่างจังหวัดก็รับพิจารณา</p>
-                </div>
-            </div>
-
-        </div>
-
+    <!-- Floating Emergency Contact Bar (Mobile First) -->
+    <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 font-bold text-xs sm:text-sm py-2 px-4 text-center flex justify-center items-center gap-2 shadow-md">
+        <span class="animate-pulse">🔥</span>
+        <span>อนุมัติเร็วสุด 15 นาที! รับเงินสด/โอนทันที รับจำนำรถทุกชนิด โทร:</span>
+        <a href="tel:0886241830" class="underline font-extrabold hover:text-white">088-624-1830</a>
     </div>
 
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 text-2xl font-bold shadow-lg shadow-amber-500/20 group-hover:scale-105 transition">
+                        <i class="fa-solid fa-car-side"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-black text-white tracking-wide block leading-tight">AYUTTHAYA CARPAWN</span>
+                        <span class="text-xs text-amber-400 font-semibold">รับจำนำรถจอดทุกประเภท • ถูกกฎหมาย 100%</span>
+                    </div>
+                </a>
+
+                <!-- Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-8 text-sm font-semibold text-gray-300">
+                    <a href="#gallery" class="hover:text-amber-400 transition">ภาพโกดัง/รีวิว</a>
+                    <a href="#vehicles" class="hover:text-amber-400 transition">ประเภทรถที่รับ</a>
+                    <a href="#calculator" class="hover:text-amber-400 transition">ประเมินค่างวด</a>
+                    <a href="#services" class="hover:text-amber-400 transition">จุดเด่นของเรา</a>
+                    <a href="#contact" class="hover:text-amber-400 transition">ติดต่อเรา</a>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="flex items-center gap-3">
+                    <a href="tel:0886241830" class="hidden sm:flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>088-624-1830</span>
+                    </a>
+                    <a href="https://line.me/ti/p/~ballzaa789" target="_blank" class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <i class="fa-brands fa-line text-lg"></i>
+                        <span>LINE: ballzaa789</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative gradient-bg py-16 lg:py-24 overflow-hidden border-b border-slate-800">
+            <!-- Background Glow -->
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+            <div class="absolute bottom-0 right-10 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="grid lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left Content -->
+                    <div class="lg:col-span-7 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 px-4 py-2 rounded-full text-sm font-bold mb-6">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>อนุมัติไว 15 นาที • รับเงินสด/โอนทันที • มีโกดังจอดในร่ม</span>
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                            ศูนย์รับจำนำรถจอด <br/>
+                            <span class="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">
+                                รับรถทุกชนิด ให้วงเงินสูง
+                            </span>
+                        </h1>
+                        <p class="text-gray-300 text-base sm:text-lg mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                            เก๋ง, กระบะ, SUV, รถตู้, บิ๊กไบค์, มอเตอร์ไซค์, รถบรรทุก และรถไถ/เกษตรกรรม ปลอดภัย 100% มีโกดังจอดในร่ม มิดชิด ปลอดภัยด้วยกล้อง CCTV 24 ชม. ไม่มีการนำรถไปขับขี่เด็ดขาด!
+                        </p>
+
+                        <!-- Live Stats / Highlights -->
+                        <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-8 text-left">
+                            <div class="glass-card p-4 rounded-2xl border border-slate-700/50 hover:border-amber-500/40 transition">
+                                <i class="fa-solid fa-bolt text-amber-400 text-2xl mb-2"></i>
+                                <div class="text-white font-bold text-sm sm:text-base">อนุมัติเร็ว</div>
+                                <div class="text-gray-400 text-xs">รับเงินใน 15 นาที</div>
+                            </div>
+                            <div class="glass-card p-4 rounded-2xl border border-slate-700/50 hover:border-amber-500/40 transition">
+                                <i class="fa-solid fa-warehouse text-amber-400 text-2xl mb-2"></i>
+                                <div class="text-white font-bold text-sm sm:text-base">โกดังในร่ม</div>
+                                <div class="text-gray-400 text-xs">กล้องวงจรปิด 24 ชม.</div>
+                            </div>
+                            <div class="glass-card p-4 rounded-2xl border border-slate-700/50 hover:border-amber-500/40 transition">
+                                <i class="fa-solid fa-file-contract text-amber-400 text-2xl mb-2"></i>
+                                <div class="text-white font-bold text-sm sm:text-base">ถูกต้องตามกฎหมาย</div>
+                                <div class="text-gray-400 text-xs">สัญญาชัดเจน เป็นธรรม</div>
+                            </div>
+                        </div>
+
+                        <!-- CTA Buttons -->
+                        <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+                            <a href="https://line.me/ti/p/~ballzaa789" target="_blank" class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold px-8 py-4 rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center gap-3 transition transform hover:-translate-y-1">
+                                <i class="fa-brands fa-line text-3xl"></i>
+                                <div class="text-left">
+                                    <div class="text-xs opacity-90 font-normal">ประเมินราคาผ่านไลน์ง่ายๆ</div>
+                                    <div class="text-base font-bold">LINE: ballzaa789</div>
+                                </div>
+                            </a>
+                            <a href="tel:0886241830" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-400 font-bold px-8 py-4 rounded-2xl transition flex items-center gap-3 transform hover:-translate-y-1">
+                                <i class="fa-solid fa-phone text-2xl"></i>
+                                <div class="text-left">
+                                    <div class="text-xs text-gray-400 font-normal">โทรสอบถามได้ตลอด 24 ชม.</div>
+                                    <div class="text-base font-bold">088-624-1830</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right Form Box -->
+                    <div class="lg:col-span-5" id="estimate">
+                        <div class="glass-card-amber p-6 sm:p-8 rounded-3xl shadow-2xl border border-amber-500/30 relative glow-effect">
+                            <div class="absolute -top-3 -right-3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                                ประเมินฟรี 24 ชม.
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-white mb-1 flex items-center gap-2">
+                                <i class="fa-solid fa-calculator text-amber-400"></i>
+                                <span>ส่งข้อมูลประเมินราคาฟรี</span>
+                            </h3>
+                            <p class="text-gray-300 text-xs mb-5">ประเมินวงเงินเบื้องต้น ทราบผลไวใน 5 นาที</p>
+
+                            <form id="evaluationForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-300 uppercase mb-1">ประเภทและรุ่นยานพาหนะ</label>
+                                    <input type="text" id="carModel" required placeholder="เช่น เก๋ง Honda Civic / กระบะ Isuzu D-Max / มอเตอร์ไซค์ PCX" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">ปีที่ผลิต (พ.ศ./ค.ศ.)</label>
+                                        <input type="text" id="carYear" required placeholder="เช่น 2020 หรือ 2563" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-300 uppercase mb-1">สถานะยานพาหนะ</label>
+                                        <select id="carStatus" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400 text-sm">
+                                            <option value="ปลอดภาระ (มีเล่มทะเบียน)">ปลอดภาระ / มีเล่ม</option>
+                                            <option value="ติดไฟแนนซ์ (ยังผ่อนอยู่)">ติดไฟแนนซ์ (ผ่อนอยู่)</option>
+                                            <option value="ไม่มีเล่มทะเบียน">ป้ายแดง / รอเล่ม</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-300 uppercase mb-1">เบอร์โทรศัพท์ติดต่อกลับ</label>
+                                    <input type="tel" id="userPhone" required placeholder="088-624-1830" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-300 uppercase mb-1">วงเงินที่ต้องการประเมิน (บาท)</label>
+                                    <input type="number" id="targetAmount" placeholder="เช่น 50,000 หรือ 200,000" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+                                </div>
+
+                                <button type="submit" class="w-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-4 rounded-xl transition shadow-lg shadow-amber-500/20 text-center text-base uppercase tracking-wider flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                    <span>ส่งประเมินราคาเข้า LINE ทันที</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Vehicle Categories Showcase -->
+        <section id="vehicles" class="py-20 bg-slate-900/70 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="text-amber-400 font-bold text-sm tracking-widest uppercase block mb-2">SERVICES & VEHICLES</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">รับจำนำยานพาหนะทุกประเภท</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto text-sm">ไม่ว่าจะเป็นรถเก๋ง รถกระบะ มอเตอร์ไซค์ หรือรถใหญ่เพื่อการเกษตร เราประเมินวงเงินสูง ดอกเบี้ยถูก</p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+                    <!-- Vehicle 1: Cars -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 transition group text-center flex flex-col justify-between">
+                        <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-900">
+                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=400&q=80" alt="รถเก๋ง Sedan/Hatchback" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                        </div>
+                        <h3 class="text-white font-bold text-sm">รถเก๋ง / Sedan</h3>
+                        <p class="text-amber-400 text-xs mt-1 font-semibold">วงเงินสูงสุด 100%</p>
+                    </div>
+
+                    <!-- Vehicle 2: Trucks -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 transition group text-center flex flex-col justify-between">
+                        <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-900">
+                            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=400&q=80" alt="รถกระบะ Pickup" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                        </div>
+                        <h3 class="text-white font-bold text-sm">รถกระบะ / Pickup</h3>
+                        <p class="text-amber-400 text-xs mt-1 font-semibold">อนุมัติไว ให้ราคาดี</p>
+                    </div>
+
+                    <!-- Vehicle 3: SUV & Vans -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 transition group text-center flex flex-col justify-between">
+                        <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-900">
+                            <img src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=400&q=80" alt="รถ SUV & MPV" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                        </div>
+                        <h3 class="text-white font-bold text-sm">รถ SUV / รถตู้</h3>
+                        <p class="text-amber-400 text-xs mt-1 font-semibold">ประเมินราคาสูง</p>
+                    </div>
+
+                    <!-- Vehicle 4: Bigbike & Motorcycle -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 transition group text-center flex flex-col justify-between">
+                        <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-900">
+                            <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=400&q=80" alt="บิ๊กไบค์ มอเตอร์ไซค์" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                        </div>
+                        <h3 class="text-white font-bold text-sm">มอเตอร์ไซค์ / Bigbike</h3>
+                        <p class="text-amber-400 text-xs mt-1 font-semibold">รับทุกขนาด ซีซี</p>
+                    </div>
+
+                    <!-- Vehicle 5: Commercial Trucks -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 transition group text-center flex flex-col justify-between">
+                        <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-900">
+                            <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=400&q=80" alt="รถบรรทุก หกล้อ สิบล้อ" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                        </div>
+                        <h3 class="text-white font-bold text-sm">รถบรรทุก 6-10 ล้อ</h3>
+                        <p class="text-amber-400 text-xs mt-1 font-semibold">วงเงินกู้หลักแสน-ล้าน</p>
+                    </div>
+
+                    <!-- Vehicle 6: Agricultural Vehicles -->
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 transition group text-center flex flex-col justify-between">
+                        <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-900">
+                            <img src="https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=400&q=80" alt="รถไถ รถเกษตร" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                        </div>
+                        <h3 class="text-white font-bold text-sm">รถไถ / รถเกษตร</h3>
+                        <p class="text-amber-400 text-xs mt-1 font-semibold">พิจารณาเงื่อนไขพิเศษ</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Gallery & Warehouse Safety Proof -->
+        <section id="gallery" class="py-20 bg-slate-950 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span class="text-amber-400 font-bold text-sm tracking-widest uppercase block mb-2">OUR WAREHOUSE & PROOF</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white">สถานที่จอดรถมิดชิด ปลอดภัย 100%</h2>
+                    </div>
+                    <p class="text-gray-400 text-sm max-w-md mt-4 md:mt-0">
+                        เรามีโกดังในร่มขนาดใหญ่ มีระบบกล้อง CCTV ตลอด 24 ชั่วโมง และ รปภ. ดูแล ป้องกันแดดและฝนอย่างดี ไม่มีการนำรถของท่านไปขับใช้งานแน่นอน
+                    </p>
+                </div>
+
+                <!-- Gallery Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="group relative rounded-2xl overflow-hidden border border-slate-800 h-64 shadow-lg">
+                        <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80" alt="โกดังจอดรถในร่ม" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-amber-500 text-slate-950 text-xs font-extrabold px-2.5 py-1 rounded-md mb-2 inline-block">โกดังในร่ม</span>
+                            <h3 class="text-white font-bold text-base">พื้นที่จอดรถในร่มขนาดใหญ่</h3>
+                            <p class="text-gray-300 text-xs mt-1">มิดชิด ป้องกันแดด ฝน ฝุ่น อย่างถูกต้อง</p>
+                        </div>
+                    </div>
+
+                    <div class="group relative rounded-2xl overflow-hidden border border-slate-800 h-64 shadow-lg">
+                        <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80" alt="รับจำนำรถหรูและรถสปอร์ต" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-amber-500 text-slate-950 text-xs font-extrabold px-2.5 py-1 rounded-md mb-2 inline-block">ดูแลพิเศษ</span>
+                            <h3 class="text-white font-bold text-base">รองรับรถหรู รถสปอร์ต และรถใหม่</h3>
+                            <p class="text-gray-300 text-xs mt-1">ช่องจอดเฉพาะ ปลอดภัย ไร้รอยขีดข่วน</p>
+                        </div>
+                    </div>
+
+                    <div class="group relative rounded-2xl overflow-hidden border border-slate-800 h-64 shadow-lg">
+                        <img src="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80" alt="ระบบความปลอดภัย CCTV 24 ชั่วโมง" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-amber-500 text-slate-950 text-xs font-extrabold px-2.5 py-1 rounded-md mb-2 inline-block">ระบบความปลอดภัย</span>
+                            <h3 class="text-white font-bold text-base">กล้อง CCTV และเจ้าหน้าที่ดูแล 24 ชม.</h3>
+                            <p class="text-gray-300 text-xs mt-1">อุ่นใจได้ตลอดระยะเวลาการจำนำ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loan Calculator Section -->
+        <section id="calculator" class="py-20 bg-slate-900 border-b border-slate-800 relative">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <span class="text-amber-400 font-bold text-sm tracking-widest uppercase block mb-2">LOAN CALCULATOR</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">คำนวณวงเงินและดอกเบี้ยเบื้องต้น</h2>
+                    <p class="text-gray-400 text-sm">ประเมินดอกเบี้ยถูก เป็นธรรมตามที่กฎหมายกำหนดแบบเรียลไทม์</p>
+                </div>
+
+                <div class="glass-card p-6 sm:p-10 rounded-3xl border border-slate-800 grid md:grid-cols-2 gap-8 items-center shadow-2xl">
+                    <!-- Sliders -->
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-sm font-bold text-gray-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-coins text-amber-400"></i>
+                                    <span>วงเงินที่ต้องการประเมิน</span>
+                                </label>
+                                <span class="text-2xl font-black text-amber-400" id="calcAmountDisplay">100,000 บาท</span>
+                            </div>
+                            <input type="range" id="calcAmount" min="10000" max="2000000" step="10000" value="100000" class="w-full accent-amber-500 h-2.5 bg-slate-700 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-xs text-gray-400 mt-2 font-medium">
+                                <span>10,000</span>
+                                <span>2,000,000 บาท</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-sm font-bold text-gray-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-days text-amber-400"></i>
+                                    <span>ระยะเวลาฝากจำนำ (เดือน)</span>
+                                </label>
+                                <span class="text-2xl font-black text-amber-400" id="calcMonthsDisplay">1 เดือน</span>
+                            </div>
+                            <input type="range" id="calcMonths" min="1" max="12" step="1" value="1" class="w-full accent-amber-500 h-2.5 bg-slate-700 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-xs text-gray-400 mt-2 font-medium">
+                                <span>1 เดือน</span>
+                                <span>12 เดือน</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Result -->
+                    <div class="bg-slate-950 p-6 sm:p-8 rounded-2xl border border-amber-500/20 text-center space-y-5">
+                        <div class="text-sm text-gray-400 font-medium">ประมาณการดอกเบี้ยเริ่มต้น (1.25% ต่อเดือน)</div>
+                        <div class="text-4xl font-black text-amber-400" id="calcInterestDisplay">1,250 บาท/เดือน</div>
+                        <hr class="border-slate-800">
+                        <div class="text-xs text-gray-400 leading-relaxed">
+                            *อัตราดอกเบี้ยเป็นไปตามที่กฎหมายกำหนด สามารถส่งข้อมูลเพื่อรับประเมินวงเงินจริงจากเจ้าหน้าที่ได้ทันที
+                        </div>
+                        <a id="calcApplyBtn" href="https://line.me/ti/p/~ballzaa789" target="_blank" class="block bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black py-4 rounded-xl transition text-base uppercase tracking-wider shadow-lg shadow-amber-500/20">
+                            <i class="fa-brands fa-line mr-2 text-lg"></i> ขอวงเงินตามยอดนี้ทันที
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Service Features Section -->
+        <section id="services" class="py-20 bg-slate-950 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="text-amber-400 font-bold text-sm tracking-widest uppercase block mb-2">WHY CHOOSE US</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">ทำไมลูกค้ากว่า 1,000+ รายถึงไว้วางใจเรา?</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto text-sm">บริการโปร่งใส มีสถานที่จริง ตรวจสอบได้ มีสัญญาชัดเจนเพื่อความสบายใจสูงสุดของคุณ</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 hover:border-amber-500/30 transition group">
+                        <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-warehouse"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">โกดังในร่ม ปลอดภัย 100%</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            รถของคุณจะถูกจอดในโกดังปิดมิดชิด ป้องกันแสงแดดและฝนอย่างดี มีเจ้าหน้าที่ รปภ. และระบบ CCTV ตรวจสอบตลอด 24 ชั่วโมง
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 hover:border-amber-500/30 transition group">
+                        <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-gauge-high"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">ถ่ายรูป/จดเลขไมล์ก่อนส่งมอบ</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            มีการจดบันทึกเลขไมล์และถ่ายภาพสภาพรถอย่างชัดเจนร่วมกับลูกค้า ไม่มีการนำรถไปขับขี่ใช้งานเด็ดขาด 100%
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 hover:border-amber-500/30 transition group">
+                        <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">อนุมัติเร็ว รับเงินใน 15 นาที</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            ประเมินราคาตามสภาพจริง ยื่นเอกสารครบ ตรวจสภาพรถเรียบร้อย รับเงินสดหรือโอนเข้าบัญชีทันทีโดยไม่มีค่าธรรมเนียมแอบแฝง
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Reviews & Testimonials Section -->
+        <section class="py-20 bg-slate-900 border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <span class="text-amber-400 font-bold text-sm tracking-widest uppercase block mb-2">TESTIMONIALS</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">เสียงตอบรับจากลูกค้าจริง</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto text-sm">การันตีความพึงพอใจ บริการด้วยความซื่อสัตย์ โปร่งใส อนุมัติไว</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex text-amber-400 text-sm mb-3">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                "บริการดีมากครับ ได้เงินไวทันใจจริงๆ เอารถกระบะไปจอด มีเอกสารจดเลขไมล์ชัดเจน โกดังในร่มปลอดภัย หายห่วงเลยครับ"
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 border-t border-slate-800 pt-4">
+                            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">คุณ K</div>
+                            <div>
+                                <div class="text-white font-bold text-sm">คุณกิตติศักดิ์</div>
+                                <div class="text-xs text-gray-500">ลูกค้าจำนำรถกระบะ Revo</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex text-amber-400 text-sm mb-3">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                "อนุมัติไวมากค่ะ คุณบอลแนะนำดี สุภาพ สัญญาถูกต้องชัดเจน ตอนไถ่ถอนรับรถคืนสภาพเดิมเป๊ะๆ เลขไมล์เท่าเดิมเลย แนะนำค่ะ"
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 border-t border-slate-800 pt-4">
+                            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">คุณ N</div>
+                            <div>
+                                <div class="text-white font-bold text-sm">คุณนภาวรรณ</div>
+                                <div class="text-xs text-gray-500">ลูกค้าจำนำรถเก๋ง Civic</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex text-amber-400 text-sm mb-3">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                "เอามอเตอร์ไซค์ Bigbike ไปฝากจำนำ วงเงินได้สูงกว่าที่คิดไว้ครับ ขั้นตอนไม่ยุ่งยาก 15 นาทีรับเงินสดทันที ประทับใจมาก"
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 border-t border-slate-800 pt-4">
+                            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">คุณ T</div>
+                            <div>
+                                <div class="text-white font-bold text-sm">คุณธนกร</div>
+                                <div class="text-xs text-gray-500">ลูกค้าจำนำ Bigbike Z900</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-20 gradient-bg relative overflow-hidden">
+            <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+                <div class="inline-block bg-amber-500/20 border border-amber-500/40 text-amber-400 px-4 py-1.5 rounded-full text-xs font-bold uppercase mb-4">
+                    ปรึกษาฟรี ไม่มีค่าใช้จ่าย
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-black text-white mb-4">ต้องการใช้เงินด่วน ปรึกษาเราได้เลย!</h2>
+                <p class="text-gray-300 text-base mb-8 max-w-xl mx-auto">
+                    ยินดีให้คำปรึกษาฟรีทุกเคส ไม่มีการผูกมัด สัญญาสุจริต โปร่งใส ปลอดภัย 100%
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="tel:0886241830" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-8 py-4 rounded-2xl flex items-center gap-3 transition shadow-xl shadow-amber-500/20 transform hover:-translate-y-1">
+                        <i class="fa-solid fa-phone text-2xl"></i>
+                        <span>โทรด่วน: 088-624-1830</span>
+                    </a>
+                    <a href="https://line.me/ti/p/~ballzaa789" target="_blank" class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-extrabold px-8 py-4 rounded-2xl flex items-center gap-3 transition shadow-xl shadow-emerald-500/20 transform hover:-translate-y-1">
+                        <i class="fa-brands fa-line text-3xl"></i>
+                        <span>แอด LINE: ballzaa789</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-8 text-center text-gray-400 text-xs">
+        <div class="max-w-7xl mx-auto px-4 space-y-3">
+            <p class="font-semibold text-gray-300">AYUTTHAYA CARPAWN - ศูนย์รับจำนำรถยนต์และยานพาหนะทุกชนิดถูกต้องตามกฎหมาย</p>
+            <p>ติดต่อสอบถาม: <a href="tel:0886241830" class="text-amber-400 hover:underline">088-624-1830</a> | LINE: <a href="https://line.me/ti/p/~ballzaa789" target="_blank" class="text-emerald-400 hover:underline">ballzaa789</a></p>
+            <p>© 2026 AYUTTHAYA CARPAWN. สงวนลิขสิทธิ์ทั้งหมด.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Interactive Loan Calculator Logic
+        const calcAmount = document.getElementById('calcAmount');
+        const calcMonths = document.getElementById('calcMonths');
+        const calcAmountDisplay = document.getElementById('calcAmountDisplay');
+        const calcMonthsDisplay = document.getElementById('calcMonthsDisplay');
+        const calcInterestDisplay = document.getElementById('calcInterestDisplay');
+        const calcApplyBtn = document.getElementById('calcApplyBtn');
+
+        function updateCalculator() {
+            const amount = parseInt(calcAmount.value);
+            const months = parseInt(calcMonths.value);
+            // Monthly interest rate baseline (1.25% per month)
+            const monthlyInterest = Math.round(amount * 0.0125);
+
+            calcAmountDisplay.textContent = amount.toLocaleString() + ' บาท';
+            calcMonthsDisplay.textContent = months + ' เดือน';
+            calcInterestDisplay.textContent = monthlyInterest.toLocaleString() + ' บาท/เดือน';
+
+            // Dynamic LINE message generator based on calculator
+            const calcMsg = `สนใจประเมินจำนำวงเงินประมาณ ${amount.toLocaleString()} บาท (ระยะเวลา ${months} เดือน)`;
+            calcApplyBtn.href = `https://line.me/ti/p/~ballzaa789?text=${encodeURIComponent(calcMsg)}`;
+        }
+
+        calcAmount.addEventListener('input', updateCalculator);
+        calcMonths.addEventListener('input', updateCalculator);
+        updateCalculator();
+
+        // Evaluation Form Direct LINE Redirection
+        document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const carModel = document.getElementById('carModel').value;
+            const carYear = document.getElementById('carYear').value;
+            const carStatus = document.getElementById('carStatus').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const targetAmount = document.getElementById('targetAmount').value;
+
+            const message = `สนใจประเมินราคาจำนำยานพาหนะ:%0A- รุ่น/ประเภท: ${carModel}%0A- ปีผลิต: ${carYear}%0A- สถานะ: ${carStatus}%0A- เบอร์โทรติดต่อ: ${userPhone}%0A- วงเงินที่ต้องการ: ${targetAmount ? parseInt(targetAmount).toLocaleString() : 'ไม่ระบุ'} บาท`;
+            
+            // Redirect immediately to LINE chat with pre-filled message
+            window.open(`https://line.me/ti/p/~ballzaa789?text=${message}`, '_blank');
+        });
+    </script>
 </body>
 </html>
 ```
