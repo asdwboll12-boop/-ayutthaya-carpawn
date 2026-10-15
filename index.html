@@ -90,6 +90,10 @@
 
                 <!-- Phone Quick Action Button -->
                 <div class="flex items-center gap-2">
+                    <a href="#download-app" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm shadow-lg flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-download animate-bounce"></i>
+                        <span>โหลดแอป</span>
+                    </a>
                     <a href="tel:0886241830" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm shadow-lg flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-phone"></i>
                         <span>โทรด่วน</span>
@@ -122,13 +126,13 @@
 
                         <!-- CTA Buttons -->
                         <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                            <a href="https://line.me/R/ti/p/~ballzaa789" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition">
-                                <i class="fa-brands fa-line text-2xl"></i>
-                                <span>แอด LINE: ballzaa789</span>
+                            <a href="#download-app" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-extrabold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 text-sm transition border border-emerald-400/30">
+                                <i class="fa-brands fa-android text-2xl"></i>
+                                <span>ดาวน์โหลด APK / ติดตั้งแอป</span>
                             </a>
-                            <a href="tel:0886241830" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 text-sm transition">
-                                <i class="fa-solid fa-phone text-lg"></i>
-                                <span>088-624-1830</span>
+                            <a href="https://line.me/R/ti/p/~ballzaa789" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-xl border border-slate-700 shadow-lg flex items-center justify-center gap-2 text-sm transition">
+                                <i class="fa-brands fa-line text-2xl text-emerald-400"></i>
+                                <span>แอด LINE: ballzaa789</span>
                             </a>
                         </div>
                     </div>
@@ -176,6 +180,41 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </section>
+
+        <!-- App Download Section -->
+        <section id="download-app" class="py-12 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 relative overflow-hidden">
+            <div class="max-w-4xl mx-auto px-4">
+                <div class="glass-card-amber p-6 sm:p-8 rounded-3xl border border-emerald-500/30 relative z-10">
+                    <div class="flex flex-col md:flex-row items-center gap-6 justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 text-3xl sm:text-4xl font-bold shadow-xl shrink-0">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                            </div>
+                            <div>
+                                <span class="bg-emerald-500/20 text-emerald-400 text-[11px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-500/30 uppercase tracking-wider">
+                                     Android APK Available
+                                </span>
+                                <h3 class="text-xl sm:text-2xl font-black text-white mt-1">ติดตั้งแอป CARPAWN ลงมือถือ</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm mt-1">ประเมินราคารถ คำนวณดอกเบี้ย และกดโทรเรียกเจ้าหน้าที่ได้ทันทีในคลิกเดียว</p>
+                            </div>
+                        </div>
+
+                        <div class="w-full md:w-auto flex flex-col sm:flex-row gap-3">
+                            <!-- Direct Download Link -->
+                            <a href="./app-release.apk" download class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-6 py-3.5 rounded-xl shadow-xl flex items-center justify-center gap-2 text-sm transition w-full sm:w-auto">
+                                <i class="fa-solid fa-download text-lg"></i>
+                                <span>ดาวน์โหลด APK (มือถือ)</span>
+                            </a>
+                            <!-- PWA / Home Screen Button -->
+                            <button onclick="installPWA()" id="pwaInstallBtn" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/40 font-bold px-5 py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition w-full sm:w-auto">
+                                <i class="fa-solid fa-square-plus text-lg"></i>
+                                <span>เพิ่มลงหน้าจอหลัก</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -279,6 +318,29 @@
             const message = `สนใจประเมินราคาจำนำยานพาหนะ:%0A- รุ่น: ${carModel}%0A- ปี: ${carYear}%0A- สถานะ: ${carStatus}%0A- เบอร์โทร: ${userPhone}`;
             window.open(`https://line.me/R/ti/p/~ballzaa789?text=${message}`, '_blank');
         });
+
+        // PWA Installation Handler
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const pwaBtn = document.getElementById('pwaInstallBtn');
+            if (pwaBtn) pwaBtn.classList.remove('hidden');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert('เปิดเมนูของเบราว์เซอร์แล้วเลือก "เพิ่มลงในหน้าจอหลัก (Add to Home Screen)" ได้ทันทีครับ');
+            }
+        }
     </script>
 </body>
 </html>
