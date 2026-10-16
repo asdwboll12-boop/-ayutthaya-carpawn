@@ -3,9 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthShield VPN - Anti-IP Tracker & APK Ready</title>
+    <title>StealthShield VPN - Anti-IP Tracker & APK</title>
+    
+    <!-- PWA Manifest & Meta Tags -->
+    <meta name="theme-color" content="#070a14">
+    <meta name="description" content="StealthShield VPN Application">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22StealthShield%20VPN%22%2C%22short_name%22%3A%22StealthShield%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23070a14%22%2C%22theme_color%22%3A%22%23070a14%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fvia.placeholder.com%2F512%2C%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+    </style>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -21,437 +40,49 @@
             }
         }
     </script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glow { box-shadow: 0 0 30px rgba(37, 99, 235, 0.25); }
-        .glow-green { box-shadow: 0 0 35px rgba(5, 150, 105, 0.35); }
-        @keyframes pulse-slow {
-            0%, 100% { transform: scale(1); opacity: 0.85; }
-            50% { transform: scale(1.06); opacity: 1; }
-        }
-        .animate-pulse-slow { animation: pulse-slow 3s infinite ease-in-out; }
-    </style>
 </head>
-<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
-
-    <!-- Header Navbar -->
-    <header class="w-full bg-cardbg/90 backdrop-blur-md border-b border-gray-800/80 sticky top-0 z-50">
-        <div class="max-w-md mx-auto px-4 py-3.5 flex justify-between items-center">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center shadow-lg">
-                    <i class="fa-solid fa-user-secret text-white text-base"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-sm tracking-wide bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">StealthShield VPN</h1>
-                    <p class="text-[10px] text-gray-400">Anti-IP & Deep Packet Shield</p>
-                </div>
+<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col justify-between p-4">
+    <div class="max-w-md mx-auto w-full bg-cardbg p-6 rounded-2xl shadow-2xl border border-gray-800 my-auto">
+        <div class="text-center mb-6">
+            <div class="inline-block p-4 bg-accent/10 rounded-full text-accent mb-3 text-3xl">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="openApkModal()" class="px-2.5 py-1.5 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[11px] font-semibold flex items-center gap-1 hover:bg-blue-600/30 transition-all">
-                    <i class="fa-solid fa-download"></i> สร้าง APK
-                </button>
-                <button onclick="openSettings()" class="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-300 transition-all">
-                    <i class="fa-solid fa-gear text-xs"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Mobile Container (Optimized for APK/App view) -->
-    <main class="max-w-md mx-auto px-4 py-5 w-full flex-grow flex flex-col gap-5">
-
-        <!-- Anti-IP Tracking Status Card -->
-        <div class="bg-cardbg rounded-2xl p-4.5 border border-gray-800 shadow-xl relative overflow-hidden">
-            <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div class="flex justify-between items-start mb-3">
-                <div>
-                    <span class="text-[11px] uppercase tracking-wider text-gray-400 font-medium">สถานะความเป็นส่วนตัวของ IP</span>
-                    <h2 id="protection-title" class="text-base font-bold text-gray-200 mt-0.5">เปิดเผยตำแหน่งจริง (ไม่ปลอดภัย)</h2>
-                </div>
-                <div id="encryption-badge" class="px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-[11px] font-medium border border-gray-700">
-                    <i class="fa-solid fa-lock-open mr-1"></i> ไม่ได้เข้ารหัส
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-2.5 mt-3">
-                <!-- IP Display Box -->
-                <div class="bg-gray-900/90 rounded-xl p-3.5 border border-gray-800 flex items-center justify-between">
-                    <div>
-                        <p class="text-[11px] text-gray-400" id="ip-label-type">IP ดั้งเดิมของคุณ (Real IP)</p>
-                        <p id="display-ip" class="text-lg font-mono font-bold text-gray-100 mt-0.5">171.96.42.12</p>
-                        <p class="text-[10px] text-rose-400 mt-0.5 flex items-center gap-1" id="ip-warning-text">
-                            <i class="fa-solid fa-triangle-exclamation"></i> ISP และเว็บสามารถแกะรอยตำแหน่งได้
-                        </p>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400" id="ip-icon-box">
-                        <i class="fa-solid fa-eye text-base"></i>
-                    </div>
-                </div>
-
-                <!-- Proxy / Server Box -->
-                <div class="bg-gray-900/90 rounded-xl p-3.5 border border-gray-800 flex items-center justify-between">
-                    <div>
-                        <p class="text-[11px] text-gray-400">เซิร์ฟเวอร์อุโมงค์พรางตัว (Stealth Node)</p>
-                        <p id="display-server" class="text-xs font-semibold text-gray-200 mt-0.5">ยังไม่ได้เปิดใช้งานระบบซ่อน IP</p>
-                        <p class="text-[10px] text-gray-400 mt-0.5" id="server-location-text">โปรโตคอล: ปิดใช้งาน | ปิง: - ms</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                        <i class="fa-solid fa-shield-halved text-base"></i>
-                    </div>
-                </div>
-            </div>
+            <h1 class="text-2xl font-bold tracking-wide">StealthShield VPN</h1>
+            <p class="text-xs text-gray-400 mt-1">Anti-IP Tracker & Secure Tunnel</p>
         </div>
 
-        <!-- Connection Centerpiece -->
-        <div class="bg-cardbg rounded-2xl p-6 border border-gray-800 shadow-xl flex flex-col items-center justify-center text-center relative">
-            
-            <!-- Connection Button -->
-            <div class="relative my-4">
-                <div id="glow-ring" class="absolute inset-0 rounded-full bg-blue-500/20 blur-xl opacity-0 transition-all duration-500"></div>
-                <button onclick="toggleConnection()" id="connect-btn" class="w-32 h-32 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 transition-all shadow-2xl flex flex-col items-center justify-center text-white relative z-10 border-4 border-blue-400/30">
-                    <i id="connect-icon" class="fa-solid fa-power-off text-2xl mb-1 transition-transform"></i>
-                    <span id="connect-btn-text" class="text-[11px] font-bold tracking-wider uppercase">เชื่อมต่อ</span>
-                </button>
+        <div class="space-y-4">
+            <div class="bg-darkbg/50 p-4 rounded-xl border border-gray-800 text-center">
+                <span class="text-xs text-gray-400 block">สถานะการเชื่อมต่อ</span>
+                <span id="status-text" class="text-neon font-semibold text-lg flex items-center justify-center gap-2 mt-1">
+                    <span class="w-3 h-3 rounded-full bg-neon animate-pulse"></span> พร้อมใช้งาน
+                </span>
             </div>
 
-            <p id="connection-status-desc" class="text-xs text-gray-400 max-w-xs mt-1">แตะเพื่อเปิดใช้งานอุโมงค์พรางตัวขั้นสูง ซ่อน IP ไม่ให้เครื่องมือค้นหาหรือ ISP ตรวจจับได้</p>
-
-            <!-- Server Selector dropdown trigger -->
-            <div class="mt-5 w-full">
-                <button onclick="openServerModal()" class="w-full py-2.5 px-3.5 bg-gray-900/90 hover:bg-gray-800 rounded-xl border border-gray-700/80 text-xs font-medium flex items-center justify-between transition-all">
-                    <span class="flex items-center gap-2">
-                        <span id="selected-flag" class="text-base">🛡️</span> <span id="selected-server-name">สวิสเซอร์แลนด์ (Anti-Track Stealth 2.0)</span>
-                    </span>
-                    <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Advanced Privacy Features -->
-        <div class="grid grid-cols-1 gap-2.5">
-            <!-- Feature 1: Multi-Hop Obfuscation -->
-            <div class="bg-cardbg p-3.5 rounded-xl border border-gray-800 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-network-wired"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-semibold text-gray-200">Multi-Hop Obfuscation</h3>
-                        <p class="text-[10px] text-gray-400">กระโดดข้าม 3 เซิร์ฟเวอร์เพื่อลบรอยนิ้วมือ IP</p>
-                    </div>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="multihop-toggle" class="sr-only peer" checked onchange="showNotification('เปิดใช้งาน Multi-Hop ปกปิดเส้นทาง IP แล้ว')">
-                    <div class="w-8 h-4.5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-emerald-500"></div>
-                </label>
-            </div>
-
-            <!-- Feature 2: Anti-Deep Packet Inspection (DPI) -->
-            <div class="bg-cardbg p-3.5 rounded-xl border border-gray-800 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-shield-virus"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-semibold text-gray-200">Anti-DPI Shield</h3>
-                        <p class="text-[10px] text-gray-400">ป้องกัน ISP ตรวจจับแพ็กเก็ตข้อมูล VPN</p>
-                    </div>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="dpi-toggle" class="sr-only peer" checked onchange="showNotification('เปิดใช้งานระบบป้องกัน DPI เรียบร้อย')">
-                    <div class="w-8 h-4.5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-emerald-500"></div>
-                </label>
-            </div>
-        </div>
-
-        <!-- Connection Statistics -->
-        <div class="bg-cardbg rounded-2xl p-4 border border-gray-800 grid grid-cols-3 gap-2 text-center">
-            <div>
-                <p class="text-[10px] text-gray-400">รับข้อมูล</p>
-                <p id="stat-download" class="text-xs font-bold text-gray-200 mt-0.5">0.0 KB/s</p>
-            </div>
-            <div class="border-x border-gray-800">
-                <p class="text-[10px] text-gray-400">ส่งข้อมูล</p>
-                <p id="stat-upload" class="text-xs font-bold text-gray-200 mt-0.5">0.0 KB/s</p>
-            </div>
-            <div>
-                <p class="text-[10px] text-gray-400">เวลาซ่อน IP</p>
-                <p id="stat-time" class="text-xs font-bold text-gray-200 mt-0.5">00:00</p>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer Note for APK compilation -->
-    <footer class="w-full text-center py-3 text-[10px] text-gray-500 border-t border-gray-900">
-        แปลงเป็นแอป Android (APK) ได้ด้วย Apache Cordova / Capacitor / PWA Builder
-    </footer>
-
-    <!-- Server Selector Modal -->
-    <div id="server-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-cardbg border border-gray-800 w-full max-w-sm rounded-2xl p-4.5 shadow-2xl">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-gray-200">เลือกโหนดซ่อน IP (Stealth Node)</h3>
-                <button onclick="closeServerModal()" class="text-gray-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
-            </div>
-            <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                <div onclick="selectServer('สวิสเซอร์แลนด์', '🇨🇭', '185.159.x.x', '14 ms')" class="p-3 bg-gray-900/90 hover:bg-gray-800 rounded-xl border border-gray-800 flex items-center justify-between cursor-pointer transition-all">
-                    <div class="flex items-center gap-2.5">
-                        <span class="text-xl">🇨🇭</span>
-                        <div>
-                            <p class="text-xs font-semibold text-gray-200">ซูริก, สวิสเซอร์แลนด์ (CH-Stealth)</p>
-                            <p class="text-[10px] text-emerald-400">ไม่เก็บบันทึกประวัติ • ปิง 14ms</p>
-                        </div>
-                    </div>
-                    <span class="w-2.5 h-2.5 rounded-full border-2 border-emerald-500"></span>
-                </div>
-                <div onclick="selectServer('ไอซ์แลนด์', '🇮🇸', '193.32.x.x', '42 ms')" class="p-3 bg-gray-900/90 hover:bg-gray-800 rounded-xl border border-gray-800 flex items-center justify-between cursor-pointer transition-all">
-                    <div class="flex items-center gap-2.5">
-                        <span class="text-xl">🇮🇸</span>
-                        <div>
-                            <p class="text-xs font-semibold text-gray-200">เรคยาวิก, ไอซ์แลนด์ (IS-Privacy)</p>
-                            <p class="text-[10px] text-emerald-400">กฎหมายความเป็นส่วนตัวสูงสุด • ปิง 42ms</p>
-                        </div>
-                    </div>
-                    <span class="w-2.5 h-2.5 rounded-full border-2 border-gray-600"></span>
-                </div>
-                <div onclick="selectServer('ปานามา', '🇵🇦', '200.89.x.x', '95 ms')" class="p-3 bg-gray-900/90 hover:bg-gray-800 rounded-xl border border-gray-800 flex items-center justify-between cursor-pointer transition-all">
-                    <div class="flex items-center gap-2.5">
-                        <span class="text-xl">🇵🇦</span>
-                        <div>
-                            <p class="text-xs font-semibold text-gray-200">ปานามาซิตี, ปานามา (PA-Ghost)</p>
-                            <p class="text-[10px] text-emerald-400">ซ่อน IP สมบูรณ์ 100% • ปิง 95ms</p>
-                        </div>
-                    </div>
-                    <span class="w-2.5 h-2.5 rounded-full border-2 border-gray-600"></span>
-                </div>
-            </div>
+            <button onclick="toggleVPN()" id="vpn-btn" class="w-full py-3.5 bg-accent hover:bg-blue-600 transition font-medium rounded-xl shadow-lg shadow-blue-500/20 text-white flex items-center justify-center gap-2">
+                <i class="fa-solid fa-power-off"></i> เชื่อมต่อ VPN
+            </button>
         </div>
     </div>
 
-    <!-- APK Export Guide Modal -->
-    <div id="apk-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-cardbg border border-gray-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl text-xs text-gray-300">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-gray-100 flex items-center gap-1.5">
-                    <i class="fa-solid fa-mobile-screen-button text-blue-400"></i> วิธีติดตั้งเป็นแอป Android (APK)
-                </h3>
-                <button onclick="closeApkModal()" class="text-gray-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
-            </div>
-            <div class="space-y-2.5 leading-relaxed">
-                <p class="text-gray-400">เนื่องจากไฟล์นี้เป็นเว็บแอปพลิเคชันอัจฉริยะ (PWA) คุณสามารถแปลงไฟล์นี้เป็นไฟล์ติดตั้ง <strong class="text-blue-400">.APK</strong> สำหรับโทรศัพท์ Android ได้ง่ายๆ ผ่านช่องทางต่อไปนี้:</p>
-                <div class="p-2.5 bg-gray-900 rounded-xl border border-gray-800">
-                    <p class="font-semibold text-gray-200 mb-1">วิธีที่ 1: ใช้เว็บ PWA Builder (ฟรีและเร็วที่สุด)</p>
-                    <p class="text-[11px] text-gray-400">อัปโหลดไฟล์ HTML นี้ขึ้นโฮสติ้งฟรี (เช่น GitHub Pages หรือ Netlify) แล้วนำลิงก์ไปใส่ที่เว็บ <span class="text-blue-400 font-mono">pwabuilder.com</span> ระบบจะสร้างไฟล์ APK ให้ดาวน์โหลดทันที</p>
-                </div>
-                <div class="p-2.5 bg-gray-900 rounded-xl border border-gray-800">
-                    <p class="font-semibold text-gray-200 mb-1">วิธีที่ 2: ติดตั้งลงเครื่องโดยตรง (ไม่ต้องแปลง)</p>
-                    <p class="text-[11px] text-gray-400">เปิดหน้านี้ผ่านเบราว์เซอร์ Chrome ในมือถือ Android แล้วกดเมนู <span class="text-emerald-400 font-semibold">"เพิ่มลงในหน้าจอหลัก" (Add to Home screen)</span> จะได้ไอคอนแอปใช้งานเหมือนแอปในเครื่องทันที</p>
-                </div>
-            </div>
-            <div class="mt-4">
-                <button onclick="closeApkModal()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium text-xs transition-all">เข้าใจแล้ว</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-cardbg border border-gray-800 w-full max-w-sm rounded-2xl p-4.5 shadow-2xl text-xs text-gray-300">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-bold text-gray-100">การตั้งค่าความปลอดภัย</h3>
-                <button onclick="closeSettings()" class="text-gray-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
-            </div>
-            <div class="space-y-3">
-                <div class="p-2.5 bg-gray-900 rounded-xl border border-gray-800">
-                    <p class="font-semibold text-gray-200 mb-1">ระบบป้องกันการแกะรอย IP (Anti-IP Leak)</p>
-                    <p class="text-[11px] text-gray-400 leading-relaxed">แอปจะทำการสลับเส้นทางผ่านโหนดพรางตัวแบบเข้ารหัส (Encrypted Obfuscation Tunnel) เพื่อไม่ให้เว็บปลายทางหรือผู้ให้บริการเครือข่ายมองเห็น IP แท้จริงของโทรศัพท์คุณ</p>
-                </div>
-                <div class="flex items-center justify-between py-1">
-                    <span>โปรโตคอลการเข้ารหัส</span>
-                    <span class="font-mono text-[11px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-md border border-blue-500/20">Stealth-WireGuard 256-bit</span>
-                </div>
-            </div>
-            <div class="mt-4">
-                <button onclick="closeSettings()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium text-xs transition-all">ปิดหน้าต่าง</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification Banner -->
-    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 text-gray-200 px-3.5 py-2 rounded-xl border border-gray-700 shadow-2xl text-xs font-medium opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toast-message">แจ้งเตือนระบบ</span>
-    </div>
-
-    <!-- JavaScript Application Logic -->
     <script>
-        let isConnected = false;
-        let timerInterval = null;
-        let secondsElapsed = 0;
-        let currentServer = {
-            name: 'ซูริก, สวิสเซอร์แลนด์ (CH-Stealth)',
-            flag: '🇨🇭',
-            ip: '185.159.24.11',
-            ping: '14 ms'
-        };
-
-        const realIP = "171.96.42.12"; // Simulated real phone IP
-
-        function toggleConnection() {
-            const btn = document.getElementById('connect-btn');
-            const icon = document.getElementById('connect-icon');
-            const glowRing = document.getElementById('glow-ring');
-            const displayIp = document.getElementById('display-ip');
-            const ipLabel = document.getElementById('ip-label-type');
-            const ipWarning = document.getElementById('ip-warning-text');
-            const ipIconBox = document.getElementById('ip-icon-box');
-            const encBadge = document.getElementById('encryption-badge');
-            const desc = document.getElementById('connection-status-desc');
-            const serverNameDisplay = document.getElementById('display-server');
-            const serverLocText = document.getElementById('server-location-text');
-            const btnText = document.getElementById('connect-btn-text');
-            const title = document.getElementById('protection-title');
-
-            if (!isConnected) {
-                // Connecting sequence
-                btnText.innerText = "กำลังเชื่อมต่อ...";
-                icon.className = "fa-solid fa-spinner fa-spin text-2xl mb-1";
-                
-                setTimeout(() => {
-                    isConnected = true;
-                    btn.className = "w-32 h-32 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition-all shadow-2xl flex flex-col items-center justify-center text-white relative z-10 border-4 border-emerald-400/40";
-                    icon.className = "fa-solid fa-shield-halved text-2xl mb-1 transition-transform";
-                    btnText.innerText = "ยกเลิกการซ่อน IP";
-                    
-                    glowRing.className = "absolute inset-0 rounded-full bg-emerald-500/30 blur-2xl opacity-100 transition-all duration-500 animate-pulse-slow";
-                    
-                    title.innerText = "ซ่อน IP และตำแหน่งเรียบร้อยแล้ว";
-                    displayIp.innerText = currentServer.ip;
-                    ipLabel.innerText = "IP เสมือนที่ถูกพรางไว้ (Masked IP)";
-                    ipWarning.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> ป้องกันการค้นหาและแกะรอยตำแหน่ง 100%`;
-                    ipIconBox.className = "w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400";
-                    
-                    encBadge.className = "px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[11px] font-medium border border-emerald-500/20";
-                    encBadge.innerHTML = `<i class="fa-solid fa-lock mr-1"></i> เข้ารหัสลับ Stealth 256-bit`;
-                    
-                    desc.innerText = "อุโมงค์พรางตัวทำงานอยู่ IP โทรศัพท์ของคุณถูกซ่อนจากเครื่องมือตรวจสอบภายนอกอย่างสมบูรณ์";
-                    
-                    serverNameDisplay.innerText = `${currentServer.flag} ${currentServer.name}`;
-                    serverLocText.innerText = `โปรโตคอล: Multi-Hop Obfuscated | ปิง: ${currentServer.ping}`;
-
-                    startTimer();
-                    showNotification("ซ่อน IP โทรศัพท์สำเร็จแล้ว (ปลอดภัยสูงสุด)");
-                }, 1000);
-
-            } else {
-                // Disconnecting sequence
-                isConnected = false;
-                btn.className = "w-32 h-32 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 transition-all shadow-2xl flex flex-col items-center justify-center text-white relative z-10 border-4 border-blue-400/30";
-                icon.className = "fa-solid fa-power-off text-2xl mb-1 transition-transform";
-                btnText.innerText = "เชื่อมต่อ";
-                
-                glowRing.className = "absolute inset-0 rounded-full bg-blue-500/20 blur-xl opacity-0 transition-all duration-500";
-                
-                title.innerText = "เปิดเผยตำแหน่งจริง (ไม่ปลอดภัย)";
-                displayIp.innerText = realIP;
-                ipLabel.innerText = "IP ดั้งเดิมของคุณ (Real IP)";
-                ipWarning.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ISP และเว็บสามารถแกะรอยตำแหน่งได้`;
-                ipIconBox.className = "w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400";
-                
-                encBadge.className = "px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 text-[11px] font-medium border border-gray-700";
-                encBadge.innerHTML = `<i class="fa-solid fa-lock-open mr-1"></i> ไม่ได้เข้ารหัส`;
-                
-                desc.innerText = "แตะเพื่อเปิดใช้งานอุโมงค์พรางตัวขั้นสูง ซ่อน IP ไม่ให้เครื่องมือค้นหาหรือ ISP ตรวจจับได้";
-                
-                serverNameDisplay.innerText = "ยังไม่ได้เปิดใช้งานระบบซ่อน IP";
-                serverLocText.innerText = "โปรโตคอล: ปิดใช้งาน | ปิง: - ms";
-
-                document.getElementById('stat-download').innerText = "0.0 KB/s";
-                document.getElementById('stat-upload').innerText = "0.0 KB/s";
-                
-                stopTimer();
-                showNotification("ปิดระบบพรางตัวแล้ว (กลับสู่ IP จริง)");
-            }
-        }
-
-        function startTimer() {
-            secondsElapsed = 0;
-            timerInterval = setInterval(() => {
-                secondsElapsed++;
-                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-                const secs = String(secondsElapsed % 60).padStart(2, '0');
-                document.getElementById('stat-time').innerText = `${mins}:${secs}`;
-                
-                const dl = (Math.random() * 6 + 10).toFixed(1);
-                const ul = (Math.random() * 2 + 1.5).toFixed(1);
-                document.getElementById('stat-download').innerText = `${dl} MB/s`;
-                document.getElementById('stat-upload').innerText = `${ul} MB/s`;
-            }, 1000);
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-            document.getElementById('stat-time').innerText = "00:00";
-        }
-
-        function openServerModal() {
-            document.getElementById('server-modal').classList.remove('hidden');
-        }
-
-        function closeServerModal() {
-            document.getElementById('server-modal').classList.add('hidden');
-        }
-
-        function selectServer(name, flag, ip, ping) {
-            currentServer = { name, flag, ip, ping };
-            document.getElementById('selected-flag').innerText = flag;
-            document.getElementById('selected-server-name').innerText = `${name} (Stealth Node)`;
-            closeServerModal();
-            showNotification(`เปลี่ยนโหนดพรางตัวเป็น ${name} แล้ว`);
+        function toggleVPN() {
+            const statusText = document.getElementById('status-text');
+            const vpnBtn = document.getElementById('vpn-btn');
             
-            if (isConnected) {
-                document.getElementById('display-ip').innerText = ip;
-                document.getElementById('display-server').innerText = `${flag} ${name}`;
+            if(vpnBtn.classList.contains('bg-accent')) {
+                vpnBtn.classList.remove('bg-accent', 'hover:bg-blue-600', 'shadow-blue-500/20');
+                vpnBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'shadow-red-500/20');
+                vpnBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> ตัดการเชื่อมต่อ';
+                statusText.innerHTML = '<span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> เชื่อมต่อแล้ว (ปลอดภัย)';
+                statusText.className = "text-red-400 font-semibold text-lg flex items-center justify-center gap-2 mt-1";
+            } else {
+                vpnBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'shadow-red-500/20');
+                vpnBtn.classList.add('bg-accent', 'hover:bg-blue-600', 'shadow-blue-500/20');
+                vpnBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> เชื่อมต่อ VPN';
+                statusText.innerHTML = '<span class="w-3 h-3 rounded-full bg-neon animate-pulse"></span> พร้อมใช้งาน';
+                statusText.className = "text-neon font-semibold text-lg flex items-center justify-center gap-2 mt-1";
             }
-        }
-
-        function openApkModal() {
-            document.getElementById('apk-modal').classList.remove('hidden');
-        }
-
-        function closeApkModal() {
-            document.getElementById('apk-modal').classList.add('hidden');
-        }
-
-        function openSettings() {
-            document.getElementById('settings-modal').classList.remove('hidden');
-        }
-
-        function closeSettings() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
-
-        function showNotification(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('opacity-0', 'pointer-events-none');
-            toast.classList.add('opacity-100');
-            setTimeout(() => {
-                toast.classList.remove('opacity-100');
-                toast.classList.add('opacity-0', 'pointer-events-none');
-            }, 2500);
         }
     </script>
 </body>
