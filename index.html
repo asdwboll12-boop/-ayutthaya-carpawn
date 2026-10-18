@@ -1,905 +1,1102 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบค้นหาและบันทึกประวัติบุคคล (Open People Directory)</title>
+    <title>AuraSound - Ad-Free Music Player & Audio Studio</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f5ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            900: '#1e1b4b',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Kanit', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
         }
-        .custom-scrollbar::-webkit-scrollbar {
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
             width: 6px;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
             border-radius: 4px;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-effect {
+            box-shadow: 0 0 30px -5px rgba(99, 102, 241, 0.35);
+        }
+        .drop-zone-active {
+            border-color: #6366f1 !important;
+            background: rgba(99, 102, 241, 0.15) !important;
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
+<body class="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white" id="drop-target">
 
-    <!-- Navigation Bar -->
-    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetSearch()">
-                <div class="bg-indigo-600 p-2 rounded-lg text-white">
-                    <i class="fa-solid fa-users-viewfinder text-xl"></i>
+    <!-- Drag & Drop Overlay Indicator -->
+    <div id="drag-overlay" class="fixed inset-0 bg-indigo-950/90 backdrop-blur-md z-50 hidden flex-col items-center justify-center border-4 border-dashed border-indigo-400 p-8 text-center pointer-events-none">
+        <i class="fa-solid fa-cloud-arrow-up text-6xl text-indigo-400 mb-4 animate-bounce"></i>
+        <h2 class="text-2xl font-bold text-white">ปล่อยไฟล์เพลงที่นี่เพื่อเล่นทันที</h2>
+        <p class="text-indigo-200 text-sm mt-2">รองรับไฟล์ MP3, WAV, OGG, M4A</p>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 glass-panel flex flex-col justify-between p-4 z-20 flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-800/80">
+        <div>
+            <!-- Logo -->
+            <div class="flex items-center gap-3 px-2 py-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid font-bold text-xl text-white fa-compact-disc animate-spin-slow"></i>
                 </div>
-                <span class="font-bold text-xl tracking-wide bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
-                    OpenProfile
-                </span>
-                <span class="bg-amber-400 text-slate-900 font-bold text-[10px] px-2 py-0.5 rounded-full tracking-wider uppercase shadow-sm">Live AI Search</span>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent">AuraSound</h1>
+                    <p class="text-xs text-emerald-400 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        100% Ad-Free Studio
+                    </p>
+                </div>
             </div>
-            
-            <div class="flex items-center space-x-3">
-                <button onclick="openApiKeyModal()" class="bg-indigo-800 hover:bg-indigo-700 text-amber-300 px-3 py-2 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 border border-indigo-700">
-                    <i class="fa-solid fa-key"></i>
-                    <span id="apiKeyBtnText">ตั้งค่า API Key</span>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-1">
+                <button id="nav-player" onclick="switchTab('player')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-indigo-400 bg-indigo-500/10 font-medium text-sm">
+                    <i class="fa-solid fa-music text-lg w-5"></i>
+                    <span>เครื่องเล่นเพลง</span>
                 </button>
-                <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2 shadow">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span class="hidden sm:inline">เพิ่มประวัติใหม่</span>
+                <button id="nav-visualizer" onclick="switchTab('visualizer')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:bg-slate-800/60 font-medium text-sm">
+                    <i class="fa-solid fa-bolt text-lg w-5"></i>
+                    <span>3D Visualizer</span>
                 </button>
+                <button id="nav-eq" onclick="switchTab('eq')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:bg-slate-800/60 font-medium text-sm">
+                    <i class="fa-solid fa-sliders text-lg w-5"></i>
+                    <span>Equalizer & FX</span>
+                </button>
+                <button id="nav-ambient" onclick="switchTab('ambient')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:bg-slate-800/60 font-medium text-sm">
+                    <i class="fa-solid fa-cloud-rain text-lg w-5"></i>
+                    <span>เสียงบรรยากาศ</span>
+                </button>
+                <button id="nav-ai" onclick="switchTab('ai')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-slate-400 hover:bg-slate-800/60 font-medium text-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg w-5"></i>
+                    <span>AI Sound Generator</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Audio Import & Info -->
+        <div class="mt-auto pt-4 border-t border-slate-800/80 space-y-3">
+            <label for="local-file-input" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-medium cursor-pointer transition shadow-md hover:shadow-indigo-500/20 text-sm">
+                <i class="fa-solid fa-file-circle-plus"></i>
+                <span>นำเข้าเพลงในเครื่อง</span>
+            </label>
+            <input type="file" id="local-file-input" accept="audio/*" multiple class="hidden">
+
+            <div class="text-[11px] text-center text-slate-500">
+                <p>รองรับการลากไฟล์มาวาง (Drag & Drop)</p>
+                <p class="text-indigo-400/80 mt-0.5">GitHub Pages Compatible</p>
             </div>
         </div>
-    </header>
+    </aside>
 
-    <!-- Main Content Layout -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
         
-        <!-- Search and Banner Section -->
-        <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl p-6 sm:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
-            <div class="absolute -right-10 -bottom-10 opacity-10 text-white text-9xl">
-                <i class="fa-solid fa-globe"></i>
-            </div>
-            <div class="relative z-10 max-w-3xl">
-                <div class="flex items-center space-x-2 mb-2">
-                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs px-2.5 py-0.5 rounded-full font-medium inline-flex items-center">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-1.5"></span>
-                        เชื่อมต่อ Deep AI Web Search & Multi-Source Grounding
-                    </span>
-                </div>
-                <h1 class="text-2xl sm:text-4xl font-bold mb-3">ค้นหาประวัติบุคคลเจาะลึกจากฐานข้อมูลจริง</h1>
-                <p class="text-indigo-200 text-sm sm:text-base mb-6">ค้นหาชื่อ-นามสกุล บุคคลสาธารณะ ผู้เชี่ยวชาญ หรือบริษัทจากเว็บแบบเปิด ไม่ติดการปิดกั้น</p>
-                
-                <!-- Search Box -->
-                <div class="flex flex-col sm:flex-row gap-3 mb-3">
-                    <div class="relative flex-grow">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchInput" onkeydown="if(event.key==='Enter') executeLiveSearch()" placeholder="พิมพ์ชื่อ-นามสกุลจริง, ตำแหน่ง, หรือทักษะ เช่น สมชาย, AI, Doctor..." 
-                               class="w-full pl-11 pr-4 py-3.5 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-400/50 shadow-inner">
-                    </div>
-                    <button onclick="executeLiveSearch()" id="searchBtn" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition shadow-lg flex items-center justify-center space-x-2 shrink-0">
-                        <i class="fa-solid fa-bolt text-slate-900"></i>
-                        <span>ค้นหา (Search)</span>
-                    </button>
-                </div>
-
-                <!-- Toggle Local/Live Mode -->
-                <div class="flex items-center space-x-4 text-xs text-indigo-200">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" id="liveSearchToggle" checked class="sr-only peer">
-                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500 relative"></div>
-                        <span class="ml-2 font-medium text-amber-300">ใช้งาน AI Live Web Search (ต้องการ Gemini API Key)</span>
-                    </label>
+        <!-- TOP BAR / HEADER -->
+        <header class="p-4 flex items-center justify-between border-b border-slate-800/80 glass-panel z-10">
+            <div class="flex items-center gap-3 w-full max-w-md">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="filterTracks()" placeholder="ค้นหาเพลงในเพลย์ลิสต์..." class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:border-indigo-500 transition text-slate-200 placeholder-slate-500">
                 </div>
             </div>
-        </div>
 
-        <!-- Filter and Content Area -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div class="flex items-center gap-3">
+                <button onclick="toggle8DAudio()" id="btn-8d" class="px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-spin"></i>
+                    <span>8D Audio: <span id="status-8d" class="text-slate-500">OFF</span></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENT TABS CONTAINER -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative" id="tab-container">
             
-            <!-- Sidebar / Filter Panel -->
-            <div class="lg:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit space-y-6">
-                <div>
-                    <h2 class="font-bold text-lg text-slate-800 border-b pb-2 flex items-center justify-between">
-                        <span><i class="fa-solid fa-filter text-indigo-600 mr-2"></i>ตัวกรองประวัติ</span>
-                        <button onclick="resetFilters()" class="text-xs text-indigo-600 hover:underline font-normal">ล้างตัวกรอง</button>
-                    </h2>
-                </div>
+            <!-- TAB 1: MUSIC PLAYER -->
+            <section id="tab-content-player" class="tab-content block space-y-6">
+                <!-- Current Playing Hero Card -->
+                <div class="glass-panel rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 glow-effect">
+                    <!-- Background Glow Overlay -->
+                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <!-- Cover Art Album -->
+                    <div class="relative group flex-shrink-0">
+                        <div id="album-cover-box" class="w-48 h-48 md:w-56 md:h-56 rounded-2xl bg-slate-800 shadow-2xl overflow-hidden border border-slate-700/50 flex items-center justify-center relative">
+                            <img id="track-cover" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=500&auto=format&fit=crop&q=80" alt="Album Cover" class="w-full h-full object-cover transition duration-500">
+                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                                <i class="fa-solid fa-wave-square text-3xl text-white animate-bounce"></i>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- Category Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">กลุ่มอาชีพ / สายงาน</label>
-                    <select id="categoryFilter" onchange="applyFilters()" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <option value="ALL">ทั้งหมด</option>
-                        <option value="IT/Technology">เทคโนโลยี / ไอที</option>
-                        <option value="Business/Management">บริหาร / ธุรกิจ</option>
-                        <option value="Creative/Design">สร้างสรรค์ / ออกแบบ</option>
-                        <option value="Education/Academic">การศึกษา / วิชาการ</option>
-                        <option value="Medical/Health">การแพทย์ / สาธารณสุข</option>
-                        <option value="Other">อื่นๆ</option>
-                    </select>
-                </div>
+                    <!-- Track Details & Visual Controls -->
+                    <div class="flex-1 w-full space-y-4 text-center md:text-left">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium">
+                            <i class="fa-solid fa-shield-halved"></i> Ad-Free High Fidelity Audio
+                        </div>
+                        
+                        <div>
+                            <h2 id="current-title" class="text-2xl md:text-4xl font-bold text-white tracking-tight truncate">Select a Track</h2>
+                            <p id="current-artist" class="text-slate-400 text-base md:text-lg mt-1 truncate">AuraSound Collection</p>
+                        </div>
 
-                <!-- Status Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">สถานะความพร้อมงาน</label>
-                    <div class="space-y-2">
-                        <label class="flex items-center text-sm text-slate-600 cursor-pointer">
-                            <input type="checkbox" value="open" onchange="applyFilters()" class="status-filter rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mr-2" checked>
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-2"></span>พร้อมรับงาน / สัมภาษณ์
-                        </label>
-                        <label class="flex items-center text-sm text-slate-600 cursor-pointer">
-                            <input type="checkbox" value="busy" onchange="applyFilters()" class="status-filter rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mr-2" checked>
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block mr-2"></span>มีงานประจำ / ที่ปรึกษา
-                        </label>
+                        <!-- Mini Waveform Canvas Preview -->
+                        <div class="w-full h-16 bg-slate-900/60 rounded-xl p-2 border border-slate-800">
+                            <canvas id="mini-waveform" class="w-full h-full rounded"></canvas>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-slate-400 font-mono">
+                                <span id="time-current">0:00</span>
+                                <span id="time-total">0:00</span>
+                            </div>
+                            <input type="range" id="seek-bar" min="0" max="100" value="0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Sort Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">เรียงลำดับตาม</label>
-                    <select id="sortFilter" onchange="applyFilters()" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <option value="newest">อัปเดตล่าสุด</option>
-                        <option value="name">ชื่อ (ก-ฮ / A-Z)</option>
-                        <option value="experience">ประสบการณ์ (มากไปน้อย)</option>
-                    </select>
+                <!-- Playlist Section -->
+                <div class="glass-panel rounded-2xl p-6 border border-slate-800">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-list-ul text-indigo-400"></i>
+                            รายการเพลงของคุณ (Playlist)
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <button onclick="clearCustomPlaylist()" class="text-xs text-rose-400 hover:text-rose-300 transition bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20">
+                                <i class="fa-solid fa-trash-can mr-1"></i> รีเซ็ตเพลง
+                            </button>
+                            <span id="playlist-count" class="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full">0 เพลง</span>
+                        </div>
+                    </div>
+
+                    <div id="playlist-items" class="space-y-2">
+                        <!-- Dynamic Playlist Items generated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: 3D VISUALIZER -->
+            <section id="tab-content-visualizer" class="tab-content hidden h-full flex flex-col space-y-4">
+                <div class="flex items-center justify-between glass-panel p-4 rounded-xl">
+                    <h3 class="font-bold text-md flex items-center gap-2">
+                        <i class="fa-solid fa-cubes text-indigo-400"></i>
+                        Interactive Audio Reactive Visualizer
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-400">รูปแบบ:</label>
+                        <select id="visualizer-mode" onchange="changeVisualizerMode(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+                            <option value="bars">Neon Equalizer Bars</option>
+                            <option value="circle">Radial Spectrum Ring</option>
+                            <option value="wave">3D Cyber Waveform</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Canvas Visualizer -->
+                <div class="flex-1 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 relative min-h-[400px] flex items-center justify-center">
+                    <canvas id="main-visualizer-canvas" class="w-full h-full block"></canvas>
+                    <div class="absolute bottom-4 left-4 text-xs text-slate-500 pointer-events-none bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                        <i class="fa-solid fa-music mr-1 text-indigo-400"></i> กราฟิกเคลื่อนไหวตามจังหวะบีตเพลงจริง
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: EQUALIZER & AUDIO FX -->
+            <section id="tab-content-eq" class="tab-content hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-indigo-400"></i>
+                                Audio Equalizer & Sound FX Studio
+                            </h3>
+                            <p class="text-slate-400 text-sm mt-1">ปรับแต่งความถี่เสียง เบส แหลม และความเร็วในการเล่นเพลง</p>
+                        </div>
+                        <button onclick="resetEQ()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> รีเซ็ตค่า EQ
+                        </button>
+                    </div>
+
+                    <!-- Equalizer Sliders -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 bg-slate-900/60 p-6 rounded-xl border border-slate-800 text-center">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 block mb-3">Bass Boost (60Hz)</label>
+                            <input type="range" id="eq-bass" min="-12" max="12" value="0" step="1" oninput="updateEQ()" class="h-32 appearance-none bg-slate-800 rounded-lg w-2 accent-indigo-500 [writing-mode:vertical-lr] [direction:rtl] mx-auto cursor-pointer">
+                            <span id="val-bass" class="text-xs font-mono text-indigo-400 mt-3 block">0 dB</span>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 block mb-3">Low-Mid (250Hz)</label>
+                            <input type="range" id="eq-mid" min="-12" max="12" value="0" step="1" oninput="updateEQ()" class="h-32 appearance-none bg-slate-800 rounded-lg w-2 accent-indigo-500 [writing-mode:vertical-lr] [direction:rtl] mx-auto cursor-pointer">
+                            <span id="val-mid" class="text-xs font-mono text-indigo-400 mt-3 block">0 dB</span>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 block mb-3">High-Mid (1kHz)</label>
+                            <input type="range" id="eq-highmid" min="-12" max="12" value="0" step="1" oninput="updateEQ()" class="h-32 appearance-none bg-slate-800 rounded-lg w-2 accent-indigo-500 [writing-mode:vertical-lr] [direction:rtl] mx-auto cursor-pointer">
+                            <span id="val-highmid" class="text-xs font-mono text-indigo-400 mt-3 block">0 dB</span>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-400 block mb-3">Treble (4kHz)</label>
+                            <input type="range" id="eq-treble" min="-12" max="12" value="0" step="1" oninput="updateEQ()" class="h-32 appearance-none bg-slate-800 rounded-lg w-2 accent-indigo-500 [writing-mode:vertical-lr] [direction:rtl] mx-auto cursor-pointer">
+                            <span id="val-treble" class="text-xs font-mono text-indigo-400 mt-3 block">0 dB</span>
+                        </div>
+                    </div>
+
+                    <!-- Speed & Pitch Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="font-medium text-slate-300"><i class="fa-solid fa-gauge-high text-indigo-400 mr-2"></i>ความเร็วการเล่น (Playback Speed)</span>
+                                <span id="val-speed" class="font-mono text-indigo-400">1.0x</span>
+                            </div>
+                            <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.05" value="1.0" oninput="changePlaybackSpeed(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="font-medium text-slate-300"><i class="fa-solid fa-arrows-left-right text-indigo-400 mr-2"></i>บาลานซ์ซ้าย-ขวา (Stereo Balance)</span>
+                                <span id="val-pan" class="font-mono text-indigo-400">Center</span>
+                            </div>
+                            <input type="range" id="pan-slider" min="-1" max="1" step="0.1" value="0" oninput="changeStereoPan(this.value)" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: AMBIENT SOUNDS -->
+            <section id="tab-content-ambient" class="tab-content hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-moon text-indigo-400"></i>
+                        สร้างเสียงบรรยากาศเพื่อสมาธิและการผ่อนคลาย (Ambient Mixer)
+                    </h3>
+                    <p class="text-slate-400 text-sm mb-6">เปิดผสมเสียงธรรมชาติด้านล่างเข้ากับเพลงของคุณ เพื่อเพิ่มสมาธิในการทำงาน หรืออ่านหนังสือ</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Ambient 1: Rain -->
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium flex items-center gap-2 text-sm">
+                                    <i class="fa-solid fa-cloud-showers-heavy text-blue-400"></i> เสียงฝนตก
+                                </span>
+                                <button onclick="toggleAmbient('rain')" id="btn-ambient-rain" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs hover:bg-indigo-600 transition">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                            </div>
+                            <input type="range" id="vol-ambient-rain" min="0" max="1" step="0.05" value="0.5" oninput="setAmbientVolume('rain', this.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+
+                        <!-- Ambient 2: Fireplace -->
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium flex items-center gap-2 text-sm">
+                                    <i class="fa-solid fa-fire text-amber-500"></i> เสียงเตาผิง
+                                </span>
+                                <button onclick="toggleAmbient('fire')" id="btn-ambient-fire" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs hover:bg-indigo-600 transition">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                            </div>
+                            <input type="range" id="vol-ambient-fire" min="0" max="1" step="0.05" value="0.5" oninput="setAmbientVolume('fire', this.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+
+                        <!-- Ambient 3: Waves -->
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium flex items-center gap-2 text-sm">
+                                    <i class="fa-solid fa-water text-cyan-400"></i> เสียงคลื่นทะเล
+                                </span>
+                                <button onclick="toggleAmbient('waves')" id="btn-ambient-waves" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs hover:bg-indigo-600 transition">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                            </div>
+                            <input type="range" id="vol-ambient-waves" min="0" max="1" step="0.05" value="0.5" oninput="setAmbientVolume('waves', this.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: AI SOUND GENERATOR -->
+            <section id="tab-content-ai" class="tab-content hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                            <i class="fa-solid fa-brain text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">AI Soundscape & Concept Creator</h3>
+                            <p class="text-slate-400 text-sm">ใช้ Gemini AI วิเคราะห์อารมณ์ และสร้างทำนอง/ไอเดียเพลงเฉพาะคุณ</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-sm font-medium text-slate-300">ระบุอารมณ์ เพลง หรือธีมที่ต้องการ:</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="ai-prompt-input" placeholder="เช่น เพลงผ่อนคลายสไตล์ Synthwave ยามค่ำคืนในกรุงเทพฯ..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                            <button onclick="generateAISoundConcept()" id="btn-ai-generate" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition text-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>สร้างไอเดีย</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Result Display Box -->
+                    <div id="ai-result-box" class="hidden bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-3">
+                        <h4 class="font-semibold text-indigo-400 flex items-center gap-2 text-sm">
+                            <i class="fa-solid fa-sparkles"></i> ข้อเสนอแนะจาก Gemini AI:
+                        </h4>
+                        <p id="ai-result-text" class="text-slate-300 text-sm leading-relaxed whitespace-pre-line"></p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- BOTTOM AUDIO PLAYER BAR -->
+        <footer class="glass-panel border-t border-slate-800/80 p-3 md:p-4 z-30 flex items-center justify-between gap-4">
+            
+            <!-- Currently Playing Info -->
+            <div class="flex items-center gap-3 w-1/4 min-w-[160px]">
+                <img id="bar-cover" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-lg object-cover border border-slate-700">
+                <div class="overflow-hidden">
+                    <h4 id="bar-title" class="text-sm font-semibold truncate text-slate-100">Synthwave Night</h4>
+                    <p id="bar-artist" class="text-xs text-slate-400 truncate">Aura Beats</p>
                 </div>
             </div>
 
-            <!-- Main List Area -->
-            <div class="lg:col-span-3 space-y-4">
-                <!-- Status Header -->
-                <div class="flex items-center justify-between text-sm text-slate-500 px-1">
-                    <div>พบรายการทั้งสิ้น <span id="resultCount" class="font-bold text-indigo-600">0</span> รายการ</div>
-                    <div id="searchSourceBadge" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">แสดงผลจาก: ฐานข้อมูลในระบบ</div>
-                </div>
+            <!-- Player Controls -->
+            <div class="flex flex-col items-center gap-1 w-2/4 max-w-md">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleShuffle()" id="btn-shuffle" class="text-slate-400 hover:text-white transition text-sm">
+                        <i class="fa-solid fa-shuffle"></i>
+                    </button>
 
-                <!-- Loading Spinner State -->
-                <div id="loadingState" class="hidden text-center py-16 bg-white rounded-2xl border border-indigo-100 shadow-sm">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent mb-4"></div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-1">กำลังสแกนค้นหาข้อมูลประวัติจริงทั่วอินเทอร์เน็ต...</h3>
-                    <p class="text-sm text-slate-500">ใช้ Gemini AI + Google Search Grounding เพื่อรวบรวมประวัติ ผลงาน และช่องทางติดต่อ</p>
-                </div>
+                    <button onclick="playPrevTrack()" class="text-slate-300 hover:text-white transition text-lg">
+                        <i class="fa-solid fa-backward-step"></i>
+                    </button>
 
-                <!-- Grid Results -->
-                <div id="profileGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Dynamic Profiles Will Be Injected Here -->
-                </div>
+                    <button onclick="togglePlayPause()" id="btn-main-play" class="w-11 h-11 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-lg shadow-indigo-600/30">
+                        <i class="fa-solid fa-play text-lg ml-0.5" id="icon-main-play"></i>
+                    </button>
 
-                <!-- Empty State -->
-                <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
-                    <i class="fa-solid fa-user-slash text-5xl text-slate-300 mb-4"></i>
-                    <h3 class="text-lg font-medium text-slate-700 mb-1">ไม่พบข้อมูลประวัติที่ตรงกัน</h3>
-                    <p class="text-sm text-slate-500 mb-4">ลองปรับเปลี่ยนคำค้นหา หรือกรอก Gemini API Key เพื่อค้นหาบุคคลจากเว็บจริง</p>
-                    <button onclick="resetFilters()" class="text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-lg font-medium transition">
-                        ล้างเงื่อนไขการค้นหาทั้งหมด
+                    <button onclick="playNextTrack()" class="text-slate-300 hover:text-white transition text-lg">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+
+                    <button onclick="toggleRepeat()" id="btn-repeat" class="text-slate-400 hover:text-white transition text-sm">
+                        <i class="fa-solid fa-repeat"></i>
                     </button>
                 </div>
             </div>
-        </div>
+
+            <!-- Volume & Settings -->
+            <div class="flex items-center justify-end gap-3 w-1/4">
+                <button onclick="toggleMute()" id="btn-mute" class="text-slate-400 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-volume-high" id="icon-volume"></i>
+                </button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8" oninput="changeVolume(this.value)" class="w-20 md:w-28 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+            </div>
+        </footer>
     </main>
 
-    <!-- API Key Modal -->
-    <div id="apiKeyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-key text-amber-500 mr-2"></i>ตั้งค่า Gemini API Key</h3>
-                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <p class="text-xs text-slate-600 mb-4">
-                เพื่อใช้ฟีเจอร์ AI Search ค้นหาประวัติบุคคลสาธารณะจริงบน Google Search กรุณากรอก Gemini API Key ของคุณ (ข้อมูลจะถูกเก็บในเบราว์เซอร์ของคุณเท่านั้น)
-            </p>
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-slate-700 mb-1">Gemini API Key</label>
-                <input type="password" id="userApiKeyInput" placeholder="AIzaSy..." class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                <div class="mt-2 text-[11px] text-slate-500 space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                    <p class="font-semibold text-indigo-700"><i class="fa-solid fa-circle-info mr-1"></i>รูปแบบตัวอย่าง:</p>
-                    <p class="font-mono bg-white p-1 rounded border border-slate-200 text-slate-700 select-all">AIzaSyD-xxxxxxxxxxxxxxxxxxxx-xxxxxx</p>
-                    <p class="text-slate-500 mt-1">• ขึ้นต้นด้วย <span class="font-semibold text-slate-700">AIzaSy...</span> ความยาวประมาณ 39 ตัวอักษร</p>
-                    <p class="text-slate-500">• สามารถรับฟรีได้จาก <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline hover:text-indigo-800 font-medium">Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a></p>
-                </div>
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button onclick="clearApiKey()" class="px-4 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium">ลบ Key</button>
-                <button onclick="saveApiKey()" class="px-5 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium">บันทึก Key</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in">
-            <!-- Modal Header -->
-            <div class="p-6 bg-gradient-to-r from-indigo-900 to-indigo-800 text-white relative">
-                <button onclick="closeDetailModal()" class="absolute right-4 top-4 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-                <div class="flex items-start space-x-4">
-                    <img id="modalAvatar" src="" alt="Avatar" class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md">
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <h2 id="modalName" class="text-2xl font-bold"></h2>
-                            <span id="modalStatusBadge"></span>
-                        </div>
-                        <p id="modalTitle" class="text-indigo-200 text-sm mt-0.5"></p>
-                        <p id="modalCategory" class="text-xs bg-indigo-700/60 text-indigo-100 inline-block px-2.5 py-0.5 rounded-full mt-2"></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal Content Body -->
-            <div class="p-6 overflow-y-auto space-y-6 custom-scrollbar text-slate-700">
-                <!-- Bio -->
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">เกี่ยวกับ / ประวัติย่อ</h3>
-                    <p id="modalBio" class="text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-line"></p>
-                </div>
-
-                <!-- Skills -->
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">ทักษะและความเชี่ยวชาญ</h3>
-                    <div id="modalSkills" class="flex flex-wrap gap-2"></div>
-                </div>
-
-                <!-- Grounding Sources (for Real Web Search Results) -->
-                <div id="modalSourcesContainer" class="hidden">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2"><i class="fa-solid fa-link text-indigo-500 mr-1"></i>แหล่งอ้างอิงข้อมูลสาธารณะ (Sources)</h3>
-                    <div id="modalSources" class="space-y-1.5 text-xs"></div>
-                </div>
-
-                <!-- Experience & Education -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                        <h4 class="text-xs font-bold text-slate-500 mb-1"><i class="fa-solid fa-briefcase text-indigo-500 mr-1.5"></i>ประสบการณ์</h4>
-                        <p id="modalExperience" class="text-sm font-semibold text-slate-800"></p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                        <h4 class="text-xs font-bold text-slate-500 mb-1"><i class="fa-solid fa-graduation-cap text-indigo-500 mr-1.5"></i>การศึกษา</h4>
-                        <p id="modalEducation" class="text-sm font-semibold text-slate-800"></p>
-                    </div>
-                </div>
-
-                <!-- Contact Channels -->
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">ช่องทางติดต่อสาธารณะ</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="modalContacts"></div>
-                </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
-                <button onclick="closeDetailModal()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium text-sm transition">
-                    ปิดหน้าต่าง
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Profile Modal -->
-    <div id="addModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-            <div class="p-5 bg-indigo-900 text-white flex justify-between items-center">
-                <h3 class="font-bold text-lg"><i class="fa-solid fa-user-plus mr-2"></i>เพิ่มข้อมูลประวัติใหม่</h3>
-                <button onclick="closeAddModal()" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <form id="addProfileForm" onsubmit="saveProfile(event)" class="p-6 overflow-y-auto space-y-4 text-sm custom-scrollbar">
-                <!-- Helper Guide Box -->
-                <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs text-indigo-900 flex items-start space-x-2">
-                    <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 text-base"></i>
-                    <div>
-                        <p class="font-bold">คำแนะนำการกรอกข้อมูล:</p>
-                        <p class="text-indigo-700 mt-0.5">กรอกข้อมูลให้ครบถ้วน โดยเฉพาะช่องที่มีเครื่องหมาย <span class="text-red-500 font-bold">*</span> เพื่อความแม่นยำในการค้นหาและจัดหมวดหมู่</p>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-medium text-slate-700 mb-1">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
-                    <input type="text" id="addName" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ดร. สมชาย ใจดี หรือ นายวิชัย มั่นคง">
-                    <span class="text-[11px] text-slate-400">ระบุชื่อ-นามสกุลจริง หรือชื่อเรียกในวงการ</span>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-medium text-slate-700 mb-1">ตำแหน่ง / สายงาน <span class="text-red-500">*</span></label>
-                        <input type="text" id="addTitle" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น Senior Software Engineer">
-                        <span class="text-[11px] text-slate-400">อาชีพหรือตำแหน่งปัจจุบัน</span>
-                    </div>
-                    <div>
-                        <label class="block font-medium text-slate-700 mb-1">หมวดหมู่ <span class="text-red-500">*</span></label>
-                        <select id="addCategory" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <option value="IT/Technology">เทคโนโลยี / ไอที</option>
-                            <option value="Business/Management">บริหาร / ธุรกิจ</option>
-                            <option value="Creative/Design">สร้างสรรค์ / ออกแบบ</option>
-                            <option value="Education/Academic">การศึกษา / วิชาการ</option>
-                            <option value="Medical/Health">การแพทย์ / สาธารณสุข</option>
-                            <option value="Other">อื่นๆ</option>
-                        </select>
-                        <span class="text-[11px] text-slate-400">เลือกกลุ่มอาชีพที่ตรงที่สุด</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-medium text-slate-700 mb-1">จำนวนปีประสบการณ์</label>
-                        <input type="number" id="addExp" min="0" value="1" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <span class="text-[11px] text-slate-400">จำนวนปีที่ทำงานในสายงานนี้</span>
-                    </div>
-                    <div>
-                        <label class="block font-medium text-slate-700 mb-1">สถานะความพร้อมรับงาน</label>
-                        <select id="addStatus" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <option value="open">พร้อมรับงาน / สัมภาษณ์</option>
-                            <option value="busy">มีงานประจำ / ที่ปรึกษา</option>
-                        </select>
-                        <span class="text-[11px] text-slate-400">เลือกเพื่อกรอกในตัวกรองระบบ</span>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-medium text-slate-700 mb-1">ระดับการศึกษาล่าสุด</label>
-                    <input type="text" id="addEducation" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ปริญญาตรี วิทยาการคอมพิวเตอร์ จุฬาลงกรณ์มหาวิทยาลัย">
-                </div>
-
-                <div>
-                    <label class="block font-medium text-slate-700 mb-1">ทักษะความเชี่ยวชาญ (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
-                    <input type="text" id="addSkills" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น JavaScript, Project Management, Data Analysis">
-                    <span class="text-[11px] text-slate-400">คั่นแต่ละทักษะด้วยเครื่องหมายจุลภาค (Comma)</span>
-                </div>
-
-                <div>
-                    <label class="block font-medium text-slate-700 mb-1">ประวัติย่อ / บทสรุปผลงาน</label>
-                    <textarea id="addBio" rows="3" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="สรุปประสบการณ์ ผลงานที่ภาคภูมิใจ หรือสิ่งที่สนใจ..."></textarea>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-medium text-slate-700 mb-1">อีเมลติดต่อ</label>
-                        <input type="email" id="addEmail" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="example@email.com">
-                    </div>
-                    <div>
-                        <label class="block font-medium text-slate-700 mb-1">เบอร์โทรศัพท์ (ถ้ามี)</label>
-                        <input type="text" id="addPhone" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="08X-XXX-XXXX">
-                    </div>
-                </div>
-
-                <div class="pt-4 flex justify-end space-x-3 border-t">
-                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-700">ยกเลิก</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium">บันทึกข้อมูล</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3 z-50">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toastMessage" class="text-sm"></span>
-    </div>
+    <!-- Hidden Audio Engine Elements -->
+    <audio id="main-audio-player" crossorigin="anonymous"></audio>
 
     <script>
-        // Initial Mock Profiles Data
-        const initialProfiles = [
+        // Default Tracks List
+        const defaultTracks = [
             {
-                id: 1,
-                name: "ดร. พรไพลิน วิทยากุล",
-                title: "ผู้เชี่ยวชาญด้านปัญญาประดิษฐ์ & Data Scientist",
-                category: "IT/Technology",
-                experienceYears: 8,
-                status: "open",
-                education: "ปริญญาเอก วิทยาการคอมพิวเตอร์ MIT",
-                skills: ["AI & Machine Learning", "Python", "Deep Learning", "Data Analytics"],
-                bio: "มีประสบการณ์วิจัยและพัฒนาโมเดล AI สำหรับระบบการแพทย์และธุรกิจสถาบันการเงิน สนใจงานวิจัยและเป็นที่ปรึกษาโครงการเทคโนโลยีขั้นสูง",
-                email: "phonpailin.v@example.com",
-                phone: "081-234-5678",
-                avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+                id: '1',
+                title: 'Neon Cyberpunk Dreams',
+                artist: 'AuraSynth Studio',
+                cover: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=500&auto=format&fit=crop&q=80',
+                url: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a731ef.mp3?filename=cyberpunk-2099-10701.mp3'
             },
             {
-                id: 2,
-                name: "คุณกิตติศักดิ์ เจริญพาณิชย์",
-                title: "ผู้อำนวยการฝ่ายพัฒนาธุรกิจ (Business Development Director)",
-                category: "Business/Management",
-                experienceYears: 12,
-                status: "busy",
-                education: "ปริญญาโท บริหารธุรกิจ (MBA) ม.ธรรมศาสตร์",
-                skills: ["Strategic Planning", "Business Expansion", "Negotiation", "Team Leadership"],
-                bio: "ผู้เชี่ยวชาญการวางกลยุทธ์การตลาดและการขยายตลาดสู่ภูมิภาคอาเซียน เคยบริหารทีมขายและพัฒนาพันธมิตรทางธุรกิจระดับสากล",
-                email: "kittisak.c@example.com",
-                phone: "089-876-5432",
-                avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80"
+                id: '2',
+                title: 'Chill Lo-Fi Rain Study',
+                artist: 'Midnight Moods',
+                cover: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80',
+                url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3'
             },
             {
-                id: 3,
-                name: "คุณภัทรวดี มณีรัตน์",
-                title: "UX/UI Product Designer & Brand Strategist",
-                category: "Creative/Design",
-                experienceYears: 5,
-                status: "open",
-                education: "ปริญญาตรี ศิลปกรรมศาสตร์ ม.ศิลปากร",
-                skills: ["Figma", "Design System", "User Research", "Prototyping", "Design Thinking"],
-                bio: "เน้นการออกแบบประสบการณ์ผู้ใช้ที่ตอบโจทย์ธุรกิจและใช้งานง่าย มีผลงานออกแบบแอปพลิเคชันที่มีผู้ใช้มากกว่า 1 ล้านคน",
-                email: "pattrawadee.m@example.com",
-                phone: "086-555-4321",
-                avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80"
-            },
-            {
-                id: 4,
-                name: "ผศ.ดร. นพ. วีระชัย สุขสวัสดิ์",
-                title: "แพทย์ผู้เชี่ยวชาญด้านเวชศาสตร์ป้องกัน & อาจารย์แพทย์",
-                category: "Medical/Health",
-                experienceYears: 15,
-                status: "busy",
-                education: "แพทยศาสตรบัณฑิต จุฬาลงกรณ์มหาวิทยาลัย",
-                skills: ["Preventive Medicine", "Public Health", "Medical Research", "Healthcare Management"],
-                bio: "ทำงานวิจัยด้านสุขภาพชุมชนและเวชศาสตร์ป้องกัน ให้ความรู้ด้านการดูแลสุขภาพเชิงป้องกันแก่สาธารณะผ่านสื่อต่างๆ",
-                email: "veerachai.s@example.com",
-                phone: "082-111-2233",
-                avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150&auto=format&fit=crop&q=80"
+                id: '3',
+                title: 'Acoustic Guitar Ambient',
+                artist: 'Peaceful Mind',
+                cover: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=500&auto=format&fit=crop&q=80',
+                url: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=acoustic-guitars-ambient-11854.mp3'
             }
         ];
 
-        let profiles = [];
-        let liveSearchProfiles = [];
-        let isLiveSearchResults = false;
+        let playlist = [...defaultTracks];
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let isShuffle = false;
+        let isRepeat = false;
+        let is8DEnabled = false;
 
-        window.onload = function() {
-            const saved = localStorage.getItem('open_profiles_data');
-            if (saved) {
-                try {
-                    profiles = JSON.parse(saved);
-                } catch(e) {
-                    profiles = [...initialProfiles];
-                }
-            } else {
-                profiles = [...initialProfiles];
-            }
-            updateApiKeyBtnText();
-            applyFilters();
+        // Web Audio API DSP Nodes
+        let audioCtx = null;
+        let audioSource = null;
+        let analyser = null;
+        let pannerNode = null;
+        let eqNodes = {};
+        let pannerAngle = 0;
+        let pannerInterval = null;
+
+        // Ambient Audio Objects
+        const ambientAudio = {
+            rain: new Audio('https://cdn.pixabay.com/download/audio/2022/03/24/audio_3d09a259c6.mp3?filename=rain-and-thunder-110098.mp3'),
+            fire: new Audio('https://cdn.pixabay.com/download/audio/2021/09/06/audio_8b2111eb07.mp3?filename=crackling-fireplace-14639.mp3'),
+            waves: new Audio('https://cdn.pixabay.com/download/audio/2022/02/07/audio_24a56a5913.mp3?filename=ocean-waves-112906.mp3')
         };
 
-        function saveToStorage() {
-            localStorage.setItem('open_profiles_data', JSON.stringify(profiles));
+        // DOM Element References
+        const audioPlayer = document.getElementById('main-audio-player');
+        const iconMainPlay = document.getElementById('icon-main-play');
+        const currentTitle = document.getElementById('current-title');
+        const currentArtist = document.getElementById('current-artist');
+        const trackCover = document.getElementById('track-cover');
+        const barTitle = document.getElementById('bar-title');
+        const barArtist = document.getElementById('bar-artist');
+        const barCover = document.getElementById('bar-cover');
+        const seekBar = document.getElementById('seek-bar');
+        const timeCurrent = document.getElementById('time-current');
+        const timeTotal = document.getElementById('time-total');
+        const playlistItems = document.getElementById('playlist-items');
+
+        window.onload = function() {
+            loadSavedPlaylist();
+            renderPlaylist();
+            loadTrack(currentTrackIndex, false);
+            setupAudioEvents();
+            setupLocalFileInput();
+            setupDragAndDrop();
+            initVisualizer();
+        };
+
+        // LocalStorage Management
+        function savePlaylistToStorage() {
+            // Save metadata for tracks (excluding raw object URLs which expire)
+            const saveableTracks = playlist.map(t => ({
+                id: t.id,
+                title: t.title,
+                artist: t.artist,
+                cover: t.cover,
+                url: t.url.startsWith('blob:') ? '' : t.url
+            })).filter(t => t.url !== '');
+            localStorage.setItem('aurasound_playlist', JSON.stringify(saveableTracks));
         }
 
-        function getStoredApiKey() {
-            return localStorage.getItem('user_gemini_api_key') || '';
-        }
-
-        function updateApiKeyBtnText() {
-            const key = getStoredApiKey();
-            const btnText = document.getElementById('apiKeyBtnText');
-            if (key) {
-                btnText.textContent = "เชื่อมต่อ API แล้ว";
-                btnText.classList.add("text-emerald-300");
-            } else {
-                btnText.textContent = "ตั้งค่า API Key";
-                btnText.classList.remove("text-emerald-300");
+        function loadSavedPlaylist() {
+            const saved = localStorage.getItem('aurasound_playlist');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && parsed.length > 0) {
+                        playlist = parsed;
+                    }
+                } catch(e) {}
             }
         }
 
-        function openApiKeyModal() {
-            document.getElementById('userApiKeyInput').value = getStoredApiKey();
-            document.getElementById('apiKeyModal').classList.remove('hidden');
+        function clearCustomPlaylist() {
+            playlist = [...defaultTracks];
+            localStorage.removeItem('aurasound_playlist');
+            renderPlaylist();
+            loadTrack(0, false);
         }
 
-        function closeApiKeyModal() {
-            document.getElementById('apiKeyModal').classList.add('hidden');
-        }
-
-        function saveApiKey() {
-            const key = document.getElementById('userApiKeyInput').value.trim();
-            if (key) {
-                localStorage.setItem('user_gemini_api_key', key);
-                showToast("บันทึก Gemini API Key เรียบร้อยแล้ว");
-            } else {
-                localStorage.removeItem('user_gemini_api_key');
-            }
-            updateApiKeyBtnText();
-            closeApiKeyModal();
-        }
-
-        function clearApiKey() {
-            localStorage.removeItem('user_gemini_api_key');
-            document.getElementById('userApiKeyInput').value = '';
-            updateApiKeyBtnText();
-            closeApiKeyModal();
-            showToast("ลบ API Key เรียบร้อยแล้ว");
-        }
-
-        // Live API Search via Gemini Flash with Google Search Grounding
-        async function executeLiveSearch() {
-            const query = document.getElementById('searchInput').value.trim();
-            const useLive = document.getElementById('liveSearchToggle').checked;
-            const apiKey = getStoredApiKey();
-
-            if (!query) {
-                showToast("กรุณากรอกคำค้นหาก่อนครับ");
-                return;
-            }
-
-            // Fallback to local search if live mode is disabled or no API key provided
-            if (!useLive || !apiKey) {
-                isLiveSearchResults = false;
-                applyFilters();
-                if (useLive && !apiKey) {
-                    showToast("กรุณาตั้งค่า Gemini API Key เพื่อเปิดใช้งาน AI Search บนเว็บจริง", true);
+        function setupAudioEvents() {
+            audioPlayer.addEventListener('timeupdate', updateProgressBar);
+            audioPlayer.addEventListener('ended', onTrackEnded);
+            
+            seekBar.addEventListener('input', () => {
+                if (audioPlayer.duration) {
+                    const seekTo = audioPlayer.duration * (seekBar.value / 100);
+                    audioPlayer.currentTime = seekTo;
                 }
-                return;
+            });
+        }
+
+        // Web Audio API Pipeline Construction
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+
+                pannerNode = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
+
+                // Equalizer Filters
+                eqNodes.bass = audioCtx.createBiquadFilter();
+                eqNodes.bass.type = 'lowshelf';
+                eqNodes.bass.frequency.value = 60;
+
+                eqNodes.mid = audioCtx.createBiquadFilter();
+                eqNodes.mid.type = 'peaking';
+                eqNodes.mid.frequency.value = 250;
+
+                eqNodes.highmid = audioCtx.createBiquadFilter();
+                eqNodes.highmid.type = 'peaking';
+                eqNodes.highmid.frequency.value = 1000;
+
+                eqNodes.treble = audioCtx.createBiquadFilter();
+                eqNodes.treble.type = 'highshelf';
+                eqNodes.treble.frequency.value = 4000;
+
+                // Chain: Source -> EQ Bass -> EQ Mid -> EQ HighMid -> EQ Treble -> Panner -> Analyser -> Destination
+                audioSource = audioCtx.createMediaElementSource(audioPlayer);
+                audioSource.connect(eqNodes.bass);
+                eqNodes.bass.connect(eqNodes.mid);
+                eqNodes.mid.connect(eqNodes.highmid);
+                eqNodes.highmid.connect(eqNodes.treble);
+
+                if (pannerNode) {
+                    eqNodes.treble.connect(pannerNode);
+                    pannerNode.connect(analyser);
+                } else {
+                    eqNodes.treble.connect(analyser);
+                }
+                
+                analyser.connect(audioCtx.destination);
             }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
 
-            const loadingState = document.getElementById('loadingState');
-            const profileGrid = document.getElementById('profileGrid');
-            const emptyState = document.getElementById('emptyState');
-            const badge = document.getElementById('searchSourceBadge');
-            const btn = document.getElementById('searchBtn');
+        // 8D Audio Effect
+        function toggle8DAudio() {
+            initAudioContext();
+            is8DEnabled = !is8DEnabled;
+            const statusLabel = document.getElementById('status-8d');
+            const btn8d = document.getElementById('btn-8d');
 
-            loadingState.classList.remove('hidden');
-            profileGrid.classList.add('hidden');
-            emptyState.classList.add('hidden');
+            if (is8DEnabled) {
+                statusLabel.innerText = 'ON';
+                statusLabel.className = 'text-emerald-400 font-bold';
+                btn8d.classList.add('border-indigo-500', 'bg-indigo-500/10');
+                
+                pannerInterval = setInterval(() => {
+                    if (pannerNode && isPlaying) {
+                        pannerAngle += 0.03;
+                        pannerNode.pan.value = Math.sin(pannerAngle);
+                    }
+                }, 50);
+            } else {
+                statusLabel.innerText = 'OFF';
+                statusLabel.className = 'text-slate-500';
+                btn8d.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+                clearInterval(pannerInterval);
+                if (pannerNode) pannerNode.pan.value = 0;
+            }
+        }
+
+        // Equalizer Updates
+        function updateEQ() {
+            initAudioContext();
+            const bassVal = parseFloat(document.getElementById('eq-bass').value);
+            const midVal = parseFloat(document.getElementById('eq-mid').value);
+            const highmidVal = parseFloat(document.getElementById('eq-highmid').value);
+            const trebleVal = parseFloat(document.getElementById('eq-treble').value);
+
+            if (eqNodes.bass) eqNodes.bass.gain.value = bassVal;
+            if (eqNodes.mid) eqNodes.mid.gain.value = midVal;
+            if (eqNodes.highmid) eqNodes.highmid.gain.value = highmidVal;
+            if (eqNodes.treble) eqNodes.treble.gain.value = trebleVal;
+
+            document.getElementById('val-bass').innerText = `${bassVal} dB`;
+            document.getElementById('val-mid').innerText = `${midVal} dB`;
+            document.getElementById('val-highmid').innerText = `${highmidVal} dB`;
+            document.getElementById('val-treble').innerText = `${trebleVal} dB`;
+        }
+
+        function resetEQ() {
+            document.getElementById('eq-bass').value = 0;
+            document.getElementById('eq-mid').value = 0;
+            document.getElementById('eq-highmid').value = 0;
+            document.getElementById('eq-treble').value = 0;
+            document.getElementById('speed-slider').value = 1.0;
+            document.getElementById('pan-slider').value = 0;
+            changePlaybackSpeed(1.0);
+            changeStereoPan(0);
+            updateEQ();
+        }
+
+        function changePlaybackSpeed(val) {
+            audioPlayer.playbackRate = parseFloat(val);
+            document.getElementById('val-speed').innerText = `${parseFloat(val).toFixed(2)}x`;
+        }
+
+        function changeStereoPan(val) {
+            initAudioContext();
+            if (pannerNode && !is8DEnabled) {
+                pannerNode.pan.value = parseFloat(val);
+            }
+            const panText = val == 0 ? 'Center' : val < 0 ? `Left ${Math.abs(val*100)}%` : `Right ${Math.abs(val*100)}%`;
+            document.getElementById('val-pan').innerText = panText;
+        }
+
+        function loadTrack(index, autoPlay = true) {
+            if (playlist.length === 0) return;
+            currentTrackIndex = index;
+            const track = playlist[index];
+
+            audioPlayer.src = track.url;
+            currentTitle.innerText = track.title;
+            currentArtist.innerText = track.artist;
+            trackCover.src = track.cover;
+
+            barTitle.innerText = track.title;
+            barArtist.innerText = track.artist;
+            barCover.src = track.cover;
+
+            highlightActiveTrack();
+
+            if (autoPlay) {
+                initAudioContext();
+                audioPlayer.play().then(() => {
+                    isPlaying = true;
+                    updatePlayButtonUI();
+                }).catch(err => console.log("Playback interrupted:", err));
+            }
+        }
+
+        function togglePlayPause() {
+            initAudioContext();
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+            } else {
+                audioPlayer.play().then(() => {
+                    isPlaying = true;
+                });
+            }
+            updatePlayButtonUI();
+        }
+
+        function updatePlayButtonUI() {
+            iconMainPlay.className = isPlaying ? "fa-solid fa-pause text-lg" : "fa-solid fa-play text-lg ml-0.5";
+        }
+
+        function playNextTrack() {
+            if (isShuffle) {
+                currentTrackIndex = Math.floor(Math.random() * playlist.length);
+            } else {
+                currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            }
+            loadTrack(currentTrackIndex, true);
+        }
+
+        function playPrevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(currentTrackIndex, true);
+        }
+
+        function onTrackEnded() {
+            if (isRepeat) {
+                loadTrack(currentTrackIndex, true);
+            } else {
+                playNextTrack();
+            }
+        }
+
+        function updateProgressBar() {
+            if (audioPlayer.duration) {
+                const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                seekBar.value = percentage;
+                timeCurrent.innerText = formatTime(audioPlayer.currentTime);
+                timeTotal.innerText = formatTime(audioPlayer.duration);
+            }
+        }
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        function changeVolume(val) {
+            audioPlayer.volume = val;
+            const icon = document.getElementById('icon-volume');
+            if (val == 0) icon.className = "fa-solid fa-volume-xmark";
+            else if (val < 0.5) icon.className = "fa-solid fa-volume-low";
+            else icon.className = "fa-solid fa-volume-high";
+        }
+
+        function toggleMute() {
+            if (audioPlayer.volume > 0) {
+                audioPlayer.dataset.lastVol = audioPlayer.volume;
+                audioPlayer.volume = 0;
+                document.getElementById('volume-slider').value = 0;
+            } else {
+                const lastVol = audioPlayer.dataset.lastVol || 0.8;
+                audioPlayer.volume = lastVol;
+                document.getElementById('volume-slider').value = lastVol;
+            }
+            changeVolume(audioPlayer.volume);
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            document.getElementById('btn-shuffle').classList.toggle('text-indigo-400', isShuffle);
+        }
+
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            document.getElementById('btn-repeat').classList.toggle('text-indigo-400', isRepeat);
+        }
+
+        function renderPlaylist() {
+            playlistItems.innerHTML = '';
+            document.getElementById('playlist-count').innerText = `${playlist.length} เพลง`;
+
+            playlist.forEach((track, idx) => {
+                const item = document.createElement('div');
+                item.className = `playlist-item flex items-center justify-between p-3 rounded-xl cursor-pointer transition border ${idx === currentTrackIndex ? 'bg-indigo-600/20 border-indigo-500/40' : 'bg-slate-900/40 border-slate-800/60 hover:bg-slate-800/50'}`;
+                item.onclick = () => loadTrack(idx, true);
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <span class="text-xs font-mono text-slate-500 w-4 flex-shrink-0">${idx + 1}</span>
+                        <img src="${track.cover}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
+                        <div class="overflow-hidden">
+                            <h4 class="text-sm font-semibold text-slate-200 truncate">${track.title}</h4>
+                            <p class="text-xs text-slate-400 truncate">${track.artist}</p>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); removeTrack(${idx})" class="text-slate-500 hover:text-rose-400 transition text-xs p-2 flex-shrink-0">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                playlistItems.appendChild(item);
+            });
+        }
+
+        function highlightActiveTrack() {
+            renderPlaylist();
+        }
+
+        function removeTrack(index) {
+            playlist.splice(index, 1);
+            savePlaylistToStorage();
+            if (playlist.length === 0) {
+                audioPlayer.pause();
+                isPlaying = false;
+                updatePlayButtonUI();
+            } else {
+                if (index === currentTrackIndex) {
+                    loadTrack(0, true);
+                }
+            }
+            renderPlaylist();
+        }
+
+        function setupLocalFileInput() {
+            const input = document.getElementById('local-file-input');
+            input.addEventListener('change', (e) => {
+                handleAudioFiles(e.target.files);
+            });
+        }
+
+        function setupDragAndDrop() {
+            const dropTarget = document.body;
+            const overlay = document.getElementById('drag-overlay');
+
+            window.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            });
+
+            window.addEventListener('dragleave', (e) => {
+                if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                }
+            });
+
+            window.addEventListener('drop', (e) => {
+                e.preventDefault();
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    handleAudioFiles(e.dataTransfer.files);
+                }
+            });
+        }
+
+        function handleAudioFiles(files) {
+            if (!files.length) return;
+            let addedCount = 0;
+
+            for (let file of files) {
+                if (file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)) {
+                    const url = URL.createObjectURL(file);
+                    playlist.push({
+                        id: Date.now().toString() + Math.random(),
+                        title: file.name.replace(/\.[^/.]+$/, ""),
+                        artist: 'Local Track',
+                        cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80',
+                        url: url
+                    });
+                    addedCount++;
+                }
+            }
+            if (addedCount > 0) {
+                savePlaylistToStorage();
+                renderPlaylist();
+                if (!isPlaying) loadTrack(playlist.length - addedCount, true);
+            }
+        }
+
+        function filterTracks() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const items = playlistItems.getElementsByClassName('playlist-item');
+            playlist.forEach((track, idx) => {
+                const match = track.title.toLowerCase().includes(query) || track.artist.toLowerCase().includes(query);
+                if (items[idx]) {
+                    items[idx].style.display = match ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Visualizer Canvas
+        let visualizerMode = 'bars';
+
+        function changeVisualizerMode(mode) {
+            visualizerMode = mode;
+        }
+
+        function initVisualizer() {
+            const canvas = document.getElementById('main-visualizer-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const miniCanvas = document.getElementById('mini-waveform');
+            const miniCtx = miniCanvas.getContext('2d');
+
+            function resizeCanvas() {
+                if (canvas.parentElement) {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                }
+                if (miniCanvas.parentElement) {
+                    miniCanvas.width = miniCanvas.parentElement.clientWidth;
+                    miniCanvas.height = miniCanvas.parentElement.clientHeight;
+                }
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            function draw() {
+                requestAnimationFrame(draw);
+
+                const bufferLength = analyser ? analyser.frequencyBinCount : 64;
+                const dataArray = new Uint8Array(bufferLength);
+                if (analyser) analyser.getByteFrequencyData(dataArray);
+
+                // Clear Canvas
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                miniCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
+
+                // Mini Waveform Display
+                miniCtx.fillStyle = '#6366f1';
+                const miniBarWidth = miniCanvas.width / 32;
+                for (let i = 0; i < 32; i++) {
+                    const val = dataArray[i] || 10;
+                    const h = (val / 255) * miniCanvas.height;
+                    miniCtx.fillRect(i * miniBarWidth, miniCanvas.height - h, miniBarWidth - 2, h);
+                }
+
+                // Main Visualizer Rendering
+                if (visualizerMode === 'bars') {
+                    const barWidth = (canvas.width / bufferLength) * 2.5;
+                    let x = 0;
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        const barHeight = (dataArray[i] / 255) * canvas.height * 0.8;
+                        const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+                        gradient.addColorStop(0, '#4f46e5');
+                        gradient.addColorStop(0.5, '#818cf8');
+                        gradient.addColorStop(1, '#ec4899');
+
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 3, barHeight);
+                        x += barWidth;
+                    }
+                } else if (visualizerMode === 'circle') {
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    const radius = Math.min(centerX, centerY) * 0.4;
+
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                    ctx.strokeStyle = '#312e81';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        const angle = (i / bufferLength) * Math.PI * 2;
+                        const barLen = (dataArray[i] / 255) * 120;
+                        const x1 = centerX + Math.cos(angle) * radius;
+                        const y1 = centerY + Math.sin(angle) * radius;
+                        const x2 = centerX + Math.cos(angle) * (radius + barLen);
+                        const y2 = centerY + Math.sin(angle) * (radius + barLen);
+
+                        ctx.strokeStyle = `hsl(${i * 4}, 100%, 60%)`;
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    }
+                } else if (visualizerMode === 'wave') {
+                    ctx.beginPath();
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#ec4899';
+                    const sliceWidth = canvas.width / bufferLength;
+                    let x = 0;
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        const v = dataArray[i] / 128.0;
+                        const y = (v * canvas.height) / 2;
+
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+
+                        x += sliceWidth;
+                    }
+                    ctx.lineTo(canvas.width, canvas.height / 2);
+                    ctx.stroke();
+                }
+            }
+            draw();
+        }
+
+        // Ambient Audio Management
+        function toggleAmbient(type) {
+            const audio = ambientAudio[type];
+            const btn = document.getElementById(`btn-ambient-${type}`);
+
+            if (audio.paused) {
+                audio.loop = true;
+                audio.play();
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                btn.classList.add('bg-indigo-600');
+            } else {
+                audio.pause();
+                btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                btn.classList.remove('bg-indigo-600');
+            }
+        }
+
+        function setAmbientVolume(type, val) {
+            ambientAudio[type].volume = val;
+        }
+
+        // Gemini AI Integration
+        async function generateAISoundConcept() {
+            const prompt = document.getElementById('ai-prompt-input').value.trim();
+            if (!prompt) return;
+
+            const btn = document.getElementById('btn-ai-generate');
+            const resultBox = document.getElementById('ai-result-box');
+            const resultText = document.getElementById('ai-result-text');
+
             btn.disabled = true;
-            btn.classList.add('opacity-75');
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> กำลังวิเคราะห์...';
+
+            const apiKey = ""; // Runtime automatically populates key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const systemPrompt = "คุณคือ Music Producer และ Sound Designer ระดับโลก ช่วยวิเคราะห์ Mood/Theme ที่ผู้ใช้นำเสนอ แล้วออกแบบแนวคิดเพลง โครงสร้างบีต เครื่องดนตรีที่ควรใช้ และคำแนะนำในการปรับแต่ง Equalizer";
 
             try {
-                const systemPrompt = `คุณคือระบบค้นหาและสืบค้นประวัติบุคคลเจาะลึกขั้นสูงจากแหล่งข้อมูลสาธารณะทั่วอินเทอร์เน็ต (Deep Profile & Intelligence Discovery Agent)
-
-คำสั่งปฏิบัติการ:
-1. ทำการวิเคราะห์และค้นหาข้อมูลสาธารณะเกี่ยวกับบุคคล ตำแหน่ง หรือคำค้นหาที่ได้รับอย่างครอบคลุม เจาะลึก และแม่นยำที่สุด
-2. รวบรวมข้อมูลประวัติโดยละเอียด ได้แก่ ประวัติการทำงาน, ตำแหน่งปัจจุบันและอดีต, ผลงานสำคัญ, คุณวุฒิการศึกษา, ทักษะเชี่ยวชาญเฉพาะทาง, รวมถึงช่องทางติดต่อสาธารณะ (เช่น อีเมลวิชาการ/ธุรกิจ, ลิงก์ Social/Media, เบอร์ติดต่อสาธารณะ)
-3. ส่งกลับผลลัพธ์เป็น JSON Array ตามโครงสร้าง Schema ด้านล่างนี้เท่านั้น โดยค้นหาและสร้างโปรไฟล์ที่มีข้อมูลแน่นและครอบคลุมที่สุด 1-5 รายการ:
-
-[
-  {
-    "name": "ชื่อ-นามสกุล จริง พร้อมคำนำหน้า/ยศ/ตำแหน่งทางวิชาการ (ถ้ามี)",
-    "title": "ตำแหน่งปัจจุบัน / บทบาทหลัก / อาชีพ",
-    "category": "หมวดหมู่ (เลือกจาก: IT/Technology, Business/Management, Creative/Design, Education/Academic, Medical/Health, Other)",
-    "experienceYears": 10,
-    "status": "open",
-    "education": "ประวัติการศึกษา คณะ สถาบัน หรือคุณวุฒิโดยละเอียด",
-    "skills": ["ทักษะ1", "ทักษะ2", "ทักษะ3", "ทักษะ4", "ทักษะ5"],
-    "bio": "สรุปประวัติเชิงลึก ผลงานเด่น ประสบการณ์ และบทบาทสำคัญอย่างละเอียดยิ่งขึ้น (ประมาณ 3-5 ประโยค)",
-    "email": "อีเมลสาธารณะ หรือ ไม่พบข้อมูลสาธารณะ",
-    "phone": "เบอร์ติดต่อสาธารณะ หรือ ไม่พบข้อมูลสาธารณะ"
-  }
-]`;
-
-                const userPrompt = `สืบค้นและค้นหาประวัติเจาะลึกเชิงรายละเอียดของบุคคลหรือคำค้นหานี้จากเว็บจริง: "${query}"`;
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: userPrompt }] }],
-                    tools: [{ "google_search": {} }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    generationConfig: {
-                        responseMimeType: "application/json"
-                    }
-                };
-
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
                 });
 
-                const result = await response.json();
-                
-                if (result.error) {
-                    throw new Error(result.error.message || "API Request Failed");
-                }
+                const data = await response.json();
+                const aiOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || "ไม่สามารถสร้างข้อมูลได้ในขณะนี้";
 
-                const candidate = result.candidates?.[0];
-
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    const rawJson = candidate.content.parts[0].text;
-                    let parsedData = JSON.parse(rawJson);
-
-                    let sources = [];
-                    const groundingMetadata = candidate.groundingMetadata;
-                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
-                        sources = groundingMetadata.groundingAttributions
-                            .map(attribution => ({
-                                uri: attribution.web?.uri,
-                                title: attribution.web?.title,
-                            }))
-                            .filter(source => source.uri && source.title);
-                    }
-
-                    if (Array.isArray(parsedData) && parsedData.length > 0) {
-                        liveSearchProfiles = parsedData.map((item, index) => ({
-                            id: `live_${Date.now()}_${index}`,
-                            name: item.name || query,
-                            title: item.title || 'บุคคลสาธารณะ / ผู้เชี่ยวชาญ',
-                            category: item.category || 'Other',
-                            experienceYears: item.experienceYears || 5,
-                            status: item.status || 'open',
-                            education: item.education || 'ข้อมูลค้นพบจากแหล่งสาธารณะ',
-                            skills: Array.isArray(item.skills) && item.skills.length > 0 ? item.skills : ['ค้นพบเจาะลึก'],
-                            bio: item.bio || 'ค้นพบข้อมูลเจาะลึกจากอินเทอร์เน็ต',
-                            email: item.email || 'ไม่พบข้อมูลสาธารณะ',
-                            phone: item.phone || 'ไม่พบข้อมูลสาธารณะ',
-                            sources: sources,
-                            avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(item.name || query)}`
-                        }));
-
-                        isLiveSearchResults = true;
-                        badge.textContent = `แสดงผลเจาะลึก: Google Live Search (${sources.length} แหล่งอ้างอิง)`;
-                        badge.className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold";
-                        renderProfiles(liveSearchProfiles);
-                        showToast(`สืบค้นและพบประวัติเจาะลึก ${liveSearchProfiles.length} รายการจากอินเทอร์เน็ต`);
-                    } else {
-                        throw new Error("No structured results found");
-                    }
-                } else {
-                    throw new Error("Invalid response format");
-                }
-            } catch (err) {
-                console.warn("Live Search fallback to local matching:", err);
-                showToast("ไม่สามารถดึงข้อมูลแบบ Live Search ได้ สลับมาแสดงผลจากฐานข้อมูลระบบ");
-                isLiveSearchResults = false;
-                applyFilters();
+                resultText.innerText = aiOutput;
+                resultBox.classList.remove('hidden');
+            } catch (error) {
+                resultText.innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API";
+                resultBox.classList.remove('hidden');
             } finally {
-                loadingState.classList.add('hidden');
                 btn.disabled = false;
-                btn.classList.remove('opacity-75');
+                btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> <span>สร้างไอเดีย</span>';
             }
         }
 
-        function renderProfiles(dataList) {
-            const grid = document.getElementById('profileGrid');
-            const emptyState = document.getElementById('emptyState');
-            const resultCount = document.getElementById('resultCount');
-
-            grid.innerHTML = '';
-            resultCount.textContent = dataList.length;
-
-            if (dataList.length === 0) {
-                grid.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            grid.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-
-            dataList.forEach(profile => {
-                const statusBadge = profile.status === 'open' 
-                    ? `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium inline-flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>พร้อมรับงาน</span>`
-                    : `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-medium inline-flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>มีงานประจำ</span>`;
-
-                const liveTag = profile.id.toString().startsWith('live_')
-                    ? `<span class="bg-amber-400/20 text-amber-800 border border-amber-300 text-[10px] px-2 py-0.5 rounded font-bold mr-1">REAL-TIME</span>`
-                    : '';
-
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between";
-                
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-start space-x-3 mb-3">
-                            <img src="${profile.avatar}" alt="${profile.name}" class="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200">
-                            <div class="flex-grow overflow-hidden">
-                                <div class="flex items-center">
-                                    ${liveTag}
-                                    <h3 class="font-bold text-slate-900 text-base leading-tight truncate">${profile.name}</h3>
-                                </div>
-                                <p class="text-xs text-indigo-600 font-medium mt-0.5 truncate">${profile.title}</p>
-                                <div class="mt-1.5">${statusBadge}</div>
-                            </div>
-                        </div>
-
-                        <p class="text-xs text-slate-600 line-clamp-2 mb-3 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                            ${profile.bio || 'ไม่มีข้อมูลประวัติย่อ'}
-                        </p>
-
-                        <div class="flex flex-wrap gap-1 mb-4">
-                            ${(profile.skills || []).slice(0, 3).map(skill => `<span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded">${skill}</span>`).join('')}
-                            ${(profile.skills || []).length > 3 ? `<span class="text-xs text-slate-400 py-0.5">+${profile.skills.length - 3}</span>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-                        <span class="text-xs text-slate-400"><i class="fa-solid fa-clock-rotate-left mr-1"></i>ประสบการณ์ ${profile.experienceYears || 0} ปี</span>
-                        <button onclick="openDetailModal('${profile.id}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
-                            <span>ดูประวัติเต็ม</span>
-                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
+        // Tab Switcher
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-indigo-400', 'bg-indigo-500/10');
+                btn.classList.add('text-slate-400');
             });
-        }
 
-        function getFilteredData() {
-            const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
-            const category = document.getElementById('categoryFilter').value;
-            const sort = document.getElementById('sortFilter').value;
-            
-            const selectedStatuses = Array.from(document.querySelectorAll('.status-filter:checked')).map(cb => cb.value);
-
-            return profiles.filter(profile => {
-                const matchesSearch = !searchText || 
-                    profile.name.toLowerCase().includes(searchText) ||
-                    profile.title.toLowerCase().includes(searchText) ||
-                    profile.bio.toLowerCase().includes(searchText) ||
-                    profile.education.toLowerCase().includes(searchText) ||
-                    (profile.skills && profile.skills.some(s => s.toLowerCase().includes(searchText)));
-
-                const matchesCategory = category === 'ALL' || profile.category === category;
-                const matchesStatus = selectedStatuses.includes(profile.status);
-
-                return matchesSearch && matchesCategory && matchesStatus;
-            }).sort((a, b) => {
-                if (sort === 'name') {
-                    return a.name.localeCompare(b.name, 'th');
-                } else if (sort === 'experience') {
-                    return b.experienceYears - a.experienceYears;
-                } else {
-                    return b.id - a.id;
-                }
-            });
-        }
-
-        function applyFilters() {
-            if (isLiveSearchResults) {
-                renderProfiles(liveSearchProfiles);
-                return;
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if (activeNav) {
+                activeNav.classList.add('text-indigo-400', 'bg-indigo-500/10');
+                activeNav.classList.remove('text-slate-400');
             }
-
-            const badge = document.getElementById('searchSourceBadge');
-            badge.textContent = "แสดงผลจาก: ฐานข้อมูลในระบบ";
-            badge.className = "text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium";
-
-            const filtered = getFilteredData();
-            renderProfiles(filtered);
-        }
-
-        function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('categoryFilter').value = 'ALL';
-            document.getElementById('sortFilter').value = 'newest';
-            document.querySelectorAll('.status-filter').forEach(cb => cb.checked = true);
-            isLiveSearchResults = false;
-            applyFilters();
-        }
-
-        function resetSearch() {
-            resetFilters();
-        }
-
-        function openDetailModal(id) {
-            const profileList = isLiveSearchResults ? liveSearchProfiles : profiles;
-            const profile = profileList.find(p => p.id.toString() === id.toString());
-            if (!profile) return;
-
-            document.getElementById('modalAvatar').src = profile.avatar;
-            document.getElementById('modalName').textContent = profile.name;
-            document.getElementById('modalTitle').textContent = profile.title;
-            document.getElementById('modalCategory').textContent = getCategoryLabel(profile.category);
-            document.getElementById('modalBio').textContent = profile.bio || "ไม่ได้ระบุประวัติย่อ";
-            document.getElementById('modalExperience').textContent = `${profile.experienceYears || 0} ปี`;
-            document.getElementById('modalEducation').textContent = profile.education || "ไม่ได้ระบุ";
-
-            const statusContainer = document.getElementById('modalStatusBadge');
-            if (profile.status === 'open') {
-                statusContainer.innerHTML = `<span class="bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">พร้อมรับงาน</span>`;
-            } else {
-                statusContainer.innerHTML = `<span class="bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">มีงานประจำ</span>`;
-            }
-
-            const skillsContainer = document.getElementById('modalSkills');
-            skillsContainer.innerHTML = (profile.skills || []).map(s => `<span class="bg-indigo-50 text-indigo-700 text-xs px-3 py-1 rounded-full border border-indigo-100 font-medium">${s}</span>`).join('');
-
-            const sourcesContainer = document.getElementById('modalSourcesContainer');
-            const sourcesList = document.getElementById('modalSources');
-            if (profile.sources && profile.sources.length > 0) {
-                sourcesContainer.classList.remove('hidden');
-                sourcesList.innerHTML = profile.sources.map(src => 
-                    `<div class="truncate"><a href="${src.uri}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline flex items-center"><i class="fa-solid fa-arrow-up-right-from-square mr-1.5 text-[10px]"></i>${src.title}</a></div>`
-                ).join('');
-            } else {
-                sourcesContainer.classList.add('hidden');
-            }
-
-            const contactsContainer = document.getElementById('modalContacts');
-            contactsContainer.innerHTML = `
-                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
-                    <i class="fa-solid fa-envelope text-indigo-600 text-base"></i>
-                    <div class="overflow-hidden">
-                        <p class="text-slate-400">อีเมล</p>
-                        <p class="font-medium text-slate-800 truncate">${profile.email || 'ไม่ได้ระบุ'}</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
-                    <i class="fa-solid fa-phone text-indigo-600 text-base"></i>
-                    <div>
-                        <p class="text-slate-400">เบอร์โทรศัพท์</p>
-                        <p class="font-medium text-slate-800">${profile.phone || 'ไม่ได้ระบุ'}</p>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-        }
-
-        function openAddModal() {
-            document.getElementById('addModal').classList.remove('hidden');
-        }
-
-        function closeAddModal() {
-            document.getElementById('addModal').classList.add('hidden');
-            document.getElementById('addProfileForm').reset();
-        }
-
-        function saveProfile(e) {
-            e.preventDefault();
-
-            const name = document.getElementById('addName').value.trim();
-            const title = document.getElementById('addTitle').value.trim();
-            const category = document.getElementById('addCategory').value;
-            const exp = parseInt(document.getElementById('addExp').value) || 0;
-            const status = document.getElementById('addStatus').value;
-            const education = document.getElementById('addEducation').value.trim();
-            const skillsRaw = document.getElementById('addSkills').value;
-            const bio = document.getElementById('addBio').value.trim();
-            const email = document.getElementById('addEmail').value.trim();
-            const phone = document.getElementById('addPhone').value.trim();
-
-            const skills = skillsRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
-
-            const newProfile = {
-                id: Date.now(),
-                name: name,
-                title: title,
-                category: category,
-                experienceYears: exp,
-                status: status,
-                education: education || 'ไม่ได้ระบุ',
-                skills: skills.length > 0 ? skills : ['ทั่วไป'],
-                bio: bio,
-                email: email,
-                phone: phone,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
-            };
-
-            profiles.unshift(newProfile);
-            saveToStorage();
-            isLiveSearchResults = false;
-            applyFilters();
-            closeAddModal();
-            showToast("เพิ่มข้อมูลประวัติเรียบร้อยแล้ว");
-        }
-
-        function getCategoryLabel(catKey) {
-            const maps = {
-                'IT/Technology': 'เทคโนโลยี / ไอที',
-                'Business/Management': 'บริหาร / ธุรกิจ',
-                'Creative/Design': 'สร้างสรรค์ / ออกแบบ',
-                'Education/Academic': 'การศึกษา / วิชาการ',
-                'Medical/Health': 'การแพทย์ / สาธารณสุข',
-                'Other': 'อื่นๆ'
-            };
-            return maps[catKey] || catKey;
-        }
-
-        function showToast(msg, isWarning = false) {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
-            
-            if (isWarning) {
-                icon.className = "fa-solid fa-circle-exclamation text-amber-400";
-            } else {
-                icon.className = "fa-solid fa-circle-check text-emerald-400";
-            }
-
-            document.getElementById('toastMessage').textContent = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3500);
         }
     </script>
 </body>
