@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyFlow - เพลงออนไลน์ไม่มีโฆษณา</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Kanit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            accent: '#6366f1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        /* Audio Visualizer Bar Animation */
+        @keyframes pulse-bar {
+            0%, 100% { height: 15%; }
+            50% { height: 100%; }
+        }
+        .animate-bar-1 { animation: pulse-bar 0.8s ease-in-out infinite; }
+        .animate-bar-2 { animation: pulse-bar 1.1s ease-in-out infinite 0.2s; }
+        .animate-bar-3 { animation: pulse-bar 0.7s ease-in-out infinite 0.4s; }
+        .animate-bar-4 { animation: pulse-bar 0.9s ease-in-out infinite 0.1s; }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased flex flex-col overflow-hidden select-none">
+
+    <!-- Main App Container -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 bg-slate-900 flex-col justify-between hidden md:flex z-20 border-r border-slate-800 transition-all duration-300">
+            <div class="p-6">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-500 to-emerald-400 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-green-500/20">
+                        <i class="fa-solid fa-music"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">MelodyFlow</h1>
+                        <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium tracking-wide uppercase">Ad-Free Free</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="space-y-1">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-btn active w-full flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl transition-all text-green-400 bg-slate-800/80">
+                        <i class="fa-solid fa-house text-lg w-5"></i>
+                        <span>หน้าแรก</span>
+                    </button>
+                    <button onclick="switchTab('explore')" id="nav-explore" class="nav-btn w-full flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-compass text-lg w-5"></i>
+                        <span>สำรวจ / หมวดหมู่</span>
+                    </button>
+                    <button onclick="switchTab('favorites')" id="nav-favorites" class="nav-btn w-full flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-heart text-lg w-5"></i>
+                        <span>เพลงที่ชอบ</span>
+                        <span id="fav-count" class="ml-auto text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                </nav>
+
+                <hr class="my-6 border-slate-800">
+
+                <!-- Playlists Section -->
+                <div>
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-semibold px-2 mb-3">
+                        <span>เพลย์ลิสต์ของคุณ</span>
+                        <button onclick="createNewPlaylist()" class="hover:text-white transition"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div id="playlist-list" class="space-y-1 max-h-48 overflow-y-auto pr-1">
+                        <!-- Dynamic Playlists -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad-Free Promo Badge -->
+            <div class="p-4 m-4 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 text-center relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-green-500/10 rounded-full blur-xl"></div>
+                <i class="fa-solid fa-shield-halved text-2xl text-green-400 mb-2"></i>
+                <p class="text-xs font-semibold text-slate-200">ไม่มีโฆษณากรบกวน</p>
+                <p class="text-[11px] text-slate-400 mt-1">ฟังเพลงได้ต่อเนื่อง ไร้ขีดจำกัดตลอด 24 ชม.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col min-w-0 bg-slate-950 overflow-hidden relative">
+            
+            <!-- Top Navbar -->
+            <header class="h-16 border-b border-slate-800/60 px-4 md:px-8 flex items-center justify-between gap-4 glass-panel z-10 sticky top-0">
+                <!-- Mobile Sidebar Toggle -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 text-xl p-2">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <!-- Search Bar -->
+                <div class="relative flex-1 max-w-md">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="handleSearch(this.value)" placeholder="ค้นหาชื่อเพลง, ศิลปิน หรืออัลบั้ม..." class="w-full bg-slate-900 border border-slate-800 rounded-full py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-green-500 transition-all">
+                </div>
+
+                <!-- User Profile / Banner Indicator -->
+                <div class="flex items-center gap-3">
+                    <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 text-xs font-medium">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        ระบบโหมดสตรีมมิ่งสด
+                    </span>
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-sm shadow-md">
+                        U
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content View -->
+            <div id="content-scroll" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 pb-32">
+
+                <!-- SECTION: HOME VIEW -->
+                <div id="view-home" class="view-tab space-y-8">
+                    <!-- Hero Banner -->
+                    <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-900/60 via-slate-900 to-indigo-950 p-6 md:p-10 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+                        <div class="space-y-3 z-10 max-w-xl text-center md:text-left">
+                            <span class="text-xs uppercase tracking-wider text-green-400 font-semibold bg-green-950/60 border border-green-800 px-3 py-1 rounded-full">แนะนำสัปดาห์นี้</span>
+                            <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight">ผ่อนคลายไปกับเสียงเพลงคุณภาพไร้โฆษณา</h2>
+                            <p class="text-slate-300 text-sm md:text-base">เพลิดเพลินกับรายการเพลงฮิตติดชาร์ต ละมุนทุกจังหวะ ไม่ขัดจังหวะความสุขของคุณ</p>
+                            <div class="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                                <button onclick="playSong(0)" class="bg-green-500 hover:bg-green-400 text-slate-950 font-semibold px-6 py-2.5 rounded-full flex items-center gap-2 transition transform active:scale-95 shadow-lg shadow-green-500/25">
+                                    <i class="fa-solid fa-play"></i> เล่นทั้งหมด
+                                </button>
+                            </div>
+                        </div>
+                        <div class="relative w-40 h-40 md:w-52 md:h-52 flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80" alt="Music Banner" class="w-full h-full object-cover rounded-2xl shadow-2xl rotate-3 transform hover:rotate-0 transition duration-300 border border-white/10">
+                        </div>
+                    </div>
+
+                    <!-- Top Hits Section -->
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white tracking-wide">เพลงฮิตยอดนิยม</h3>
+                            <button onclick="switchTab('explore')" class="text-xs text-green-400 hover:underline">ดูทั้งหมด</button>
+                        </div>
+                        <div id="top-hits-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            <!-- Dynamic Cards -->
+                        </div>
+                    </div>
+
+                    <!-- Recommended Playlists / Quick Selection -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white tracking-wide mb-4">จัดตามอารมณ์ของคุณ</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="mood-grid">
+                            <!-- Mood Cards -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: EXPLORE VIEW -->
+                <div id="view-explore" class="view-tab hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-white">หมวดหมู่และแนวเพลงทั้งหมด</h2>
+                    
+                    <!-- Genre Tags -->
+                    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none" id="genre-filters">
+                        <button onclick="filterGenre('All')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-green-500 text-slate-950 flex-shrink-0">ทั้งหมด</button>
+                        <button onclick="filterGenre('Lo-Fi')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">Lo-Fi / Chill</button>
+                        <button onclick="filterGenre('Pop')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">Pop</button>
+                        <button onclick="filterGenre('Acoustic')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">Acoustic</button>
+                        <button onclick="filterGenre('Electronic')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">Electronic</button>
+                    </div>
+
+                    <!-- Full Song Table List -->
+                    <div class="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4">
+                        <div class="divide-y divide-slate-800/60" id="explore-songs-list">
+                            <!-- Dynamic List Items -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: FAVORITES VIEW -->
+                <div id="view-favorites" class="view-tab hidden space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center text-white text-3xl shadow-lg shadow-rose-500/20">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">เพลงที่ชอบ</h2>
+                            <p class="text-sm text-slate-400 mt-1" id="fav-subtitle">คอลเลกชันเพลงโปรดของคุณ</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4">
+                        <div id="favorites-songs-list" class="divide-y divide-slate-800/60">
+                            <!-- Favorite songs -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fullscreen Lyrics & Visualizer Overlay Modal -->
+                <div id="lyrics-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 hidden flex flex-col p-6 transition-all duration-300">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-align-left text-green-400"></i>
+                            <span class="text-sm font-semibold text-slate-300">เนื้อเพลง / โหมดแสดงผล</span>
+                        </div>
+                        <button onclick="toggleLyricsModal()" class="text-slate-400 hover:text-white text-xl p-2">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 py-8 overflow-y-auto max-w-5xl mx-auto w-full">
+                        <!-- Cover Album Animation -->
+                        <div class="text-center space-y-4 flex-shrink-0">
+                            <div class="relative w-64 h-64 md:w-80 md:h-80 mx-auto rounded-3xl overflow-hidden shadow-2xl border border-slate-700/50">
+                                <img id="modal-cover" src="" alt="Album Cover" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 id="modal-title" class="text-2xl font-bold text-white"></h3>
+                                <p id="modal-artist" class="text-slate-400 text-sm mt-1"></p>
+                            </div>
+                        </div>
+
+                        <!-- Lyrics / Visualizer View -->
+                        <div class="flex-1 w-full flex flex-col justify-center items-center h-full text-center px-4">
+                            <!-- Visualizer Animation Effect -->
+                            <div class="flex items-end justify-center gap-2 h-16 mb-8" id="visualizer-bars">
+                                <div class="w-2 bg-green-500 rounded-full h-4 animate-bar-1"></div>
+                                <div class="w-2 bg-green-400 rounded-full h-8 animate-bar-2"></div>
+                                <div class="w-2 bg-emerald-500 rounded-full h-12 animate-bar-3"></div>
+                                <div class="w-2 bg-green-300 rounded-full h-6 animate-bar-4"></div>
+                                <div class="w-2 bg-emerald-400 rounded-full h-10 animate-bar-2"></div>
+                            </div>
+                            
+                            <!-- Lyrics Scroll Box -->
+                            <div id="modal-lyrics" class="space-y-4 text-slate-300 text-lg md:text-xl font-medium max-h-64 overflow-y-auto leading-relaxed px-4">
+                                <!-- Dynamic Lyrics -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Sticky Player Controls Bar -->
+    <footer class="h-20 bg-slate-900 border-t border-slate-800/80 px-4 md:px-6 flex items-center justify-between z-40 relative">
+        <!-- Current Track Info -->
+        <div class="flex items-center gap-3 w-1/4 min-w-[160px]">
+            <img id="player-cover" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&auto=format&fit=crop&q=80" alt="Cover" class="w-12 h-12 rounded-lg object-cover border border-slate-800 shadow">
+            <div class="min-w-0 hidden sm:block">
+                <h4 id="player-title" class="text-sm font-semibold text-white truncate">เลือกเพลงเพื่อเริ่มฟัง</h4>
+                <p id="player-artist" class="text-xs text-slate-400 truncate">MelodyFlow Ad-Free</p>
+            </div>
+            <button id="player-fav-btn" onclick="toggleFavoriteCurrent()" class="text-slate-500 hover:text-rose-500 transition ml-1">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+        </div>
+
+        <!-- Audio Player Main Controls -->
+        <div class="flex flex-col items-center gap-1.5 w-2/4 max-w-xl">
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-4 md:gap-6">
+                <button id="shuffle-btn" onclick="toggleShuffle()" class="text-slate-400 hover:text-white transition text-xs md:text-sm">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+                <button onclick="prevSong()" class="text-slate-300 hover:text-white transition text-base md:text-lg">
+                    <i class="fa-solid fa-backward-step"></i>
+                </button>
+                <button onclick="togglePlayPause()" id="play-pause-btn" class="w-10 h-10 rounded-full bg-green-500 hover:bg-green-400 text-slate-950 flex items-center justify-center transition shadow-lg shadow-green-500/20 active:scale-95">
+                    <i class="fa-solid fa-play text-base"></i>
+                </button>
+                <button onclick="nextSong()" class="text-slate-300 hover:text-white transition text-base md:text-lg">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
+                <button id="repeat-btn" onclick="toggleRepeat()" class="text-slate-400 hover:text-white transition text-xs md:text-sm">
+                    <i class="fa-solid fa-repeat"></i>
+                </button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full flex items-center gap-2">
+                <span id="current-time" class="text-[11px] text-slate-400 font-mono w-8 text-right">0:00</span>
+                <input type="range" id="seek-slider" min="0" max="100" value="0" oninput="seekSong(this.value)" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-green-500">
+                <span id="total-duration" class="text-[11px] text-slate-400 font-mono w-8">0:00</span>
+            </div>
+        </div>
+
+        <!-- Extra Controls (Volume & Lyrics Toggle) -->
+        <div class="flex items-center justify-end gap-3 w-1/4 min-w-[120px]">
+            <button onclick="toggleLyricsModal()" class="text-slate-400 hover:text-green-400 transition text-sm p-1.5" title="เนื้อเพลง">
+                <i class="fa-solid fa-align-left"></i>
+            </button>
+            
+            <div class="hidden md:flex items-center gap-2 group">
+                <button onclick="toggleMute()" id="volume-icon" class="text-slate-400 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <input type="range" id="volume-slider" min="0" max="100" value="80" oninput="changeVolume(this.value)" class="w-20 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-green-500">
+            </div>
+        </div>
+    </footer>
+
+    <!-- Hidden HTML Audio Element -->
+    <audio id="audio-element" src="" preload="auto"></audio>
+
+    <script>
+        // Songs Database (Using free public domain / copyright-free royalty-free audio files)
+        const songs = [
+            {
+                id: 1,
+                title: "Lofi Relaxing Afternoon",
+                artist: "Chill Beats Studio",
+                genre: "Lo-Fi",
+                duration: "2:20",
+                cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=400&auto=format&fit=crop&q=80",
+                src: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3",
+                lyrics: ["สายลมพัดเบาๆ ในยามบ่าย", "นั่งจิบกาแฟฟังเสียงเพลงชิลๆ", "ปล่อยใจลอยไปกับเสียงดนตรี", "ไม่มีความเครียด ไม่มีเรื่องกังวลใจ"]
+            },
+            {
+                id: 2,
+                title: "Acoustic Sunset Mood",
+                artist: "Guitar Session",
+                genre: "Acoustic",
+                duration: "2:15",
+                cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&auto=format&fit=crop&q=80",
+                src: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=tropical-house-113912.mp3",
+                lyrics: ["แสงอาทิตย์กำลังจะตกดิน", "อบอุ่นไปทั้งหัวใจ", "กีตาร์โปร่งตัวเดิมกับบทเพลงนี้", "ก้าวเดินไปข้างหน้าด้วยความหวัง"]
+            },
+            {
+                id: 3,
+                title: "Cyberpunk Synthwave Pop",
+                artist: "Neon Future",
+                genre: "Electronic",
+                duration: "1:58",
+                cover: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&auto=format&fit=crop&q=80",
+                src: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=energetic-hip-hop-8303.mp3",
+                lyrics: ["แสงนีออนส่องสว่างในเมืองใหญ่", "จังหวะบีตชวนให้ขยับตาม", "ก้าวเข้าสู่อนาคตไปด้วยกัน", "ปลดปล่อยพลังในตัวคุณ"]
+            },
+            {
+                id: 4,
+                title: "Sweet Acoustic Coffee",
+                artist: "Morning Vibe",
+                genre: "Acoustic",
+                duration: "2:30",
+                cover: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&auto=format&fit=crop&q=80",
+                src: "https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f79220.mp3?filename=pop-chill-124482.mp3",
+                lyrics: ["กลิ่นหอมของกาแฟยามเช้า", "รอยยิ้มของคุณสดใสกว่าใคร", "เริ่มต้นวันใหม่ด้วยความสดชื่น", "บทเพลงนี้แต่งขึ้นเพื่อเธอ"]
+            },
+            {
+                id: 5,
+                title: "Ambient Chillout Space",
+                artist: "Deep Mind",
+                genre: "Lo-Fi",
+                duration: "2:10",
+                cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&auto=format&fit=crop&q=80",
+                src: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c2f826359e.mp3?filename=summer-walk-15362.mp3",
+                lyrics: ["ดำดิ่งสู่ห้วงอวกาศอันกว้างใหญ่", "ความเงียบสงบที่งดงาม", "พักผ่อนสมอง ลืมความเหนื่อยล้า", "ให้เสียงดนตรีบำบัดหัวใจ"]
+            }
+        ];
+
+        // Mood Playlists Mock
+        const moodPlaylists = [
+            { name: "เพลงสำหรับอ่านหนังสือ", desc: "โฟกัสงาน บีตสบายๆ", count: "12 เพลง", icon: "fa-book-open", bg: "from-blue-600 to-indigo-800" },
+            { name: "ออกกำลังกาย สดชื่น", desc: "จังหวะสนุก เพิ่มพลัง", count: "18 เพลง", icon: "fa-bolt", bg: "from-amber-500 to-red-600" },
+            { name: "นอนหลับฝันดี", desc: "เสียงผ่อนคลาย หลับสนิท", count: "15 เพลง", icon: "fa-moon", bg: "from-purple-800 to-slate-900" }
+        ];
+
+        // State Management
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let isShuffle = false;
+        let isRepeat = false;
+        let favorites = new Set([1, 3]); // Sample Default favorite IDs
+        let playlists = ["My Favorites 2026", "Work & Chill"];
+        
+        const audio = document.getElementById('audio-element');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTopHits();
+            renderMoods();
+            renderExploreSongs(songs);
+            renderFavoriteSongs();
+            renderPlaylists();
+            loadSong(currentSongIndex, false);
+
+            // Audio Event Listeners
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', handleSongEnded);
+        });
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.view-tab').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-green-400', 'bg-slate-800/80');
+                btn.classList.add('text-slate-400');
+            });
+
+            const activeTab = document.getElementById(`view-${tabName}`);
+            const activeNav = document.getElementById(`nav-${tabName}`);
+
+            if(activeTab) activeTab.classList.remove('hidden');
+            if(activeNav) {
+                activeNav.classList.add('active', 'text-green-400', 'bg-slate-800/80');
+                activeNav.classList.remove('text-slate-400');
+            }
+        }
+
+        // Render Top Hits Grid
+        function renderTopHits() {
+            const grid = document.getElementById('top-hits-grid');
+            grid.innerHTML = songs.map((song, index) => `
+                <div class="group bg-slate-900/80 hover:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-800 transition duration-300 relative flex flex-col cursor-pointer" onclick="playSong(${index})">
+                    <div class="relative aspect-square rounded-xl overflow-hidden mb-3">
+                        <img src="${song.cover}" alt="${song.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <button class="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-green-500 text-slate-950 flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition duration-300">
+                            <i class="fa-solid fa-play ml-0.5"></i>
+                        </button>
+                    </div>
+                    <h4 class="font-semibold text-sm text-white truncate">${song.title}</h4>
+                    <p class="text-xs text-slate-400 truncate mt-0.5">${song.artist}</p>
+                </div>
+            `).join('');
+        }
+
+        // Render Mood Playlists
+        function renderMoods() {
+            const grid = document.getElementById('mood-grid');
+            grid.innerHTML = moodPlaylists.map(m => `
+                <div class="p-4 rounded-2xl bg-gradient-to-r ${m.bg} flex items-center gap-4 shadow-lg cursor-pointer hover:opacity-90 transition transform active:scale-95">
+                    <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-xl text-white backdrop-blur-sm">
+                        <i class="fa-solid ${m.icon}"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">${m.name}</h4>
+                        <p class="text-xs text-white/70">${m.desc} • ${m.count}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Explore List
+        function renderExploreSongs(songList) {
+            const list = document.getElementById('explore-songs-list');
+            if (songList.length === 0) {
+                list.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">ไม่พบเพลงที่คุณค้นหา</div>`;
+                return;
+            }
+
+            list.innerHTML = songList.map((song) => {
+                const indexInMain = songs.findIndex(s => s.id === song.id);
+                const isFav = favorites.has(song.id);
+                return `
+                    <div class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-xl transition group">
+                        <div class="flex items-center gap-3.5 min-w-0" onclick="playSong(${indexInMain})">
+                            <img src="${song.cover}" class="w-11 h-11 rounded-lg object-cover">
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-semibold text-white truncate group-hover:text-green-400 transition">${song.title}</h4>
+                                <p class="text-xs text-slate-400 truncate">${song.artist} • <span class="text-slate-500">${song.genre}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs text-slate-500 font-mono hidden sm:block">${song.duration}</span>
+                            <button onclick="toggleFavorite(${song.id})" class="${isFav ? 'text-rose-500' : 'text-slate-600'} hover:text-rose-500 transition text-sm">
+                                <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Favorites List
+        function renderFavoriteSongs() {
+            const favSongs = songs.filter(s => favorites.has(s.id));
+            document.getElementById('fav-count').innerText = favSongs.length;
+            document.getElementById('fav-subtitle').innerText = `คุณมีเพลงโปรดทั้งหมด ${favSongs.length} เพลง`;
+            renderExploreSongs(favSongs);
+            
+            const favContainer = document.getElementById('favorites-songs-list');
+            if(favSongs.length === 0) {
+                favContainer.innerHTML = `<div class="text-center py-12 text-slate-500 text-sm">ยังไม่มีเพลงโปรด กดหัวใจเพื่อบันทึกเพลงที่คุณชอบ</div>`;
+                return;
+            }
+
+            favContainer.innerHTML = favSongs.map(song => {
+                const indexInMain = songs.findIndex(s => s.id === song.id);
+                return `
+                    <div class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-xl transition">
+                        <div class="flex items-center gap-3.5 min-w-0 cursor-pointer" onclick="playSong(${indexInMain})">
+                            <img src="${song.cover}" class="w-11 h-11 rounded-lg object-cover">
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-semibold text-white truncate">${song.title}</h4>
+                                <p class="text-xs text-slate-400 truncate">${song.artist}</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleFavorite(${song.id})" class="text-rose-500 hover:text-slate-400 transition text-sm p-2">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Sidebar Playlists
+        function renderPlaylists() {
+            const container = document.getElementById('playlist-list');
+            container.innerHTML = playlists.map(p => `
+                <div class="flex items-center gap-3 px-3 py-2 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 rounded-lg cursor-pointer truncate">
+                    <i class="fa-solid fa-list-ul text-slate-500"></i>
+                    <span class="truncate">${p}</span>
+                </div>
+            `).join('');
+        }
+
+        // Load Song to Player
+        function loadSong(index, shouldPlay = true) {
+            currentSongIndex = index;
+            const song = songs[currentSongIndex];
+
+            audio.src = song.src;
+            document.getElementById('player-cover').src = song.cover;
+            document.getElementById('player-title').innerText = song.title;
+            document.getElementById('player-artist').innerText = song.artist;
+
+            // Update Modal view
+            document.getElementById('modal-cover').src = song.cover;
+            document.getElementById('modal-title').innerText = song.title;
+            document.getElementById('modal-artist').innerText = song.artist;
+            document.getElementById('modal-lyrics').innerHTML = song.lyrics.map(line => `<p class="py-1 hover:text-green-400 transition">${line}</p>`).join('');
+
+            updateFavoriteIcon();
+
+            if (shouldPlay) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    updatePlayPauseUI();
+                }).catch(err => console.log("Playback error: ", err));
+            }
+        }
+
+        // Play / Pause Toggle
+        function togglePlayPause() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                audio.play();
+                isPlaying = true;
+            }
+            updatePlayPauseUI();
+        }
+
+        function updatePlayPauseUI() {
+            const btn = document.getElementById('play-pause-btn');
+            const bars = document.getElementById('visualizer-bars');
+            
+            if (isPlaying) {
+                btn.innerHTML = `<i class="fa-solid fa-pause text-base"></i>`;
+                bars.classList.remove('opacity-30');
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-play text-base ml-0.5"></i>`;
+                bars.classList.add('opacity-30');
+            }
+        }
+
+        function playSong(index) {
+            loadSong(index, true);
+        }
+
+        function nextSong() {
+            if (isShuffle) {
+                currentSongIndex = Math.floor(Math.random() * songs.length);
+            } else {
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+            }
+            loadSong(currentSongIndex, true);
+        }
+
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex, true);
+        }
+
+        function handleSongEnded() {
+            if (isRepeat) {
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                nextSong();
+            }
+        }
+
+        // Progress & Seeking
+        function updateProgress() {
+            if (!isNaN(audio.duration)) {
+                const progressPercent = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('seek-slider').value = progressPercent || 0;
+                
+                document.getElementById('current-time').innerText = formatTime(audio.currentTime);
+                document.getElementById('total-duration').innerText = formatTime(audio.duration);
+            }
+        }
+
+        function seekSong(value) {
+            if (!isNaN(audio.duration)) {
+                audio.currentTime = (value / 100) * audio.duration;
+            }
+        }
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        // Volume Controls
+        function changeVolume(val) {
+            audio.volume = val / 100;
+            const icon = document.getElementById('volume-icon');
+            if (val == 0) {
+                icon.innerHTML = `<i class="fa-solid fa-volume-xmark"></i>`;
+            } else if (val < 50) {
+                icon.innerHTML = `<i class="fa-solid fa-volume-low"></i>`;
+            } else {
+                icon.innerHTML = `<i class="fa-solid fa-volume-high"></i>`;
+            }
+        }
+
+        function toggleMute() {
+            if (audio.volume > 0) {
+                audio.volume = 0;
+                document.getElementById('volume-slider').value = 0;
+            } else {
+                audio.volume = 0.8;
+                document.getElementById('volume-slider').value = 80;
+            }
+            changeVolume(document.getElementById('volume-slider').value);
+        }
+
+        // Modes Toggle (Shuffle/Repeat)
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            const btn = document.getElementById('shuffle-btn');
+            btn.classList.toggle('text-green-400', isShuffle);
+            btn.classList.toggle('text-slate-400', !isShuffle);
+        }
+
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            const btn = document.getElementById('repeat-btn');
+            btn.classList.toggle('text-green-400', isRepeat);
+            btn.classList.toggle('text-slate-400', !isRepeat);
+        }
+
+        // Favorites Handler
+        function toggleFavorite(id) {
+            if (favorites.has(id)) {
+                favorites.delete(id);
+            } else {
+                favorites.add(id);
+            }
+            renderFavoriteSongs();
+            renderExploreSongs(songs);
+            updateFavoriteIcon();
+        }
+
+        function toggleFavoriteCurrent() {
+            const currentSong = songs[currentSongIndex];
+            toggleFavorite(currentSong.id);
+        }
+
+        function updateFavoriteIcon() {
+            const currentSong = songs[currentSongIndex];
+            const isFav = favorites.has(currentSong.id);
+            const favBtn = document.getElementById('player-fav-btn');
+            favBtn.innerHTML = `<i class="fa-${isFav ? 'solid text-rose-500' : 'regular'} fa-heart"></i>`;
+        }
+
+        // Search Handler
+        function handleSearch(query) {
+            const term = query.toLowerCase().trim();
+            const filtered = songs.filter(s => 
+                s.title.toLowerCase().includes(term) || 
+                s.artist.toLowerCase().includes(term) ||
+                s.genre.toLowerCase().includes(term)
+            );
+            switchTab('explore');
+            renderExploreSongs(filtered);
+        }
+
+        // Filter Genre
+        function filterGenre(genre) {
+            if (genre === 'All') {
+                renderExploreSongs(songs);
+            } else {
+                const filtered = songs.filter(s => s.genre === genre);
+                renderExploreSongs(filtered);
+            }
+        }
+
+        // Create New Playlist
+        function createNewPlaylist() {
+            const name = prompt("ตั้งชื่อเพลย์ลิสต์ใหม่ของคุณ:");
+            if (name && name.trim() !== "") {
+                playlists.push(name.trim());
+                renderPlaylists();
+            }
+        }
+
+        // Lyrics View Modal Toggle
+        function toggleLyricsModal() {
+            const modal = document.getElementById('lyrics-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Mobile Sidebar Toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('fixed');
+            sidebar.classList.toggle('inset-y-0');
+            sidebar.classList.toggle('left-0');
+            sidebar.classList.toggle('shadow-2xl');
+        }
+    </script>
+</body>
+</html>
