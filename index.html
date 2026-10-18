@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="th" class="h-full bg-slate-950 text-slate-100">
+<html lang="th" class="h-full bg-slate-950 text-slate-100 select-none">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MelodyFlow - เล่นเพลง YouTube ไร้โฆษณา</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MelodyFlow Ultra - YouTube Music & Background Player</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -19,11 +19,9 @@
                     },
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            accent: '#6366f1'
+                            500: '#ff0033',
+                            600: '#cc0029',
+                            glow: '#ff1e4b'
                         }
                     }
                 }
@@ -31,282 +29,182 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
         }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+        .glass-player {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        @keyframes pulse-bar {
-            0%, 100% { height: 15%; }
-            50% { height: 100%; }
+        @keyframes float-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
         }
-        .animate-bar-1 { animation: pulse-bar 0.8s ease-in-out infinite; }
-        .animate-bar-2 { animation: pulse-bar 1.1s ease-in-out infinite 0.2s; }
-        .animate-bar-3 { animation: pulse-bar 0.7s ease-in-out infinite 0.4s; }
-        .animate-bar-4 { animation: pulse-bar 0.9s ease-in-out infinite 0.1s; }
+        .animate-glow { animation: float-pulse 4s ease-in-out infinite; }
         
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+        /* Visualizer bar animations */
+        .v-bar { transition: height 0.1s ease; }
     </style>
 </head>
-<body class="h-full font-sans antialiased flex flex-col overflow-hidden select-none">
+<body class="h-full font-sans antialiased bg-slate-950 flex flex-col overflow-hidden text-slate-100">
 
     <div class="flex-1 flex overflow-hidden relative">
 
-        <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="w-64 bg-slate-900 flex-col justify-between hidden md:flex z-20 border-r border-slate-800 transition-all duration-300">
-            <div class="p-6">
-                <!-- Logo -->
+        <!-- Sidebar (Desktop) -->
+        <aside id="sidebar" class="w-64 bg-slate-900/90 flex-col justify-between hidden md:flex z-30 border-r border-slate-800/80 transition-all duration-300">
+            <div class="p-5">
+                <!-- App Logo -->
                 <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="switchTab('home')">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-500 via-rose-500 to-amber-500 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-red-500/20">
-                        <i class="fa-brands fa-youtube text-white"></i>
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white shadow-lg shadow-red-600/30">
+                        <i class="fa-solid fa-compact-disc text-xl animate-spin" style="animation-duration: 8s;"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">MelodyFlow</h1>
-                        <span class="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-medium tracking-wide uppercase">YouTube Powered</span>
+                        <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-red-400 bg-clip-text text-transparent">MelodyFlow</h1>
+                        <span class="text-[9px] bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Background Audio Pro</span>
                     </div>
                 </div>
 
-                <!-- Navigation Links -->
-                <nav class="space-y-1">
-                    <button onclick="switchTab('home')" id="nav-home" class="nav-btn active w-full flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl transition-all text-red-400 bg-slate-800/80">
+                <!-- Navigation -->
+                <nav class="space-y-1.5">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-btn active w-full flex items-center gap-3.5 px-4 py-3 text-sm font-semibold rounded-xl transition-all text-red-400 bg-slate-800/90">
                         <i class="fa-solid fa-house text-lg w-5"></i>
-                        <span>หน้าแรก</span>
+                        <span>หน้าแรก & ค้นหา</span>
                     </button>
-                    <button onclick="switchTab('explore')" id="nav-explore" class="nav-btn w-full flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
-                        <i class="fa-solid fa-compass text-lg w-5"></i>
-                        <span>สำรวจ / แนวเพลง</span>
+                    <button onclick="switchTab('trending')" id="nav-trending" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 text-sm font-semibold rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-fire text-lg w-5 text-amber-500"></i>
+                        <span>เพลงฮิตติดเทรนด์</span>
                     </button>
-                    <button onclick="switchTab('yt-import')" id="nav-yt-import" class="nav-btn w-full flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
-                        <i class="fa-brands fa-youtube text-lg w-5 text-red-500"></i>
-                        <span>ดึงลิงก์ YouTube</span>
-                    </button>
-                    <button onclick="switchTab('favorites')" id="nav-favorites" class="nav-btn w-full flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
-                        <i class="fa-solid fa-heart text-lg w-5"></i>
-                        <span>เพลงที่ชอบ</span>
-                        <span id="fav-count" class="ml-auto text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
+                    <button onclick="switchTab('favorites')" id="nav-favorites" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 text-sm font-semibold rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-heart text-lg w-5 text-rose-500"></i>
+                        <span>คลังเพลงที่ชอบ</span>
+                        <span id="fav-count" class="ml-auto text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">0</span>
                     </button>
                 </nav>
 
-                <hr class="my-6 border-slate-800">
+                <hr class="my-6 border-slate-800/80">
 
-                <!-- Playlists Section -->
+                <!-- User Quick Playlists -->
                 <div>
-                    <div class="flex items-center justify-between text-xs text-slate-400 font-semibold px-2 mb-3">
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold px-2 mb-3 tracking-wider uppercase">
                         <span>เพลย์ลิสต์ของคุณ</span>
-                        <button onclick="createNewPlaylist()" class="hover:text-white transition"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="createNewPlaylist()" class="hover:text-red-400 transition"><i class="fa-solid fa-plus text-sm"></i></button>
                     </div>
-                    <div id="playlist-list" class="space-y-1 max-h-40 overflow-y-auto pr-1">
-                        <!-- Dynamic Playlists -->
-                    </div>
+                    <div id="playlist-list" class="space-y-1 max-h-44 overflow-y-auto pr-1"></div>
                 </div>
             </div>
 
-            <!-- YouTube Integration Info -->
-            <div class="p-4 m-4 rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-red-950/40 border border-slate-700/50 text-center relative overflow-hidden">
-                <i class="fa-brands fa-youtube text-3xl text-red-500 mb-1"></i>
-                <p class="text-xs font-semibold text-slate-200">สตรีมเพลงจาก YouTube</p>
-                <p class="text-[11px] text-slate-400 mt-0.5">เล่นผ่าน Iframe API คุณภาพสูง</p>
+            <!-- Background Mode Badge -->
+            <div class="p-4 m-4 rounded-2xl bg-gradient-to-b from-slate-800/80 to-slate-900 border border-slate-700/60 text-center relative overflow-hidden">
+                <i class="fa-solid fa-headphones text-2xl text-red-500 mb-1"></i>
+                <p class="text-xs font-bold text-slate-200">ระบบเล่นเพลงพื้นหลัง</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">พับจอ/สลับแอป เล่นต่อเนื่องไม่ดับ</p>
             </div>
         </aside>
 
+        <!-- Main Area -->
         <main class="flex-1 flex flex-col min-w-0 bg-slate-950 overflow-hidden relative">
             
-            <!-- Top Navbar -->
-            <header class="h-16 border-b border-slate-800/60 px-4 md:px-8 flex items-center justify-between gap-4 glass-panel z-10 sticky top-0">
-                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 text-xl p-2">
+            <!-- Dynamic Top Search Bar -->
+            <header class="h-16 border-b border-slate-800/80 px-4 md:px-8 flex items-center justify-between gap-4 glass-card z-10 sticky top-0">
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 text-xl p-2 hover:text-white">
                     <i class="fa-solid fa-bars"></i>
                 </button>
 
-                <!-- Search Bar -->
-                <div class="relative flex-1 max-w-md">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" id="search-input" onkeypress="if(event.key==='Enter') searchYouTube(this.value)" placeholder="พิมพ์ค้นหาเพลง, ศิลปิน จาก YouTube แล้วกด Enter..." class="w-full bg-slate-900 border border-slate-800 rounded-full py-2 pl-10 pr-10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500 transition-all">
-                    <button onclick="searchYouTube(document.getElementById('search-input').value)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-400 text-sm">
-                        <i class="fa-solid fa-arrow-right"></i>
+                <!-- Search Input with Auto Instant Search -->
+                <div class="relative flex-1 max-w-xl">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeypress="if(event.key==='Enter') executeSearch(this.value)" placeholder="ค้นหาชื่อเพลง, ศิลปิน หรืออัลบั้ม จาก YouTube..." class="w-full bg-slate-900/90 border border-slate-700/70 rounded-full py-2.5 pl-11 pr-24 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all shadow-inner">
+                    <button onclick="executeSearch(document.getElementById('search-input').value)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-full transition shadow-md shadow-red-600/30">
+                        ค้นหา
                     </button>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <button onclick="toggleVideoDisplay()" title="เปิด/ซ่อน จอแสดงวิดีโอ" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition border border-slate-700">
-                        <i class="fa-solid fa-tv text-red-400"></i>
-                        <span class="hidden sm:inline">จอวิดีโอ YouTube</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleFullPlayer()" title="เปิดเครื่องเล่นเพลงแบบเต็มหน้าจอ" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition shadow">
+                        <i class="fa-solid fa-expand text-red-400"></i>
+                        <span class="hidden sm:inline">หน้าจอแสดงเพลง</span>
                     </button>
                 </div>
             </header>
 
-            <div id="content-scroll" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 pb-32">
+            <!-- Main Content Container -->
+            <div id="content-scroll" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 pb-36">
 
-                <!-- SECTION: HOME VIEW -->
+                <!-- TAB: HOME & DIRECT SEARCH -->
                 <div id="view-home" class="view-tab space-y-8">
                     <!-- Hero Banner -->
-                    <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-red-950/60 via-slate-900 to-slate-950 p-6 md:p-10 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+                    <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-red-950/80 via-slate-900 to-slate-950 p-6 md:p-10 border border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
                         <div class="space-y-3 z-10 max-w-xl text-center md:text-left">
-                            <span class="text-xs uppercase tracking-wider text-red-400 font-semibold bg-red-950/60 border border-red-800/80 px-3 py-1 rounded-full"><i class="fa-brands fa-youtube mr-1"></i> YouTube Player</span>
-                            <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight">ฟังเพลงฮิตติดชาร์ต สตรีมตรงจาก YouTube</h2>
-                            <p class="text-slate-300 text-sm md:text-base">รวมรวมเพลงสตรีมมิ่งคุณภาพ ค้นหาได้ทุกเพลงบน YouTube พร้อมจัดเพลย์ลิสต์ส่วนตัว</p>
-                            <div class="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
-                                <button onclick="playSong(0)" class="bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-2.5 rounded-full flex items-center gap-2 transition transform active:scale-95 shadow-lg shadow-red-600/30">
-                                    <i class="fa-solid fa-play"></i> เริ่มเล่นเพลงแรก
-                                </button>
-                            </div>
+                            <span class="text-xs uppercase tracking-wider text-red-400 font-bold bg-red-950/80 border border-red-800/80 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt text-amber-400"></i> ค้นหาฟังได้ทันทีไม่ต้องแปะลิงก์
+                            </span>
+                            <h2 class="text-2xl md:text-4xl font-black text-white leading-tight tracking-tight">ฟังเพลง YouTube แบบไร้โฆษณา พร้อมเล่นพื้นหลัง</h2>
+                            <p class="text-slate-300 text-xs md:text-sm leading-relaxed">พิมพ์ค้นหาชื่อเพลงในช่องด้านบน แล้วกดฟังได้ทันที รองรับการสลับหน้าจอ ปิดจอโทรศัพท์ ล็อคหน้าจอ เพลงก็ยังคงเล่นต่อเนื่องสะดุดไร้ขีดจำกัด</p>
                         </div>
-                        <div class="relative w-40 h-40 md:w-52 md:h-52 flex-shrink-0">
-                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80" alt="Music Banner" class="w-full h-full object-cover rounded-2xl shadow-2xl rotate-3 border border-white/10">
+                        <div class="relative w-36 h-36 md:w-48 md:h-48 flex-shrink-0">
+                            <div class="w-full h-full rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 p-1 shadow-2xl rotate-3">
+                                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80" class="w-full h-full object-cover rounded-xl">
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Search Results Bar (Appears when searching) -->
-                    <div id="search-results-section" class="hidden space-y-4">
+                    <!-- Direct Search Results Display Section -->
+                    <div id="search-section" class="space-y-4">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                                <i class="fa-brands fa-youtube text-red-500"></i> ผลการค้นหาจาก YouTube
+                            <h3 id="search-title" class="text-xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-list-ul text-red-500"></i> รายการเพลงแนะนำ
                             </h3>
-                            <button onclick="clearSearch()" class="text-xs text-slate-400 hover:text-white">ล้างการค้นหา</button>
+                            <span id="search-status-tag" class="text-xs text-slate-400">เลือกเพลงเพื่อเริ่มเล่นทันที</span>
                         </div>
-                        <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
-                    </div>
-
-                    <!-- Top Hits Section -->
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white tracking-wide">เพลงฮิต YouTube แนะนำ</h3>
-                            <button onclick="switchTab('explore')" class="text-xs text-red-400 hover:underline">ดูทั้งหมด</button>
-                        </div>
-                        <div id="top-hits-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            <!-- Dynamic Cards -->
+                        <div id="search-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
 
-                    <!-- Recommended Playlists -->
-                    <div>
-                        <h3 class="text-xl font-bold text-white tracking-wide mb-4">เพลย์ลิสต์จัดตามอารมณ์</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="mood-grid">
-                            <!-- Mood Cards -->
+                    <!-- Recommended Mood Playlists -->
+                    <div class="space-y-4 pt-4">
+                        <h3 class="text-xl font-bold text-white">หมวดหมู่และแนวเพลงฮิต</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4" id="category-grid">
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
                 </div>
 
-                <!-- SECTION: EXPLORE VIEW -->
-                <div id="view-explore" class="view-tab hidden space-y-6">
-                    <h2 class="text-2xl font-bold text-white">หมวดหมู่และคอลเลกชันเพลง</h2>
-                    
-                    <!-- Genre Tags -->
-                    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none" id="genre-filters">
-                        <button onclick="filterGenre('All')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-red-600 text-white flex-shrink-0">ทั้งหมด</button>
-                        <button onclick="filterGenre('Thai Pop')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">เพลงไทยฮิต</button>
-                        <button onclick="filterGenre('Lo-Fi')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">Lo-Fi / Chill</button>
-                        <button onclick="filterGenre('Acoustic')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">Acoustic</button>
-                        <button onclick="filterGenre('K-Pop')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 flex-shrink-0">K-Pop / Global</button>
+                <!-- TAB: TRENDING -->
+                <div id="view-trending" class="view-tab hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-white">เพลงฮิตติดชาร์ต YouTube Thailand</h2>
+                            <p class="text-xs text-slate-400 mt-1">อัปเดตเพลงกำลังมาแรง ล่าสุดวันนี้</p>
+                        </div>
                     </div>
-
                     <div class="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4">
-                        <div class="divide-y divide-slate-800/60" id="explore-songs-list">
-                            <!-- Dynamic List Items -->
-                        </div>
+                        <div id="trending-list" class="divide-y divide-slate-800/60"></div>
                     </div>
                 </div>
 
-                <!-- SECTION: YOUTUBE LINK IMPORT -->
-                <div id="view-yt-import" class="view-tab hidden space-y-6">
-                    <div class="max-w-2xl bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-brands fa-youtube text-3xl text-red-500"></i>
-                            <div>
-                                <h2 class="text-lg font-bold text-white">เล่นเพลงจากลิงก์ YouTube หรือ Video ID</h2>
-                                <p class="text-xs text-slate-400">วาง URL วิดีโอ YouTube เพื่อนำเข้าเพลงและเล่นทันที</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div>
-                                <label class="text-xs font-medium text-slate-300 block mb-1">YouTube URL หรือ Video ID:</label>
-                                <input type="text" id="yt-url-input" placeholder="เช่น https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-red-500">
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs font-medium text-slate-300 block mb-1">ชื่อเพลง (เลือกใส่หรือไม่ใส่ก็ได้):</label>
-                                    <input type="text" id="yt-title-input" placeholder="ระบุชื่อเพลง..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-red-500">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-medium text-slate-300 block mb-1">ชื่อศิลปิน:</label>
-                                    <input type="text" id="yt-artist-input" placeholder="ระบุชื่อศิลปิน..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-red-500">
-                                </div>
-                            </div>
-                            <button onclick="importYouTubeTrack()" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-plus"></i> เพิ่มเข้าคิว & เล่นเพลงนี้
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION: FAVORITES VIEW -->
+                <!-- TAB: FAVORITES -->
                 <div id="view-favorites" class="view-tab hidden space-y-6">
-                    <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center text-white text-3xl shadow-lg shadow-rose-500/20">
+                    <div class="flex items-center gap-4 bg-slate-900/60 p-6 rounded-3xl border border-slate-800/80">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-600 to-red-500 flex items-center justify-center text-white text-2xl shadow-xl shadow-rose-600/30">
                             <i class="fa-solid fa-heart"></i>
                         </div>
                         <div>
-                            <h2 class="text-2xl font-bold text-white">เพลงที่ชอบ</h2>
-                            <p class="text-sm text-slate-400 mt-1" id="fav-subtitle">คอลเลกชันเพลงโปรดของคุณ</p>
+                            <h2 class="text-2xl font-bold text-white">คลังเพลงที่ชอบ</h2>
+                            <p class="text-xs text-slate-400 mt-1" id="fav-subtitle">0 เพลงที่คุณบันทึกไว้</p>
                         </div>
                     </div>
-
                     <div class="bg-slate-900/60 rounded-2xl border border-slate-800/80 p-4">
-                        <div id="favorites-songs-list" class="divide-y divide-slate-800/60">
-                            <!-- Favorite songs -->
-                        </div>
-                    </div>
-                </div>
-
-                <div id="lyrics-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 hidden flex flex-col p-6 transition-all duration-300">
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-brands fa-youtube text-red-500"></i>
-                            <span class="text-sm font-semibold text-slate-300">YouTube Video & Visualizer View</span>
-                        </div>
-                        <button onclick="toggleLyricsModal()" class="text-slate-400 hover:text-white text-xl p-2">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 py-8 overflow-y-auto max-w-5xl mx-auto w-full">
-                        <div class="text-center space-y-4 flex-shrink-0 w-full md:w-1/2">
-                            <div class="relative w-full aspect-video mx-auto rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50 bg-slate-900 flex items-center justify-center">
-                                <img id="modal-cover" src="" alt="Album Cover" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h3 id="modal-title" class="text-2xl font-bold text-white"></h3>
-                                <p id="modal-artist" class="text-slate-400 text-sm mt-1"></p>
-                            </div>
-                        </div>
-
-                        <div class="flex-1 w-full flex flex-col justify-center items-center h-full text-center px-4">
-                            <div class="flex items-end justify-center gap-2 h-16 mb-8" id="visualizer-bars">
-                                <div class="w-2 bg-red-500 rounded-full h-4 animate-bar-1"></div>
-                                <div class="w-2 bg-rose-400 rounded-full h-8 animate-bar-2"></div>
-                                <div class="w-2 bg-amber-500 rounded-full h-12 animate-bar-3"></div>
-                                <div class="w-2 bg-red-400 rounded-full h-6 animate-bar-4"></div>
-                                <div class="w-2 bg-rose-500 rounded-full h-10 animate-bar-2"></div>
-                            </div>
-                            
-                            <div id="modal-lyrics" class="space-y-4 text-slate-300 text-lg md:text-xl font-medium max-h-64 overflow-y-auto leading-relaxed px-4">
-                                <!-- Dynamic info -->
-                            </div>
-                        </div>
+                        <div id="favorites-list" class="divide-y divide-slate-800/60"></div>
                     </div>
                 </div>
 
@@ -314,121 +212,157 @@
         </main>
     </div>
 
-    <!-- Floating Video Player Container (Hidden by default or minimized) -->
-    <div id="video-container" class="fixed bottom-24 right-4 z-50 bg-black rounded-xl overflow-hidden shadow-2xl border border-slate-700 transition-all duration-300 w-72 h-44 hidden">
-        <div class="bg-slate-900 px-3 py-1.5 flex items-center justify-between text-xs text-slate-300 border-b border-slate-800">
-            <span class="truncate font-medium flex items-center gap-1.5">
-                <i class="fa-brands fa-youtube text-red-500"></i> YouTube Stream
-            </span>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleVideoDisplay()" class="hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-        </div>
-        <!-- Embedded YouTube Iframe Target -->
-        <div id="yt-player" class="w-full h-[calc(100%-28px)]"></div>
+    <!-- Hidden iframe for background player stream -->
+    <div class="sr-only opacity-0 pointer-events-none fixed -top-full" id="player-iframe-wrap">
+        <div id="yt-player-instance"></div>
     </div>
 
-    <!-- Bottom Sticky Player Controls Bar -->
-    <footer class="h-20 bg-slate-900 border-t border-slate-800/80 px-4 md:px-6 flex items-center justify-between z-40 relative">
-        <!-- Current Track Info -->
-        <div class="flex items-center gap-3 w-1/4 min-w-[160px]">
-            <img id="player-cover" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&auto=format&fit=crop&q=80" alt="Cover" class="w-12 h-12 rounded-lg object-cover border border-slate-800 shadow">
-            <div class="min-w-0 hidden sm:block">
-                <h4 id="player-title" class="text-sm font-semibold text-white truncate">เลือกเพลงเพื่อเริ่มฟัง</h4>
-                <p id="player-artist" class="text-xs text-slate-400 truncate">MelodyFlow YouTube Player</p>
+    <!-- Fullscreen Player & Visualizer Modal -->
+    <div id="full-player-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 hidden flex flex-col p-6 transition-all duration-300">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800/80 max-w-5xl mx-auto w-full">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-headphones text-red-500"></i>
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">MelodyFlow Full Audio Engine</span>
             </div>
-            <button id="player-fav-btn" onclick="toggleFavoriteCurrent()" class="text-slate-500 hover:text-rose-500 transition ml-1">
+            <button onclick="toggleFullPlayer()" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 text-lg transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 py-8 overflow-y-auto max-w-4xl mx-auto w-full">
+            <!-- Dynamic Album Art -->
+            <div class="text-center space-y-5 flex-shrink-0 w-full md:w-1/2">
+                <div class="relative w-64 h-64 sm:w-80 sm:h-80 mx-auto rounded-3xl overflow-hidden shadow-2xl border border-slate-700/60 bg-slate-900 group">
+                    <img id="full-cover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                        <i class="fa-solid fa-music text-white text-4xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <h3 id="full-title" class="text-xl md:text-2xl font-extrabold text-white truncate px-4">กำลังโหลด...</h3>
+                    <p id="full-artist" class="text-sm text-slate-400 mt-1 truncate px-4">ศิลปิน YouTube</p>
+                </div>
+            </div>
+
+            <!-- Audio Spectrum Visualizer Dynamic Bars -->
+            <div class="flex-1 w-full flex flex-col justify-center items-center h-full text-center px-4 space-y-8">
+                <div class="flex items-end justify-center gap-1.5 h-28 w-full max-w-md bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80" id="spectrum-bars">
+                    <!-- Javascript will render dynamic spectrum bars here -->
+                </div>
+                
+                <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl text-xs text-slate-400 max-w-md w-full leading-relaxed">
+                    <p class="text-slate-200 font-semibold mb-1"><i class="fa-solid fa-shield-halved text-green-400 mr-1"></i> รองรับการเล่นพื้นหลังระดับสูง</p>
+                    คุณสามารถกดพับหน้าจอ ล็อคหน้าจอโทรศัพท์ หรือสลับไปเล่นแอปอื่นได้โดยเพลงไม่หยุดเล่น!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Bottom Music Bar -->
+    <footer class="h-24 glass-player px-4 md:px-8 flex items-center justify-between z-40 fixed bottom-0 left-0 right-0">
+        <!-- Current Playing Track Info -->
+        <div class="flex items-center gap-3.5 w-1/3 min-w-[180px]">
+            <div class="relative group cursor-pointer" onclick="toggleFullPlayer()">
+                <img id="player-cover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80" class="w-14 h-14 rounded-xl object-cover border border-slate-700/60 shadow-lg">
+                <div class="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs">
+                    <i class="fa-solid fa-expand"></i>
+                </div>
+            </div>
+            <div class="min-w-0 hidden sm:block">
+                <h4 id="player-title" class="text-sm font-bold text-white truncate">พร้อมเล่นเพลง</h4>
+                <p id="player-artist" class="text-xs text-slate-400 truncate mt-0.5">ค้นหาและเลือกเพลงได้เลย</p>
+            </div>
+            <button id="player-fav-btn" onclick="toggleFavoriteCurrent()" class="text-slate-500 hover:text-rose-500 transition ml-2 text-lg">
                 <i class="fa-regular fa-heart"></i>
             </button>
         </div>
 
-        <!-- Player Controls -->
-        <div class="flex flex-col items-center gap-1.5 w-2/4 max-w-xl">
-            <div class="flex items-center gap-4 md:gap-6">
-                <button id="shuffle-btn" onclick="toggleShuffle()" class="text-slate-400 hover:text-white transition text-xs md:text-sm">
+        <!-- Center Player Controls -->
+        <div class="flex flex-col items-center gap-2 w-2/4 max-w-xl">
+            <div class="flex items-center gap-5 md:gap-7">
+                <button id="shuffle-btn" onclick="toggleShuffle()" class="text-slate-400 hover:text-white transition text-xs">
                     <i class="fa-solid fa-shuffle"></i>
                 </button>
-                <button onclick="prevSong()" class="text-slate-300 hover:text-white transition text-base md:text-lg">
+                <button onclick="prevSong()" class="text-slate-300 hover:text-white transition text-lg">
                     <i class="fa-solid fa-backward-step"></i>
                 </button>
-                <button onclick="togglePlayPause()" id="play-pause-btn" class="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition shadow-lg shadow-red-600/30 active:scale-95">
-                    <i class="fa-solid fa-play text-base"></i>
+                <button onclick="togglePlayPause()" id="play-pause-btn" class="w-11 h-11 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition shadow-lg shadow-red-600/40 active:scale-95">
+                    <i class="fa-solid fa-play text-base ml-0.5"></i>
                 </button>
-                <button onclick="nextSong()" class="text-slate-300 hover:text-white transition text-base md:text-lg">
+                <button onclick="nextSong()" class="text-slate-300 hover:text-white transition text-lg">
                     <i class="fa-solid fa-forward-step"></i>
                 </button>
-                <button id="repeat-btn" onclick="toggleRepeat()" class="text-slate-400 hover:text-white transition text-xs md:text-sm">
+                <button id="repeat-btn" onclick="toggleRepeat()" class="text-slate-400 hover:text-white transition text-xs">
                     <i class="fa-solid fa-repeat"></i>
                 </button>
             </div>
 
-            <!-- Progress Bar -->
-            <div class="w-full flex items-center gap-2">
-                <span id="current-time" class="text-[11px] text-slate-400 font-mono w-8 text-right">0:00</span>
+            <!-- Track Progress Bar -->
+            <div class="w-full flex items-center gap-2.5">
+                <span id="current-time" class="text-[10px] text-slate-400 font-mono w-8 text-right">0:00</span>
                 <input type="range" id="seek-slider" min="0" max="100" value="0" oninput="seekSong(this.value)" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500">
-                <span id="total-duration" class="text-[11px] text-slate-400 font-mono w-8">0:00</span>
+                <span id="total-duration" class="text-[10px] text-slate-400 font-mono w-8">0:00</span>
             </div>
         </div>
 
-        <!-- Extra Controls -->
-        <div class="flex items-center justify-end gap-3 w-1/4 min-w-[120px]">
-            <button onclick="toggleVideoDisplay()" class="text-slate-400 hover:text-red-400 transition text-sm p-1.5" title="แสดงวิดีโอ YouTube">
-                <i class="fa-solid fa-tv"></i>
+        <!-- Volume & Extras -->
+        <div class="flex items-center justify-end gap-3 w-1/3 min-w-[120px]">
+            <button onclick="toggleFullPlayer()" class="text-slate-400 hover:text-red-400 transition p-2 text-base" title="ขยายเต็มจอ">
+                <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
             </button>
-            <button onclick="toggleLyricsModal()" class="text-slate-400 hover:text-red-400 transition text-sm p-1.5" title="รายละเอียดเพลง">
-                <i class="fa-solid fa-align-left"></i>
-            </button>
-            
-            <div class="hidden md:flex items-center gap-2 group">
+            <div class="hidden md:flex items-center gap-2">
                 <button onclick="toggleMute()" id="volume-icon" class="text-slate-400 hover:text-white transition text-sm">
                     <i class="fa-solid fa-volume-high"></i>
                 </button>
-                <input type="range" id="volume-slider" min="0" max="100" value="80" oninput="changeVolume(this.value)" class="w-20 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500">
+                <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="changeVolume(this.value)" class="w-20 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500">
             </div>
         </div>
     </footer>
 
-    <!-- YouTube IFrame Player API -->
+    <!-- YouTube API Embed Script -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-        let songs = [
-            { id: 1, ytId: "LsoLEjrDogU", title: "เพลงฮิตติดเทรนด์ 2026", artist: "Melody Trending", genre: "Thai Pop", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80" },
-            { id: 2, ytId: "jfKfPfyJRdk", title: "Lofi Hip Hop Radio - Beats to Relax", artist: "Lofi Girl", genre: "Lo-Fi", cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300&auto=format&fit=crop&q=80" },
-            { id: 3, ytId: "5qap5aO4i9A", title: "Lofi Sleep Beats", artist: "ChilledCow", genre: "Lo-Fi", cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" },
-            { id: 4, ytId: "2Vv-BfVoq4g", title: "Acoustic Covers Popular Songs", artist: "Acoustic Lounge", genre: "Acoustic", cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=300&auto=format&fit=crop&q=80" },
-            { id: 5, ytId: "dQw4w9WgXcQ", title: "Never Gonna Give You Up", artist: "Rick Astley", genre: "K-Pop", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&auto=format&fit=crop&q=80" }
+        // Default preset tracks
+        let currentPlaylist = [
+            { id: "LsoLEjrDogU", title: "รวมเพลงฮิตติดชาร์ต 2026", artist: "MelodyFlow Trending", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80" },
+            { id: "jfKfPfyJRdk", title: "Lofi Hip Hop Radio - Beats to Relax", artist: "Lofi Girl", cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=400&auto=format&fit=crop&q=80" },
+            { id: "5qap5aO4i9A", title: "Lofi Sleep Beats", artist: "ChilledCow", cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&auto=format&fit=crop&q=80" },
+            { id: "2Vv-BfVoq4g", title: "Acoustic Lounge Hits", artist: "Acoustic Lounge", cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&auto=format&fit=crop&q=80" }
         ];
 
-        let playlists = ["My Favorites", "Work Flow", "Chill Vibes"];
-        let favorites = new Set([1]);
-
-        let currentSongIndex = 0;
+        let favorites = new Set();
+        let userPlaylists = ["เพลงฟังตอนทำงาน", "Chill Night Out"];
+        
+        let currentIndex = 0;
         let isPlaying = false;
         let isShuffle = false;
         let isRepeat = false;
-        let isVideoVisible = false;
         let ytPlayer = null;
         let isYTReady = false;
         let progressInterval = null;
+        let visualizerInterval = null;
 
-        const moodPlaylists = [
-            { name: "เพลงไทยฮิต", icon: "fa-fire", bg: "from-orange-600 to-red-600", desc: "รวมเพลงฮิตประเทศไทย" },
-            { name: "Lo-Fi Chill", icon: "fa-mug-hot", bg: "from-blue-600 to-indigo-600", desc: "ฟังตอนทำงาน หรืออ่านหนังสือ" },
-            { name: "Acoustic Guitar", icon: "fa-guitar", bg: "from-amber-600 to-emerald-600", desc: "เพลงสบายๆ ฟังสบายใจ" }
+        // Categories configuration
+        const categories = [
+            { name: "เพลงไทยฮิต", query: "เพลงไทยฮิตล่าสุด", icon: "fa-fire", bg: "from-red-600 to-amber-600" },
+            { name: "Lo-Fi Chill", query: "lofi hip hop chill beats", icon: "fa-mug-hot", bg: "from-blue-600 to-indigo-600" },
+            { name: "เพลงเพราะสากล", query: "popular english songs 2026", icon: "fa-globe", bg: "from-emerald-600 to-teal-600" },
+            { name: "K-Pop Hits", query: "kpop trending songs", icon: "fa-star", bg: "from-pink-600 to-rose-600" }
         ];
 
+        // 1. Initialize YouTube Player for background playback
         function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('yt-player', {
+            ytPlayer = new YT.Player('yt-player-instance', {
                 height: '100%',
                 width: '100%',
-                videoId: songs[0].ytId,
+                videoId: currentPlaylist[0].id,
                 playerVars: {
                     'autoplay': 0,
-                    'controls': 1,
-                    'rel': 0,
-                    'modestbranding': 1,
-                    'playsinline': 1
+                    'controls': 0,
+                    'playsinline': 1,
+                    'enablejsapi': 1,
+                    'origin': window.location.origin
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -437,9 +371,11 @@
             });
         }
 
-        function onPlayerReady(event) {
+        function onPlayerReady() {
             isYTReady = true;
+            setupMediaSession();
             loadSong(0, false);
+            initSpectrumBars();
         }
 
         function onPlayerStateChange(event) {
@@ -447,151 +383,106 @@
                 isPlaying = true;
                 updatePlayPauseUI();
                 startProgressTimer();
+                startVisualizerAnimation();
+                updateMediaSessionState();
             } else if (event.data === YT.PlayerState.PAUSED) {
                 isPlaying = false;
                 updatePlayPauseUI();
                 stopProgressTimer();
+                stopVisualizerAnimation();
+                updateMediaSessionState();
             } else if (event.data === YT.PlayerState.ENDED) {
                 handleSongEnded();
             }
         }
 
-        async function searchYouTube(query) {
+        // Direct local search across multiple public YouTube Invidious/Piped proxies
+        async function executeSearch(query) {
             if (!query || !query.trim()) return;
             switchTab('home');
 
-            const resultsSection = document.getElementById('search-results-section');
-            const resultsGrid = document.getElementById('search-results-grid');
-            resultsSection.classList.remove('hidden');
+            const grid = document.getElementById('search-grid');
+            const title = document.getElementById('search-title');
+            const statusTag = document.getElementById('search-status-tag');
 
-            resultsGrid.innerHTML = `
-                <div class="col-span-full py-10 text-center text-slate-400">
-                    <i class="fa-solid fa-spinner animate-spin text-2xl text-red-500 mb-2 block"></i>
-                    <span>กำลังค้นหาเพลง "${query}" จาก YouTube...</span>
+            title.innerHTML = `<i class="fa-solid fa-magnifying-glass text-red-500"></i> ผลการค้นหา: "${query}"`;
+            statusTag.innerText = "กำลังค้นหาข้อมูลจาก YouTube...";
+
+            grid.innerHTML = `
+                <div class="col-span-full py-16 text-center text-slate-400">
+                    <i class="fa-solid fa-spinner animate-spin text-3xl text-red-500 mb-3 block"></i>
+                    <p class="text-sm font-medium">กำลังค้นหาเพลง "${query}" กรุณารอสักครู่...</p>
                 </div>
             `;
 
-            let searchTracks = [];
+            let results = [];
 
-            // Primary & Secondary Public Invidious and Piped instances
-            const apiEndpoints = [
+            // Multi-endpoint fallback list for robust search without requiring user link
+            const endpoints = [
                 `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=music_songs`,
                 `https://api.piped.privacydev.net/search?q=${encodeURIComponent(query)}&filter=all`,
                 `https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(query)}&type=video`,
-                `https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(query)}&type=video`,
-                `https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(query)}&type=video`
+                `https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(query)}&type=video`
             ];
 
-            for (let endpoint of apiEndpoints) {
+            for (let url of endpoints) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+                    const timeout = setTimeout(() => controller.abort(), 3500);
                     
-                    const res = await fetch(endpoint, { signal: controller.signal });
-                    clearTimeout(timeoutId);
+                    const response = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeout);
 
-                    if (res.ok) {
-                        const data = await res.json();
+                    if (response.ok) {
+                        const data = await response.json();
                         
-                        // Handle Piped API structure
-                        if (data.items && Array.isArray(data.items) && data.items.length > 0) {
-                            searchTracks = data.items.filter(item => item.type === 'stream' || item.url).slice(0, 10).map(item => {
-                                const id = item.url ? item.url.replace('/watch?v=', '') : (item.id || '');
+                        if (data.items && Array.isArray(data.items)) {
+                            results = data.items.filter(item => item.url || item.id).slice(0, 12).map(item => {
+                                const id = item.url ? item.url.replace('/watch?v=', '') : item.id;
                                 return {
-                                    ytId: id,
+                                    id: id,
                                     title: item.title,
-                                    artist: item.uploaderName || "YouTube Artist",
+                                    artist: item.uploaderName || "YouTube Channel",
                                     cover: item.thumbnail || `https://img.youtube.com/vi/${id}/hqdefault.jpg`
                                 };
                             });
-                            if (searchTracks.length > 0) break;
-                        } 
-                        // Handle Invidious API structure
-                        else if (Array.isArray(data) && data.length > 0) {
-                            searchTracks = data.slice(0, 10).map(item => ({
-                                ytId: item.videoId,
+                            if (results.length > 0) break;
+                        } else if (Array.isArray(data)) {
+                            results = data.slice(0, 12).map(item => ({
+                                id: item.videoId,
                                 title: item.title,
-                                artist: item.author || "YouTube Artist",
+                                artist: item.author || "YouTube Channel",
                                 cover: `https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`
                             }));
-                            if (searchTracks.length > 0) break;
+                            if (results.length > 0) break;
                         }
                     }
-                } catch (e) {
-                    console.warn(`Search failed on ${endpoint}, trying next endpoint...`);
+                } catch (err) {
+                    console.warn(`Endpoint failed: ${url}`);
                 }
             }
 
-            // Fallback UI when public API proxy requests are blocked or offline
-            if (searchTracks.length === 0) {
-                const escapedQuery = encodeURIComponent(query);
-                resultsGrid.innerHTML = `
-                    <div class="col-span-full bg-slate-900/90 border border-slate-800 rounded-2xl p-6 text-center space-y-4">
-                        <i class="fa-brands fa-youtube text-4xl text-red-500"></i>
-                        <h4 class="text-white font-semibold text-lg">ค้นหาเพลงบน YouTube ไม่พบผ่าน API สาธารณะ</h4>
-                        <p class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed">
-                            เนื่องจากนโยบายความปลอดภัยของเว็บบราวเซอร์ (CORS) หรือ Invidious Server สาธารณะถูกบล็อก คุณสามารถเปิด YouTube ค้นหาเพลงตรง แล้วก๊อปปี้ลิงก์เพลงมาวางเพื่อเล่นได้ทันที!
-                        </p>
-                        <div class="flex flex-wrap justify-center gap-3 pt-2">
-                            <a href="https://www.youtube.com/results?search_query=${escapedQuery}" target="_blank" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> ค้นหา "${query}" บน YouTube
-                            </a>
-                            <button onclick="switchTab('yt-import')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition">
-                                <i class="fa-brands fa-youtube mr-1 text-red-500"></i> วาง URL เพื่อเล่นเพลง
-                            </button>
-                        </div>
+            if (results.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-slate-900/80 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl text-amber-500"></i>
+                        <h4 class="text-white font-bold text-base">ค้นหาตรงสำเร็จแต่ API เครือข่ายติดขัด</h4>
+                        <p class="text-xs text-slate-400 max-w-md mx-auto">ลองค้นหาคำอื่น หรือคลิกเลือกเพลงฮิตที่เราเตรียมไว้ให้ได้ทันที</p>
                     </div>
                 `;
+                statusTag.innerText = "ไม่พบเพลง";
                 return;
             }
 
-            // Render search results
-            resultsGrid.innerHTML = searchTracks.map(track => {
-                const safeTitle = track.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const safeArtist = track.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                return `
-                    <div class="group bg-slate-900/80 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 flex flex-col cursor-pointer transition shadow-md hover:shadow-red-900/20" onclick="playDirectYt('${track.ytId}', '${safeTitle}', '${safeArtist}', '${track.cover}')">
-                        <div class="relative aspect-video rounded-lg overflow-hidden mb-2 bg-slate-950">
-                            <img src="${track.cover}" alt="${track.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80'">
-                            <button class="absolute bottom-1.5 right-1.5 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg">
-                                <i class="fa-solid fa-play text-xs"></i>
-                            </button>
-                        </div>
-                        <h4 class="font-semibold text-xs text-white truncate" title="${track.title}">${track.title}</h4>
-                        <p class="text-[11px] text-slate-400 truncate mt-0.5">${track.artist}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.view-tab').forEach(tab => tab.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active', 'text-red-400', 'bg-slate-800/80');
-                btn.classList.add('text-slate-400');
-            });
-
-            const targetView = document.getElementById(`view-${tabId}`);
-            const targetNav = document.getElementById(`nav-${tabId}`);
-
-            if (targetView) targetView.classList.remove('hidden');
-            if (targetNav) {
-                targetNav.classList.add('active', 'text-red-400', 'bg-slate-800/80');
-                targetNav.classList.remove('text-slate-400');
-            }
-
-            const sidebar = document.getElementById('sidebar');
-            if (!sidebar.classList.contains('hidden') && window.innerWidth < 768) {
-                toggleMobileMenu();
-            }
-        }
-
-        function renderTopHits() {
-            const grid = document.getElementById('top-hits-grid');
-            grid.innerHTML = songs.map((song, index) => `
-                <div class="group bg-slate-900/60 hover:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition duration-300 flex flex-col justify-between cursor-pointer" onclick="playSong(${index})">
-                    <div class="relative aspect-square rounded-xl overflow-hidden mb-3 bg-slate-950">
-                        <img src="${song.cover}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            statusTag.innerText = `พบ ${results.length} รายการ`;
+            
+            // Append search results to main current playlist & render UI
+            currentPlaylist = [...results, ...currentPlaylist];
+            
+            grid.innerHTML = results.map((song, index) => `
+                <div class="group bg-slate-900/80 hover:bg-slate-800/90 p-3.5 rounded-2xl border border-slate-800 hover:border-slate-700 transition duration-300 flex flex-col justify-between cursor-pointer" onclick="playSongDirect('${song.id}', '${escapeQuotes(song.title)}', '${escapeQuotes(song.artist)}', '${song.cover}')">
+                    <div class="relative aspect-video rounded-xl overflow-hidden mb-3 bg-slate-950">
+                        <img src="${song.cover}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80'">
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                             <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
                                 <i class="fa-solid fa-play ml-0.5"></i>
@@ -599,183 +490,80 @@
                         </div>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-sm text-white truncate group-hover:text-red-400 transition">${song.title}</h4>
-                        <p class="text-xs text-slate-400 truncate mt-0.5">${song.artist}</p>
+                        <h4 class="font-bold text-xs text-white truncate group-hover:text-red-400 transition" title="${song.title}">${song.title}</h4>
+                        <p class="text-[11px] text-slate-400 truncate mt-1">${song.artist}</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderMoods() {
-            const grid = document.getElementById('mood-grid');
-            grid.innerHTML = moodPlaylists.map(m => `
-                <div class="p-4 rounded-2xl bg-gradient-to-r ${m.bg} flex items-center gap-4 shadow-lg cursor-pointer hover:opacity-90 transition transform active:scale-95" onclick="searchYouTube('${m.name}')">
-                    <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-xl text-white backdrop-blur-sm">
-                        <i class="fa-solid ${m.icon}"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-white text-sm">${m.name}</h4>
-                        <p class="text-xs text-white/70">${m.desc}</p>
-                    </div>
-                </div>
-            `).join('');
+        function escapeQuotes(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         }
 
-        function renderExploreSongs(songList) {
-            const list = document.getElementById('explore-songs-list');
-            if (songList.length === 0) {
-                list.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">ไม่พบรายการเพลง</div>`;
-                return;
+        // Setup Media Session API for Lockscreen / Background notification controls
+        function setupMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
+                navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
+                navigator.mediaSession.setActionHandler('previoustrack', () => prevSong());
+                navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
             }
-
-            list.innerHTML = songList.map((song) => {
-                const indexInMain = songs.findIndex(s => s.id === song.id);
-                const isFav = favorites.has(song.id);
-                const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                return `
-                    <div class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-xl transition group">
-                        <div class="flex items-center gap-3.5 min-w-0 flex-1 cursor-pointer" onclick="${indexInMain !== -1 ? `playSong(${indexInMain})` : `playDirectYt('${song.ytId}', '${safeTitle}', '${safeArtist}', '${song.cover}')`}">
-                            <img src="${song.cover}" class="w-14 h-10 rounded-lg object-cover" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80'">
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-semibold text-white truncate group-hover:text-red-400 transition">${song.title}</h4>
-                                <p class="text-xs text-slate-400 truncate">${song.artist} • <span class="text-slate-500">${song.genre || 'YouTube'}</span></p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 ml-2">
-                            <button onclick="toggleFavorite(${song.id})" class="${isFav ? 'text-rose-500' : 'text-slate-600'} hover:text-rose-500 transition text-sm">
-                                <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
-        function renderFavoriteSongs() {
-            const favSongs = songs.filter(s => favorites.has(s.id));
-            document.getElementById('fav-count').innerText = favSongs.length;
-            document.getElementById('fav-subtitle').innerText = `คุณมีเพลงโปรดทั้งหมด ${favSongs.length} เพลง`;
-            
-            const favContainer = document.getElementById('favorites-songs-list');
-            if(favSongs.length === 0) {
-                favContainer.innerHTML = `<div class="text-center py-12 text-slate-500 text-sm">ยังไม่มีเพลงโปรด กดหัวใจเพื่อบันทึกเพลงที่คุณชอบ</div>`;
-                return;
+        function updateMediaSessionState() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
             }
-
-            favContainer.innerHTML = favSongs.map(song => {
-                const indexInMain = songs.findIndex(s => s.id === song.id);
-                return `
-                    <div class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-xl transition">
-                        <div class="flex items-center gap-3.5 min-w-0 cursor-pointer" onclick="playSong(${indexInMain})">
-                            <img src="${song.cover}" class="w-14 h-10 rounded-lg object-cover">
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-semibold text-white truncate">${song.title}</h4>
-                                <p class="text-xs text-slate-400 truncate">${song.artist}</p>
-                            </div>
-                        </div>
-                        <button onclick="toggleFavorite(${song.id})" class="text-rose-500 hover:text-slate-400 transition text-sm p-2">
-                            <i class="fa-solid fa-heart"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
         }
 
-        function renderPlaylists() {
-            const container = document.getElementById('playlist-list');
-            container.innerHTML = playlists.map(p => `
-                <div class="flex items-center gap-3 px-3 py-2 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 rounded-lg cursor-pointer truncate">
-                    <i class="fa-solid fa-list-ul text-slate-500"></i>
-                    <span class="truncate">${p}</span>
-                </div>
-            `).join('');
-        }
-
-        function clearSearch() {
-            document.getElementById('search-results-section').classList.add('hidden');
-            document.getElementById('search-input').value = '';
-        }
-
-        function importYouTubeTrack() {
-            const urlInput = document.getElementById('yt-url-input').value.trim();
-            const titleInput = document.getElementById('yt-title-input').value.trim();
-            const artistInput = document.getElementById('yt-artist-input').value.trim();
-
-            let ytId = extractYouTubeID(urlInput);
-            if (!ytId) {
-                alert("กรุณากรอก YouTube URL หรือ Video ID ที่ถูกต้อง");
-                return;
-            }
-
-            const newSong = {
-                id: Date.now(),
-                ytId: ytId,
-                title: titleInput || `YouTube Stream (${ytId})`,
-                artist: artistInput || "YouTube Artist",
-                genre: "Imported",
-                cover: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-            };
-
-            songs.unshift(newSong);
-            renderTopHits();
-            renderExploreSongs(songs);
-            playSong(0);
-
-            document.getElementById('yt-url-input').value = '';
-            document.getElementById('yt-title-input').value = '';
-            document.getElementById('yt-artist-input').value = '';
-            switchTab('home');
-        }
-
-        function extractYouTubeID(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : (url.length === 11 ? url : null);
-        }
-
-        function playDirectYt(ytId, title, artist, cover) {
-            const existingIndex = songs.findIndex(s => s.ytId === ytId);
-            if (existingIndex !== -1) {
-                playSong(existingIndex);
-            } else {
-                const newSong = {
-                    id: Date.now(),
-                    ytId: ytId,
-                    title: title,
-                    artist: artist,
-                    genre: "YouTube",
-                    cover: cover || `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-                };
-                songs.unshift(newSong);
-                renderTopHits();
-                playSong(0);
+        function updateMediaSessionMetadata(song) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song.title,
+                    artist: song.artist,
+                    album: 'MelodyFlow Studio',
+                    artwork: [
+                        { src: song.cover, sizes: '512x512', type: 'image/jpeg' }
+                    ]
+                });
             }
         }
 
         function loadSong(index, shouldPlay = true) {
-            currentSongIndex = index;
-            const song = songs[currentSongIndex];
+            currentIndex = index;
+            const song = currentPlaylist[currentIndex];
 
+            // UI updates
             document.getElementById('player-cover').src = song.cover;
             document.getElementById('player-title').innerText = song.title;
             document.getElementById('player-artist').innerText = song.artist;
 
-            document.getElementById('modal-cover').src = song.cover;
-            document.getElementById('modal-title').innerText = song.title;
-            document.getElementById('modal-artist').innerText = song.artist;
-            document.getElementById('modal-lyrics').innerHTML = `<p class="text-sm text-slate-400">กำลังสตรีมวิดีโอ/เพลงจาก YouTube (${song.ytId})</p>`;
+            document.getElementById('full-cover').src = song.cover;
+            document.getElementById('full-title').innerText = song.title;
+            document.getElementById('full-artist').innerText = song.artist;
 
             updateFavoriteIcon();
+            updateMediaSessionMetadata(song);
 
             if (isYTReady && ytPlayer) {
                 if (shouldPlay) {
-                    ytPlayer.loadVideoById(song.ytId);
+                    ytPlayer.loadVideoById(song.id);
                     isPlaying = true;
                 } else {
-                    ytPlayer.cueVideoById(song.ytId);
+                    ytPlayer.cueVideoById(song.id);
                 }
                 updatePlayPauseUI();
+            }
+        }
+
+        function playSongDirect(id, title, artist, cover) {
+            const index = currentPlaylist.findIndex(s => s.id === id);
+            if (index !== -1) {
+                loadSong(index, true);
+            } else {
+                currentPlaylist.unshift({ id, title, artist, cover });
+                loadSong(0, true);
             }
         }
 
@@ -790,33 +578,23 @@
 
         function updatePlayPauseUI() {
             const btn = document.getElementById('play-pause-btn');
-            const bars = document.getElementById('visualizer-bars');
-            
-            if (isPlaying) {
-                btn.innerHTML = `<i class="fa-solid fa-pause text-base"></i>`;
-                if(bars) bars.classList.remove('opacity-30');
-            } else {
-                btn.innerHTML = `<i class="fa-solid fa-play text-base ml-0.5"></i>`;
-                if(bars) bars.classList.add('opacity-30');
-            }
-        }
-
-        function playSong(index) {
-            loadSong(index, true);
+            btn.innerHTML = isPlaying 
+                ? `<i class="fa-solid fa-pause text-base"></i>` 
+                : `<i class="fa-solid fa-play text-base ml-0.5"></i>`;
         }
 
         function nextSong() {
             if (isShuffle) {
-                currentSongIndex = Math.floor(Math.random() * songs.length);
+                currentIndex = Math.floor(Math.random() * currentPlaylist.length);
             } else {
-                currentSongIndex = (currentSongIndex + 1) % songs.length;
+                currentIndex = (currentIndex + 1) % currentPlaylist.length;
             }
-            loadSong(currentSongIndex, true);
+            loadSong(currentIndex, true);
         }
 
         function prevSong() {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-            loadSong(currentSongIndex, true);
+            currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+            loadSong(currentIndex, true);
         }
 
         function handleSongEnded() {
@@ -869,112 +647,164 @@
             if (ytPlayer && ytPlayer.setVolume) {
                 ytPlayer.setVolume(val);
             }
-            const icon = document.getElementById('volume-icon');
-            if (val == 0) {
-                icon.innerHTML = `<i class="fa-solid fa-volume-xmark"></i>`;
-            } else if (val < 50) {
-                icon.innerHTML = `<i class="fa-solid fa-volume-low"></i>`;
-            } else {
-                icon.innerHTML = `<i class="fa-solid fa-volume-high"></i>`;
-            }
         }
 
         function toggleMute() {
             if (!ytPlayer) return;
             if (ytPlayer.isMuted()) {
                 ytPlayer.unMute();
-                document.getElementById('volume-slider').value = 80;
-                changeVolume(80);
+                document.getElementById('volume-slider').value = 100;
             } else {
                 ytPlayer.mute();
                 document.getElementById('volume-slider').value = 0;
-                changeVolume(0);
             }
         }
 
-        function toggleVideoDisplay() {
-            const container = document.getElementById('video-container');
-            isVideoVisible = !isVideoVisible;
-            if (isVideoVisible) {
-                container.classList.remove('hidden');
+        // Spectrum Bars Visualizer Logic
+        function initSpectrumBars() {
+            const container = document.getElementById('spectrum-bars');
+            container.innerHTML = '';
+            for (let i = 0; i < 28; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'v-bar flex-1 bg-gradient-to-t from-red-600 to-rose-400 rounded-full h-2 min-w-[3px]';
+                container.appendChild(bar);
+            }
+        }
+
+        function startVisualizerAnimation() {
+            stopVisualizerAnimation();
+            visualizerInterval = setInterval(() => {
+                const bars = document.querySelectorAll('.v-bar');
+                bars.forEach(bar => {
+                    const h = isPlaying ? Math.floor(Math.random() * 85) + 15 : 8;
+                    bar.style.height = `${h}%`;
+                });
+            }, 100);
+        }
+
+        function stopVisualizerAnimation() {
+            if (visualizerInterval) clearInterval(visualizerInterval);
+            const bars = document.querySelectorAll('.v-bar');
+            bars.forEach(bar => bar.style.height = '8%');
+        }
+
+        // Favorites & Playlist Management
+        function toggleFavoriteCurrent() {
+            const currentSong = currentPlaylist[currentIndex];
+            if (favorites.has(currentSong.id)) {
+                favorites.delete(currentSong.id);
             } else {
-                container.classList.add('hidden');
+                favorites.add(currentSong.id);
+            }
+            updateFavoriteIcon();
+            renderFavoritesList();
+        }
+
+        function updateFavoriteIcon() {
+            const currentSong = currentPlaylist[currentIndex];
+            const isFav = favorites.has(currentSong.id);
+            const btn = document.getElementById('player-fav-btn');
+            btn.innerHTML = `<i class="fa-${isFav ? 'solid text-rose-500' : 'regular'} fa-heart"></i>`;
+            document.getElementById('fav-count').innerText = favorites.size;
+        }
+
+        function renderFavoritesList() {
+            const container = document.getElementById('favorites-list');
+            const favSongs = currentPlaylist.filter(s => favorites.has(s.id));
+            document.getElementById('fav-subtitle').innerText = `${favSongs.length} เพลงที่คุณบันทึกไว้`;
+
+            if (favSongs.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs">ยังไม่มีเพลงโปรด กดหัวใจตรงเครื่องเล่นเพื่อบันทึกเพลงที่ชอบได้ทันที</div>`;
+                return;
+            }
+
+            container.innerHTML = favSongs.map(song => `
+                <div class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-xl transition cursor-pointer" onclick="playSongDirect('${song.id}', '${escapeQuotes(song.title)}', '${escapeQuotes(song.artist)}', '${song.cover}')">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <img src="${song.cover}" class="w-12 h-12 rounded-lg object-cover">
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-white truncate">${song.title}</h4>
+                            <p class="text-[11px] text-slate-400 truncate mt-0.5">${song.artist}</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-heart text-rose-500 text-sm"></i>
+                </div>
+            `).join('');
+        }
+
+        function renderCategories() {
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = categories.map(cat => `
+                <div onclick="executeSearch('${cat.query}')" class="p-4 rounded-2xl bg-gradient-to-r ${cat.bg} flex items-center gap-3.5 shadow-lg cursor-pointer hover:opacity-90 transition transform active:scale-95">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white text-lg backdrop-blur-sm">
+                        <i class="fa-solid ${cat.icon}"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-xs">${cat.name}</h4>
+                        <p class="text-[10px] text-white/70">กดเพื่อค้นหา</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPlaylists() {
+            const list = document.getElementById('playlist-list');
+            list.innerHTML = userPlaylists.map(p => `
+                <div class="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-xl cursor-pointer transition truncate">
+                    <i class="fa-solid fa-list-ul text-slate-500"></i>
+                    <span class="truncate">${p}</span>
+                </div>
+            `).join('');
+        }
+
+        function createNewPlaylist() {
+            const name = prompt("ตั้งชื่อเพลย์ลิสต์ใหม่ของคุณ:");
+            if (name && name.trim()) {
+                userPlaylists.push(name.trim());
+                renderPlaylists();
             }
         }
 
         function toggleShuffle() {
             isShuffle = !isShuffle;
-            const btn = document.getElementById('shuffle-btn');
-            btn.classList.toggle('text-red-400', isShuffle);
-            btn.classList.toggle('text-slate-400', !isShuffle);
+            document.getElementById('shuffle-btn').classList.toggle('text-red-400', isShuffle);
         }
 
         function toggleRepeat() {
             isRepeat = !isRepeat;
-            const btn = document.getElementById('repeat-btn');
-            btn.classList.toggle('text-red-400', isRepeat);
-            btn.classList.toggle('text-slate-400', !isRepeat);
+            document.getElementById('repeat-btn').classList.toggle('text-red-400', isRepeat);
         }
 
-        function toggleFavorite(id) {
-            if (favorites.has(id)) {
-                favorites.delete(id);
-            } else {
-                favorites.add(id);
-            }
-            renderFavoriteSongs();
-            renderExploreSongs(songs);
-            updateFavoriteIcon();
-        }
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active', 'text-red-400', 'bg-slate-800/90');
+                b.classList.add('text-slate-400');
+            });
 
-        function toggleFavoriteCurrent() {
-            const currentSong = songs[currentSongIndex];
-            toggleFavorite(currentSong.id);
-        }
-
-        function updateFavoriteIcon() {
-            const currentSong = songs[currentSongIndex];
-            const isFav = favorites.has(currentSong.id);
-            const favBtn = document.getElementById('player-fav-btn');
-            favBtn.innerHTML = `<i class="fa-${isFav ? 'solid text-rose-500' : 'regular'} fa-heart"></i>`;
-        }
-
-        function filterGenre(genre) {
-            if (genre === 'All') {
-                renderExploreSongs(songs);
-            } else {
-                const filtered = songs.filter(s => s.genre === genre);
-                renderExploreSongs(filtered);
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const nav = document.getElementById(`nav-${tabId}`);
+            if (nav) {
+                nav.classList.add('active', 'text-red-400', 'bg-slate-800/90');
+                nav.classList.remove('text-slate-400');
             }
         }
 
-        function createNewPlaylist() {
-            const name = prompt("ตั้งชื่อเพลย์ลิสต์ใหม่ของคุณ:");
-            if (name && name.trim() !== "") {
-                playlists.push(name.trim());
-                renderPlaylists();
-            }
-        }
-
-        function toggleLyricsModal() {
-            document.getElementById('lyrics-modal').classList.toggle('hidden');
+        function toggleFullPlayer() {
+            document.getElementById('full-player-modal').classList.toggle('hidden');
         }
 
         function toggleMobileMenu() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
-            sidebar.classList.toggle('fixed');
-            sidebar.classList.toggle('inset-y-0');
-            sidebar.classList.toggle('left-0');
-            sidebar.classList.toggle('shadow-2xl');
+            document.getElementById('sidebar').classList.toggle('hidden');
+            document.getElementById('sidebar').classList.toggle('fixed');
+            document.getElementById('sidebar').classList.toggle('inset-0');
         }
 
         window.onload = function() {
-            renderTopHits();
-            renderMoods();
-            renderExploreSongs(songs);
-            renderFavoriteSongs();
+            renderCategories();
             renderPlaylists();
+            renderFavoritesList();
+            executeSearch("เพลงไทยฮิต 2026");
         };
     </script>
 </body>
