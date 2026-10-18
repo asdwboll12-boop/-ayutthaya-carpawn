@@ -66,7 +66,7 @@
                 <div class="flex items-center space-x-2 mb-2">
                     <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs px-2.5 py-0.5 rounded-full font-medium inline-flex items-center">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-1.5"></span>
-                        เชื่อมต่อ Real-time Google Search & AI
+                        เชื่อมต่อ Deep AI Web Search & Multi-Source Grounding
                     </span>
                 </div>
                 <h1 class="text-2xl sm:text-4xl font-bold mb-3">ค้นหาประวัติบุคคลเจาะลึกจากฐานข้อมูลจริง</h1>
@@ -194,6 +194,12 @@
             <div class="mb-4">
                 <label class="block text-xs font-bold text-slate-700 mb-1">Gemini API Key</label>
                 <input type="password" id="userApiKeyInput" placeholder="AIzaSy..." class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <div class="mt-2 text-[11px] text-slate-500 space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                    <p class="font-semibold text-indigo-700"><i class="fa-solid fa-circle-info mr-1"></i>รูปแบบตัวอย่าง:</p>
+                    <p class="font-mono bg-white p-1 rounded border border-slate-200 text-slate-700 select-all">AIzaSyD-xxxxxxxxxxxxxxxxxxxx-xxxxxx</p>
+                    <p class="text-slate-500 mt-1">• ขึ้นต้นด้วย <span class="font-semibold text-slate-700">AIzaSy...</span> ความยาวประมาณ 39 ตัวอักษร</p>
+                    <p class="text-slate-500">• สามารถรับฟรีได้จาก <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline hover:text-indigo-800 font-medium">Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a></p>
+                </div>
             </div>
             <div class="flex justify-end space-x-2">
                 <button onclick="clearApiKey()" class="px-4 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium">ลบ Key</button>
@@ -280,18 +286,29 @@
             </div>
             
             <form id="addProfileForm" onsubmit="saveProfile(event)" class="p-6 overflow-y-auto space-y-4 text-sm custom-scrollbar">
+                <!-- Helper Guide Box -->
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs text-indigo-900 flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 text-base"></i>
+                    <div>
+                        <p class="font-bold">คำแนะนำการกรอกข้อมูล:</p>
+                        <p class="text-indigo-700 mt-0.5">กรอกข้อมูลให้ครบถ้วน โดยเฉพาะช่องที่มีเครื่องหมาย <span class="text-red-500 font-bold">*</span> เพื่อความแม่นยำในการค้นหาและจัดหมวดหมู่</p>
+                    </div>
+                </div>
+
                 <div>
-                    <label class="block font-medium text-slate-700 mb-1">ชื่อ-นามสกุล *</label>
-                    <input type="text" id="addName" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ดร. สมชาย ใจดี">
+                    <label class="block font-medium text-slate-700 mb-1">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
+                    <input type="text" id="addName" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ดร. สมชาย ใจดี หรือ นายวิชัย มั่นคง">
+                    <span class="text-[11px] text-slate-400">ระบุชื่อ-นามสกุลจริง หรือชื่อเรียกในวงการ</span>
                 </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-medium text-slate-700 mb-1">ตำแหน่ง / สายงาน *</label>
+                        <label class="block font-medium text-slate-700 mb-1">ตำแหน่ง / สายงาน <span class="text-red-500">*</span></label>
                         <input type="text" id="addTitle" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น Senior Software Engineer">
+                        <span class="text-[11px] text-slate-400">อาชีพหรือตำแหน่งปัจจุบัน</span>
                     </div>
                     <div>
-                        <label class="block font-medium text-slate-700 mb-1">หมวดหมู่ *</label>
+                        <label class="block font-medium text-slate-700 mb-1">หมวดหมู่ <span class="text-red-500">*</span></label>
                         <select id="addCategory" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                             <option value="IT/Technology">เทคโนโลยี / ไอที</option>
                             <option value="Business/Management">บริหาร / ธุรกิจ</option>
@@ -300,6 +317,7 @@
                             <option value="Medical/Health">การแพทย์ / สาธารณสุข</option>
                             <option value="Other">อื่นๆ</option>
                         </select>
+                        <span class="text-[11px] text-slate-400">เลือกกลุ่มอาชีพที่ตรงที่สุด</span>
                     </div>
                 </div>
 
@@ -307,29 +325,32 @@
                     <div>
                         <label class="block font-medium text-slate-700 mb-1">จำนวนปีประสบการณ์</label>
                         <input type="number" id="addExp" min="0" value="1" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <span class="text-[11px] text-slate-400">จำนวนปีที่ทำงานในสายงานนี้</span>
                     </div>
                     <div>
-                        <label class="block font-medium text-slate-700 mb-1">สถานะ</label>
+                        <label class="block font-medium text-slate-700 mb-1">สถานะความพร้อมรับงาน</label>
                         <select id="addStatus" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                             <option value="open">พร้อมรับงาน / สัมภาษณ์</option>
                             <option value="busy">มีงานประจำ / ที่ปรึกษา</option>
                         </select>
+                        <span class="text-[11px] text-slate-400">เลือกเพื่อกรอกในตัวกรองระบบ</span>
                     </div>
                 </div>
 
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">ระดับการศึกษาล่าสุด</label>
-                    <input type="text" id="addEducation" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ปริญญาตรี วิทยาการคอมพิวเตอร์ ม.จุฬาฯ">
+                    <input type="text" id="addEducation" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ปริญญาตรี วิทยาการคอมพิวเตอร์ จุฬาลงกรณ์มหาวิทยาลัย">
                 </div>
 
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">ทักษะความเชี่ยวชาญ (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
                     <input type="text" id="addSkills" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น JavaScript, Project Management, Data Analysis">
+                    <span class="text-[11px] text-slate-400">คั่นแต่ละทักษะด้วยเครื่องหมายจุลภาค (Comma)</span>
                 </div>
 
                 <div>
-                    <label class="block font-medium text-slate-700 mb-1">ประวัติย่อ / บทสรุป</label>
-                    <textarea id="addBio" rows="3" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="อธิบายประวัติ ผลงาน หรือความสนใจเบื้องต้น..."></textarea>
+                    <label class="block font-medium text-slate-700 mb-1">ประวัติย่อ / บทสรุปผลงาน</label>
+                    <textarea id="addBio" rows="3" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="สรุปประสบการณ์ ผลงานที่ภาคภูมิใจ หรือสิ่งที่สนใจ..."></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -520,26 +541,29 @@
             btn.classList.add('opacity-75');
 
             try {
-                const systemPrompt = `คุณคือระบบค้นหาและสรุปประวัติบุคคลจากแหล่งข้อมูลสาธารณะแบบเปิด (Open Directory Agent) 
-โปรดค้นหาข้อมูลสาธารณะของบุคคลหรือตำแหน่งตามคำค้นหาของผู้ใช้ และสรุปผลออกมาในรูปแบบโครงสร้าง JSON Array ตาม Schema ที่กำหนดเท่านั้น 
-หากพบข้อมูลบุคคลหลายคน หรือบุคคลที่เป็นข่าว/สาธารณะ ให้ส่งกลับมา 1-3 รายการ
-โครงสร้าง JSON ต้องอยู่ในคีย์ตัวแปรอย่างถูกต้อง:
+                const systemPrompt = `คุณคือระบบค้นหาและสืบค้นประวัติบุคคลเจาะลึกขั้นสูงจากแหล่งข้อมูลสาธารณะทั่วอินเทอร์เน็ต (Deep Profile & Intelligence Discovery Agent)
+
+คำสั่งปฏิบัติการ:
+1. ทำการวิเคราะห์และค้นหาข้อมูลสาธารณะเกี่ยวกับบุคคล ตำแหน่ง หรือคำค้นหาที่ได้รับอย่างครอบคลุม เจาะลึก และแม่นยำที่สุด
+2. รวบรวมข้อมูลประวัติโดยละเอียด ได้แก่ ประวัติการทำงาน, ตำแหน่งปัจจุบันและอดีต, ผลงานสำคัญ, คุณวุฒิการศึกษา, ทักษะเชี่ยวชาญเฉพาะทาง, รวมถึงช่องทางติดต่อสาธารณะ (เช่น อีเมลวิชาการ/ธุรกิจ, ลิงก์ Social/Media, เบอร์ติดต่อสาธารณะ)
+3. ส่งกลับผลลัพธ์เป็น JSON Array ตามโครงสร้าง Schema ด้านล่างนี้เท่านั้น โดยค้นหาและสร้างโปรไฟล์ที่มีข้อมูลแน่นและครอบคลุมที่สุด 1-5 รายการ:
+
 [
   {
-    "name": "ชื่อ-นามสกุล หรือ ฉายา",
-    "title": "ตำแหน่ง หรือ สายงานปัจจุบัน",
-    "category": "IT/Technology",
+    "name": "ชื่อ-นามสกุล จริง พร้อมคำนำหน้า/ยศ/ตำแหน่งทางวิชาการ (ถ้ามี)",
+    "title": "ตำแหน่งปัจจุบัน / บทบาทหลัก / อาชีพ",
+    "category": "หมวดหมู่ (เลือกจาก: IT/Technology, Business/Management, Creative/Design, Education/Academic, Medical/Health, Other)",
     "experienceYears": 10,
     "status": "open",
-    "education": "การศึกษา หรือ สถาบันที่เกี่ยวข้อง",
-    "skills": ["ทักษะ1", "ทักษะ2", "ทักษะ3"],
-    "bio": "สรุปประวัติ ผลงาน โครงการ หรือประวัติย่อแบบละเอียด 2-3 ประโยค",
-    "email": "อีเมลสาธารณะ หรือ ไม่พบข้อมูล",
-    "phone": "เบอร์ติดต่อสาธารณะ หรือ ไม่พบข้อมูล"
+    "education": "ประวัติการศึกษา คณะ สถาบัน หรือคุณวุฒิโดยละเอียด",
+    "skills": ["ทักษะ1", "ทักษะ2", "ทักษะ3", "ทักษะ4", "ทักษะ5"],
+    "bio": "สรุปประวัติเชิงลึก ผลงานเด่น ประสบการณ์ และบทบาทสำคัญอย่างละเอียดยิ่งขึ้น (ประมาณ 3-5 ประโยค)",
+    "email": "อีเมลสาธารณะ หรือ ไม่พบข้อมูลสาธารณะ",
+    "phone": "เบอร์ติดต่อสาธารณะ หรือ ไม่พบข้อมูลสาธารณะ"
   }
 ]`;
 
-                const userPrompt = `ค้นหาข้อมูลประวัติบุคคลสาธารณะ, ผู้เชี่ยวชาญ, หรือบุคคลตามคำค้นหานี้: "${query}"`;
+                const userPrompt = `สืบค้นและค้นหาประวัติเจาะลึกเชิงรายละเอียดของบุคคลหรือคำค้นหานี้จากเว็บจริง: "${query}"`;
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
                 const payload = {
@@ -584,13 +608,13 @@
                         liveSearchProfiles = parsedData.map((item, index) => ({
                             id: `live_${Date.now()}_${index}`,
                             name: item.name || query,
-                            title: item.title || 'บุคคลสาธารณะ',
+                            title: item.title || 'บุคคลสาธารณะ / ผู้เชี่ยวชาญ',
                             category: item.category || 'Other',
                             experienceYears: item.experienceYears || 5,
                             status: item.status || 'open',
-                            education: item.education || 'ข้อมูลสาธารณะ',
-                            skills: Array.isArray(item.skills) ? item.skills : ['ข้อมูลสาธารณะ'],
-                            bio: item.bio || 'ค้นพบข้อมูลจากอินเทอร์เน็ต',
+                            education: item.education || 'ข้อมูลค้นพบจากแหล่งสาธารณะ',
+                            skills: Array.isArray(item.skills) && item.skills.length > 0 ? item.skills : ['ค้นพบเจาะลึก'],
+                            bio: item.bio || 'ค้นพบข้อมูลเจาะลึกจากอินเทอร์เน็ต',
                             email: item.email || 'ไม่พบข้อมูลสาธารณะ',
                             phone: item.phone || 'ไม่พบข้อมูลสาธารณะ',
                             sources: sources,
@@ -598,10 +622,10 @@
                         }));
 
                         isLiveSearchResults = true;
-                        badge.textContent = `แสดงผลจาก: Google Live Search (${sources.length} อ้างอิง)`;
-                        badge.className = "text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold";
+                        badge.textContent = `แสดงผลเจาะลึก: Google Live Search (${sources.length} แหล่งอ้างอิง)`;
+                        badge.className = "text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold";
                         renderProfiles(liveSearchProfiles);
-                        showToast(`พบประวัติเจาะลึก ${liveSearchProfiles.length} รายการจากอินเทอร์เน็ต`);
+                        showToast(`สืบค้นและพบประวัติเจาะลึก ${liveSearchProfiles.length} รายการจากอินเทอร์เน็ต`);
                     } else {
                         throw new Error("No structured results found");
                     }
