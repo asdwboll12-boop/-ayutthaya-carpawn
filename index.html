@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="th" class="h-full bg-slate-950 text-slate-100 select-none">
 <head>
     <meta charset="UTF-8">
@@ -35,21 +35,15 @@
         ::-webkit-scrollbar-thumb:hover { background: #334155; }
         
         .glass-card {
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .glass-player {
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
         }
-        
-        @keyframes float-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-        }
-        .animate-glow { animation: float-pulse 4s ease-in-out infinite; }
         .v-bar { transition: height 0.1s ease; }
     </style>
 </head>
@@ -57,7 +51,7 @@
 
     <div class="flex-1 flex overflow-hidden relative">
 
-        <!-- Sidebar (Desktop) -->
+        <!-- Sidebar Navigation (Desktop) -->
         <aside id="sidebar" class="w-64 bg-slate-900/90 flex-col justify-between hidden md:flex z-30 border-r border-slate-800/80 transition-all duration-300">
             <div class="p-5">
                 <!-- App Logo -->
@@ -67,11 +61,11 @@
                     </div>
                     <div>
                         <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-red-400 bg-clip-text text-transparent">MelodyFlow</h1>
-                        <span class="text-[9px] bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Background Audio Pro</span>
+                        <span class="text-[9px] bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Background Music</span>
                     </div>
                 </div>
 
-                <!-- Navigation -->
+                <!-- Navigation Links -->
                 <nav class="space-y-1.5">
                     <button onclick="switchTab('home')" id="nav-home" class="nav-btn active w-full flex items-center gap-3.5 px-4 py-3 text-sm font-semibold rounded-xl transition-all text-red-400 bg-slate-800/90">
                         <i class="fa-solid fa-house text-lg w-5"></i>
@@ -103,46 +97,143 @@
             <!-- Background Mode Badge -->
             <div class="p-4 m-4 rounded-2xl bg-gradient-to-b from-slate-800/80 to-slate-900 border border-slate-700/60 text-center relative overflow-hidden">
                 <i class="fa-solid fa-headphones text-2xl text-red-500 mb-1"></i>
-                <p class="text-xs font-bold text-slate-200">ระบบเล่นเพลงพื้นหลัง</p>
-                <p class="text-[10px] text-slate-400 mt-0.5">พับจอ/สลับแอป เล่นต่อเนื่องไม่ดับ</p>
+                <p class="text-xs font-bold text-slate-200">ระบบเล่นเพลงไม่มีโฆษณา</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">ฟังเพลงต่อเนื่อง ค้นหาง่าย พับจอได้</p>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0 bg-slate-950 overflow-hidden relative">
             
-            <!-- Dynamic Top Search Bar -->
-            <header class="h-16 border-b border-slate-800/80 px-4 md:px-8 flex items-center justify-between gap-4 glass-card z-10 sticky top-0">
+            <!-- Dynamic Header Bar -->
+            <header class="h-16 border-b border-slate-800/80 px-4 md:px-8 flex items-center justify-between gap-3 glass-card z-10 sticky top-0">
                 <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 text-xl p-2 hover:text-white">
                     <i class="fa-solid fa-bars"></i>
                 </button>
 
-                <!-- Search Input with Multi-Fallback API Engine -->
-            <div class="relative flex-1 max-w-xl">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="text" id="search-input" onkeypress="if(event.key==='Enter') executeSearch(this.value)" placeholder="ค้นหาชื่อเพลง, ศิลปิน หรือ YouTube ID/URL..." class="w-full bg-slate-900/90 border border-slate-700/70 rounded-full py-2.5 pl-11 pr-24 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all shadow-inner">
-                <button onclick="executeSearch(document.getElementById('search-input').value)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-full transition shadow-md shadow-red-600/30">
-                    ค้นหา
+                <!-- Search Input with Intelligent Fallbacks -->
+                <div class="relative flex-1 max-w-xl">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeypress="if(event.key==='Enter') executeSearch(this.value)" placeholder="ค้นหาชื่อเพลง, ศิลปิน หรือ YouTube ID..." class="w-full bg-slate-900/90 border border-slate-700/70 rounded-full py-2 pl-11 pr-20 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all shadow-inner">
+                    <button onclick="executeSearch(document.getElementById('search-input').value)" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-500 text-white font-medium text-xs px-3 py-1.5 rounded-full transition shadow-md shadow-red-600/30">
+                        ค้นหา
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="switchTab('favorites')" class="md:hidden text-rose-500 p-2">
+                        <i class="fa-solid fa-heart text-lg"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div id="content-container" class="flex-1 overflow-y-auto p-4 md:p-8 pb-32">
+                
+                <!-- VIEW 1: HOME & SEARCH -->
+                <section id="view-home" class="view-tab space-y-8">
+                    <!-- Quick Categories -->
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">หมวดหมู่แนะนำ</h3>
+                        <div id="category-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+                    </div>
+
+                    <!-- Search Results Grid -->
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 id="search-title" class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-fire text-red-500"></i> เพลงแนะนำสำหรับคุณ
+                            </h2>
+                            <span id="search-status-tag" class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700/60">พร้อมใช้งาน</span>
+                        </div>
+
+                        <div id="search-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            <!-- Dynamic Song Cards Insertion -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: TRENDING -->
+                <section id="view-trending" class="view-tab hidden space-y-6">
+                    <div class="flex items-center gap-3 bg-gradient-to-r from-amber-500/20 to-red-500/20 p-6 rounded-3xl border border-amber-500/30">
+                        <i class="fa-solid fa-fire text-4xl text-amber-500"></i>
+                        <div>
+                            <h2 class="text-xl font-bold text-white">เพลงฮิตยอดนิยมประจำสัปดาห์</h2>
+                            <p class="text-xs text-slate-300 mt-1">อันดับเพลงฮิตติดชาร์ต ฟังสบาย ไม่มีโฆษณาคั่น</p>
+                        </div>
+                    </div>
+                    <div id="trending-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+                </section>
+
+                <!-- VIEW 3: FAVORITES -->
+                <section id="view-favorites" class="view-tab hidden space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-heart text-rose-500"></i> คลังเพลงที่คุณชื่นชอบ
+                        </h2>
+                        <p id="fav-subtitle" class="text-xs text-slate-400 mt-1">0 เพลงที่คุณบันทึกไว้</p>
+                    </div>
+                    <div id="favorites-list" class="space-y-2"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden YouTube Video Container -->
+    <div id="yt-player-container" class="absolute -top-[9999px] -left-[9999px] opacity-0 pointer-events-none">
+        <div id="yt-player-instance"></div>
+    </div>
+
+    <!-- Bottom Sticky Player Bar -->
+    <footer class="h-20 glass-player fixed bottom-0 left-0 right-0 z-40 px-4 md:px-8 flex items-center justify-between gap-4">
+        <!-- Currently Playing Info -->
+        <div class="flex items-center gap-3 w-1/3 min-w-[140px]">
+            <img id="player-cover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-xl object-cover shadow-md border border-slate-700/50">
+            <div class="min-w-0">
+                <h4 id="player-title" class="font-bold text-xs md:text-sm text-white truncate">เลือกเพลงเพื่อเริ่มเล่น</h4>
+                <p id="player-artist" class="text-[11px] text-slate-400 truncate mt-0.5">MelodyFlow Music</p>
+            </div>
+            <button onclick="toggleFavoriteCurrent()" id="player-fav-btn" class="text-slate-400 hover:text-rose-500 transition ml-1 p-1">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+        </div>
+
+        <!-- Player Controls & Seek Slider -->
+        <div class="flex flex-col items-center gap-1.5 w-1/3 max-w-xl">
+            <div class="flex items-center gap-4 md:gap-6">
+                <button onclick="toggleShuffle()" id="shuffle-btn" class="text-slate-400 hover:text-white transition text-xs">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+                <button onclick="prevSong()" class="text-slate-300 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-backward-step"></i>
+                </button>
+                <button onclick="togglePlayPause()" id="play-pause-btn" class="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg shadow-red-600/30 transition transform active:scale-95">
+                    <i class="fa-solid fa-play ml-0.5"></i>
+                </button>
+                <button onclick="nextSong()" class="text-slate-300 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
+                <button onclick="toggleRepeat()" id="repeat-btn" class="text-slate-400 hover:text-white transition text-xs">
+                    <i class="fa-solid fa-repeat"></i>
                 </button>
             </div>
 
-            <!-- Track Progress Bar -->
-            <div class="w-full flex items-center gap-2.5">
+            <!-- Progress Bar -->
+            <div class="w-full flex items-center gap-2">
                 <span id="current-time" class="text-[10px] text-slate-400 font-mono w-8 text-right">0:00</span>
                 <input type="range" id="seek-slider" min="0" max="100" value="0" oninput="seekSong(this.value)" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500">
                 <span id="total-duration" class="text-[10px] text-slate-400 font-mono w-8">0:00</span>
             </div>
         </div>
 
-        <!-- Volume & Extras -->
+        <!-- Volume & Audio Spectrum Visualizer -->
         <div class="flex items-center justify-end gap-3 w-1/3 min-w-[120px]">
-            <button onclick="toggleFullPlayer()" class="text-slate-400 hover:text-red-400 transition p-2 text-base" title="ขยายเต็มจอ">
-                <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
-            </button>
+            <!-- Dynamic Audio Visualizer Bars -->
+            <div id="spectrum-bars" class="hidden lg:flex items-end gap-0.5 h-6 w-24"></div>
+
             <div class="hidden md:flex items-center gap-2">
                 <button onclick="toggleMute()" id="volume-icon" class="text-slate-400 hover:text-white transition text-sm">
                     <i class="fa-solid fa-volume-high"></i>
                 </button>
-                <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="changeVolume(this.value)" class="w-20 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500">
+                <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="changeVolume(this.value)" class="w-16 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500">
             </div>
         </div>
     </footer>
@@ -151,12 +242,11 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-        // Preset Thai and International curated music database
+        // Curated Library Fallback
         let musicLibrary = [
             { id: "jfKfPfyJRdk", title: "Lofi Hip Hop Radio - Beats to Relax", artist: "Lofi Girl", cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=400&auto=format&fit=crop&q=80" },
             { id: "5qap5aO4i9A", title: "Lofi Sleep Beats & Chill Music", artist: "ChilledCow", cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&auto=format&fit=crop&q=80" },
             { id: "2Vv-BfVoq4g", title: "Acoustic Chill Hits 2026", artist: "Acoustic Lounge", cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=400&auto=format&fit=crop&q=80" },
-            { id: "LsoLEjrDogU", title: "รวมเพลงฮิตติดชาร์ต เพลงเพราะฟังยาวๆ", artist: "MelodyFlow Studio", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80" },
             { id: "dQw4w9WgXcQ", title: "Never Gonna Give You Up", artist: "Rick Astley", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&auto=format&fit=crop&q=80" },
             { id: "fJ9rUzIMcZQ", title: "Bohemian Rhapsody", artist: "Queen", cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&auto=format&fit=crop&q=80" }
         ];
@@ -241,23 +331,23 @@
             const statusTag = document.getElementById('search-status-tag');
 
             const cleanQuery = query.trim();
-            title.innerHTML = `<i class="fa-solid fa-magnifying-glass text-red-500"></i> ผลการค้นหาออนไลน์: "${cleanQuery}"`;
-            statusTag.innerText = "กำลังเชื่อมต่อคลังเพลงออนไลน์...";
+            title.innerHTML = `<i class="fa-solid fa-magnifying-glass text-red-500"></i> ผลการค้นหา: "${cleanQuery}"`;
+            statusTag.innerText = "กำลังค้นหาข้อมูลเพลง...";
 
             grid.innerHTML = `
                 <div class="col-span-full py-16 text-center text-slate-400">
                     <i class="fa-solid fa-spinner animate-spin text-3xl text-red-500 mb-3 block"></i>
-                    <p class="text-sm font-medium">กำลังค้นหาเพลง "${cleanQuery}" จากคลังเพลงออนไลน์...</p>
+                    <p class="text-sm font-medium">กำลังค้นหาเพลง "${cleanQuery}"...</p>
                 </div>
             `;
 
-            // Check if user directly pasted YouTube URL or Video ID
+            // Direct YouTube URL or ID match
             const directId = extractYouTubeID(cleanQuery);
             if (directId) {
                 const directSong = {
                     id: directId,
                     title: `เล่นโดยตรงจาก YouTube ID: ${directId}`,
-                    artist: "YouTube Online Track",
+                    artist: "YouTube Track",
                     cover: `https://img.youtube.com/vi/${directId}/hqdefault.jpg`
                 };
                 playSongDirect(directSong.id, directSong.title, directSong.artist, directSong.cover);
@@ -272,14 +362,13 @@
                 `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(cleanQuery)}&filter=music_songs`,
                 `https://api.piped.privacydev.net/search?q=${encodeURIComponent(cleanQuery)}&filter=all`,
                 `https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(cleanQuery)}&type=video`,
-                `https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(cleanQuery)}&type=video`,
-                `https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(cleanQuery)}&type=video`
+                `https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(cleanQuery)}&type=video`
             ];
 
             for (let url of endpoints) {
                 try {
                     const controller = new AbortController();
-                    const timeout = setTimeout(() => controller.abort(), 3500);
+                    const timeout = setTimeout(() => controller.abort(), 3000);
                     
                     const response = await fetch(url, { signal: controller.signal });
                     clearTimeout(timeout);
@@ -309,11 +398,45 @@
                         }
                     }
                 } catch (err) {
-                    console.warn(`Online fetch fallback attempt on ${url}`);
+                    console.warn(`Attempt fallback on ${url}`);
                 }
             }
 
-            // Smart fallback if online proxy APIs are slow/blocked
+            // Smart fallback via Gemini AI if available or local matching
+            if (results.length === 0) {
+                try {
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                    
+                    const prompt = `ผู้ใช้กำลังค้นหาเพลง "${cleanQuery}" โปรดแนะนำเพลง หรือเพลงฮิตที่เกี่ยวข้องจำนวน 6 เพลง โดยตอบกลับเป็น JSON Array ที่มีโครงสร้าง: [{"id": "YouTube Video ID ตัวอย่าง 11 หลัก", "title": "ชื่อเพลง", "artist": "ชื่อศิลปิน"}] เท่านั้น`;
+
+                    const aiRes = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
+
+                    if (aiRes.ok) {
+                        const aiData = await aiRes.json();
+                        const parsed = JSON.parse(aiData.candidates[0].content.parts[0].text);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            results = parsed.map(item => ({
+                                id: item.id || "jfKfPfyJRdk",
+                                title: item.title,
+                                artist: item.artist,
+                                cover: `https://img.youtube.com/vi/${item.id || 'jfKfPfyJRdk'}/hqdefault.jpg`
+                            }));
+                        }
+                    }
+                } catch (aiErr) {
+                    console.warn("AI search fallback skipped");
+                }
+            }
+
+            // Final fallback to local library matching
             if (results.length === 0) {
                 const searchLower = cleanQuery.toLowerCase();
                 const matchedLocal = musicLibrary.filter(s => 
@@ -321,38 +444,29 @@
                     s.artist.toLowerCase().includes(searchLower)
                 );
 
-                if (matchedLocal.length > 0) {
-                    results = matchedLocal;
-                } else {
-                    const customId = "jfKfPfyJRdk";
-                    results = [
-                        {
-                            id: customId,
-                            title: `ค้นหาเกี่ยวกับ: ${cleanQuery}`,
-                            artist: "คลิกเพื่อรับฟังตัวอย่างเพลงฮิต",
-                            cover: `https://img.youtube.com/vi/${customId}/hqdefault.jpg`
-                        },
-                        ...musicLibrary
-                    ];
-                }
+                results = matchedLocal.length > 0 ? matchedLocal : musicLibrary;
             }
 
-            statusTag.innerText = `พบคลังเพลง ${results.length} รายการ`;
+            statusTag.innerText = `พบเพลง ${results.length} รายการ`;
             currentPlaylist = [...results, ...currentPlaylist];
-            
-            grid.innerHTML = results.map((song) => `
-                <div class="group bg-slate-900/80 hover:bg-slate-800/90 p-3.5 rounded-2xl border border-slate-800 hover:border-slate-700 transition duration-300 flex flex-col justify-between cursor-pointer" onclick="playSongDirect('${song.id}', '${escapeQuotes(song.title)}', '${escapeQuotes(song.artist)}', '${song.cover}')">
-                    <div class="relative aspect-video rounded-xl overflow-hidden mb-3 bg-slate-950">
+            renderSongGrid(results);
+        }
+
+        function renderSongGrid(songs) {
+            const grid = document.getElementById('search-grid');
+            grid.innerHTML = songs.map((song) => `
+                <div class="group bg-slate-900/80 hover:bg-slate-800/90 p-3 rounded-2xl border border-slate-800 hover:border-slate-700 transition duration-300 flex flex-col justify-between cursor-pointer" onclick="playSongDirect('${song.id}', '${escapeQuotes(song.title)}', '${escapeQuotes(song.artist)}', '${song.cover}')">
+                    <div class="relative aspect-video rounded-xl overflow-hidden mb-2.5 bg-slate-950">
                         <img src="${song.cover}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80'">
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                            <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
-                                <i class="fa-solid fa-play ml-0.5"></i>
+                            <div class="w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
+                                <i class="fa-solid fa-play text-xs ml-0.5"></i>
                             </div>
                         </div>
                     </div>
                     <div>
                         <h4 class="font-bold text-xs text-white truncate group-hover:text-red-400 transition" title="${song.title}">${song.title}</h4>
-                        <p class="text-[11px] text-slate-400 truncate mt-1">${song.artist}</p>
+                        <p class="text-[11px] text-slate-400 truncate mt-0.5">${song.artist}</p>
                     </div>
                 </div>
             `).join('');
@@ -383,9 +497,7 @@
                     title: song.title,
                     artist: song.artist,
                     album: 'MelodyFlow Studio',
-                    artwork: [
-                        { src: song.cover, sizes: '512x512', type: 'image/jpeg' }
-                    ]
+                    artwork: [{ src: song.cover, sizes: '512x512', type: 'image/jpeg' }]
                 });
             }
         }
@@ -398,10 +510,6 @@
             document.getElementById('player-cover').src = song.cover;
             document.getElementById('player-title').innerText = song.title;
             document.getElementById('player-artist').innerText = song.artist;
-
-            document.getElementById('full-cover').src = song.cover;
-            document.getElementById('full-title').innerText = song.title;
-            document.getElementById('full-artist').innerText = song.artist;
 
             updateFavoriteIcon();
             updateMediaSessionMetadata(song);
@@ -439,8 +547,8 @@
         function updatePlayPauseUI() {
             const btn = document.getElementById('play-pause-btn');
             btn.innerHTML = isPlaying 
-                ? `<i class="fa-solid fa-pause text-base"></i>` 
-                : `<i class="fa-solid fa-play text-base ml-0.5"></i>`;
+                ? `<i class="fa-solid fa-pause text-sm"></i>` 
+                : `<i class="fa-solid fa-play text-sm ml-0.5"></i>`;
         }
 
         function nextSong() {
@@ -523,9 +631,9 @@
         function initSpectrumBars() {
             const container = document.getElementById('spectrum-bars');
             container.innerHTML = '';
-            for (let i = 0; i < 28; i++) {
+            for (let i = 0; i < 16; i++) {
                 const bar = document.createElement('div');
-                bar.className = 'v-bar flex-1 bg-gradient-to-t from-red-600 to-rose-400 rounded-full h-2 min-w-[3px]';
+                bar.className = 'v-bar flex-1 bg-gradient-to-t from-red-600 to-rose-400 rounded-full h-1.5 min-w-[3px]';
                 container.appendChild(bar);
             }
         }
@@ -535,16 +643,16 @@
             visualizerInterval = setInterval(() => {
                 const bars = document.querySelectorAll('.v-bar');
                 bars.forEach(bar => {
-                    const h = isPlaying ? Math.floor(Math.random() * 85) + 15 : 8;
+                    const h = isPlaying ? Math.floor(Math.random() * 80) + 20 : 10;
                     bar.style.height = `${h}%`;
                 });
-            }, 100);
+            }, 120);
         }
 
         function stopVisualizerAnimation() {
             if (visualizerInterval) clearInterval(visualizerInterval);
             const bars = document.querySelectorAll('.v-bar');
-            bars.forEach(bar => bar.style.height = '8%');
+            bars.forEach(bar => bar.style.height = '10%');
         }
 
         function toggleFavoriteCurrent() {
@@ -581,7 +689,7 @@
             container.innerHTML = favSongs.map(song => `
                 <div class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-xl transition cursor-pointer" onclick="playSongDirect('${song.id}', '${escapeQuotes(song.title)}', '${escapeQuotes(song.artist)}', '${song.cover}')">
                     <div class="flex items-center gap-3 min-w-0">
-                        <img src="${song.cover}" class="w-12 h-12 rounded-lg object-cover">
+                        <img src="${song.cover}" class="w-11 h-11 rounded-lg object-cover">
                         <div class="min-w-0">
                             <h4 class="text-xs font-bold text-white truncate">${song.title}</h4>
                             <p class="text-[11px] text-slate-400 truncate mt-0.5">${song.artist}</p>
@@ -595,13 +703,13 @@
         function renderCategories() {
             const grid = document.getElementById('category-grid');
             grid.innerHTML = categories.map(cat => `
-                <div onclick="executeSearch('${cat.query}')" class="p-4 rounded-2xl bg-gradient-to-r ${cat.bg} flex items-center gap-3.5 shadow-lg cursor-pointer hover:opacity-90 transition transform active:scale-95">
-                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white text-lg backdrop-blur-sm">
+                <div onclick="executeSearch('${cat.query}')" class="p-3.5 rounded-2xl bg-gradient-to-r ${cat.bg} flex items-center gap-3 shadow-lg cursor-pointer hover:opacity-90 transition transform active:scale-95">
+                    <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-white text-sm backdrop-blur-sm">
                         <i class="fa-solid ${cat.icon}"></i>
                     </div>
                     <div>
                         <h4 class="font-bold text-white text-xs">${cat.name}</h4>
-                        <p class="text-[10px] text-white/70">กดเพื่อค้นหา</p>
+                        <p class="text-[9px] text-white/70">กดเพื่อค้นหา</p>
                     </div>
                 </div>
             `).join('');
@@ -650,21 +758,30 @@
             }
         }
 
-        function toggleFullPlayer() {
-            document.getElementById('full-player-modal').classList.toggle('hidden');
-        }
-
         function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('hidden');
-            document.getElementById('sidebar').classList.toggle('fixed');
-            document.getElementById('sidebar').classList.toggle('inset-0');
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('fixed');
+            sidebar.classList.toggle('inset-0');
         }
 
         window.onload = function() {
             renderCategories();
             renderPlaylists();
             renderFavoritesList();
-            executeSearch("เพลงไทยฮิต");
+            renderSongGrid(musicLibrary);
+            
+            // Render trending songs tab
+            const trendingGrid = document.getElementById('trending-grid');
+            if(trendingGrid) {
+                trendingGrid.innerHTML = musicLibrary.map(song => `
+                    <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800 cursor-pointer hover:border-slate-700 transition" onclick="playSongDirect('${song.id}', '${escapeQuotes(song.title)}', '${escapeQuotes(song.artist)}', '${song.cover}')">
+                        <img src="${song.cover}" class="w-full aspect-video rounded-xl object-cover mb-2">
+                        <h4 class="font-bold text-xs text-white truncate">${song.title}</h4>
+                        <p class="text-[10px] text-slate-400 truncate mt-0.5">${song.artist}</p>
+                    </div>
+                `).join('');
+            }
         };
     </script>
 </body>
