@@ -38,6 +38,7 @@
                 <span class="font-bold text-xl tracking-wide bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
                     OpenProfile
                 </span>
+                <span class="bg-amber-400 text-slate-900 font-bold text-[10px] px-2 py-0.5 rounded-full tracking-wider uppercase shadow-sm">Live AI Search</span>
             </div>
             
             <div class="flex items-center space-x-3">
@@ -53,25 +54,40 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
         
         <!-- Search and Banner Section -->
-        <div class="bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-6 sm:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl p-6 sm:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
             <div class="absolute -right-10 -bottom-10 opacity-10 text-white text-9xl">
-                <i class="fa-solid fa-address-book"></i>
+                <i class="fa-solid fa-globe"></i>
             </div>
             <div class="relative z-10 max-w-3xl">
-                <h1 class="text-2xl sm:text-4xl font-bold mb-3">ค้นหาประวัติและข้อมูลบุคคลแบบเปิดกว้าง</h1>
-                <p class="text-indigo-100 text-sm sm:text-base mb-6">รวบรวมข้อมูลประวัติ การทำงาน ผลงาน และช่องทางติดต่อ ค้นหาสบาย ปราศจากการปิดกั้นข้อมูลสาธารณะ</p>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs px-2.5 py-0.5 rounded-full font-medium inline-flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-1.5"></span>
+                        เชื่อมต่อ Real-time Google Search & AI
+                    </span>
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-bold mb-3">ค้นหาประวัติบุคคลเจาะลึกจากฐานข้อมูลจริง</h1>
+                <p class="text-indigo-200 text-sm sm:text-base mb-6">ค้นหาชื่อ-นามสกุล บุคคลสาธารณะ ผู้เชี่ยวชาญ หรือบริษัทจากเว็บแบบเปิด ไม่ติดการปิดกั้น</p>
                 
                 <!-- Search Box -->
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex flex-col sm:flex-row gap-3 mb-3">
                     <div class="relative flex-grow">
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="พิมพ์ชื่อ, สกุล, คำค้นหา, สายงาน, หรือความเชี่ยวชาญ..." 
-                               class="w-full pl-11 pr-4 py-3.5 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-300 shadow-inner">
+                        <input type="text" id="searchInput" onkeydown="if(event.key==='Enter') executeLiveSearch()" placeholder="พิมพ์ชื่อ-นามสกุลจริง, ตำแหน่ง, บริษัท หรือคีย์เวิร์ดประวัติ..." 
+                               class="w-full pl-11 pr-4 py-3.5 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-amber-400/50 shadow-inner">
                     </div>
-                    <button onclick="handleSearch()" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-6 py-3.5 rounded-xl transition shadow flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-search"></i>
-                        <span>ค้นหา</span>
+                    <button onclick="executeLiveSearch()" id="searchBtn" class="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition shadow-lg flex items-center justify-center space-x-2 shrink-0">
+                        <i class="fa-solid fa-bolt text-slate-900"></i>
+                        <span>ค้นหาเจาะลึก (AI Search)</span>
                     </button>
+                </div>
+
+                <!-- Toggle Local/Live Mode -->
+                <div class="flex items-center space-x-4 text-xs text-indigo-200">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="liveSearchToggle" checked class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500 relative"></div>
+                        <span class="ml-2 font-medium text-amber-300">ค้นหาจากเว็บจริงด้วย Gemini Live API</span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -83,7 +99,7 @@
             <div class="lg:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit space-y-6">
                 <div>
                     <h2 class="font-bold text-lg text-slate-800 border-b pb-2 flex items-center justify-between">
-                        <span><i class="fa-solid fa-filter text-indigo-600 mr-2"></i>ตัวกรอง</span>
+                        <span><i class="fa-solid fa-filter text-indigo-600 mr-2"></i>ตัวกรองท้องถิ่น</span>
                         <button onclick="resetFilters()" class="text-xs text-indigo-600 hover:underline font-normal">ล้างตัวกรอง</button>
                     </h2>
                 </div>
@@ -133,6 +149,14 @@
                 <!-- Status Header -->
                 <div class="flex items-center justify-between text-sm text-slate-500 px-1">
                     <div>พบรายการทั้งสิ้น <span id="resultCount" class="font-bold text-indigo-600">0</span> รายการ</div>
+                    <div id="searchSourceBadge" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">แสดงผลจาก: ฐานข้อมูลในระบบ</div>
+                </div>
+
+                <!-- Loading Spinner State -->
+                <div id="loadingState" class="hidden text-center py-16 bg-white rounded-2xl border border-indigo-100 shadow-sm">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent mb-4"></div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">กำลังสแกนค้นหาข้อมูลประวัติจริงทั่วอินเทอร์เน็ต...</h3>
+                    <p class="text-sm text-slate-500">ใช้ Gemini AI + Google Search Grounding เพื่อรวบรวมประวัติ ผลงาน และช่องทางติดต่อ</p>
                 </div>
 
                 <!-- Grid Results -->
@@ -144,7 +168,7 @@
                 <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
                     <i class="fa-solid fa-user-slash text-5xl text-slate-300 mb-4"></i>
                     <h3 class="text-lg font-medium text-slate-700 mb-1">ไม่พบข้อมูลประวัติที่ตรงกัน</h3>
-                    <p class="text-sm text-slate-500 mb-4">ลองปรับคำค้นหา หรือเปลี่ยนเงื่อนไขตัวกรองใหม่</p>
+                    <p class="text-sm text-slate-500 mb-4">ลองกดปุ่ม "ค้นหาเจาะลึก (AI Search)" เพื่อค้นหาประวัติจากข้อมูลจริงบนอินเทอร์เน็ต</p>
                     <button onclick="resetFilters()" class="text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-lg font-medium transition">
                         ล้างเงื่อนไขการค้นหาทั้งหมด
                     </button>
@@ -179,13 +203,19 @@
                 <!-- Bio -->
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">เกี่ยวกับ / ประวัติย่อ</h3>
-                    <p id="modalBio" class="text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100"></p>
+                    <p id="modalBio" class="text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-line"></p>
                 </div>
 
                 <!-- Skills -->
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">ทักษะและความเชี่ยวชาญ</h3>
                     <div id="modalSkills" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Grounding Sources (for Real Web Search Results) -->
+                <div id="modalSourcesContainer" class="hidden">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2"><i class="fa-solid fa-link text-indigo-500 mr-1"></i>แหล่งอ้างอิงข้อมูลสาธารณะ (Sources)</h3>
+                    <div id="modalSources" class="space-y-1.5 text-xs"></div>
                 </div>
 
                 <!-- Experience & Education -->
@@ -368,6 +398,8 @@
         ];
 
         let profiles = [];
+        let liveSearchProfiles = [];
+        let isLiveSearchResults = false;
 
         window.onload = function() {
             // Load saved profiles from localStorage if exist
@@ -386,6 +418,135 @@
 
         function saveToStorage() {
             localStorage.setItem('open_profiles_data', JSON.stringify(profiles));
+        }
+
+        // Live API Search via Gemini Flash with Google Search Grounding
+        async function executeLiveSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            const useLive = document.getElementById('liveSearchToggle').checked;
+
+            if (!query) {
+                showToast("กรุณากรอกคำค้นหาหรือชื่อบุคคลก่อนครับ");
+                return;
+            }
+
+            if (!useLive) {
+                isLiveSearchResults = false;
+                applyFilters();
+                return;
+            }
+
+            const loadingState = document.getElementById('loadingState');
+            const profileGrid = document.getElementById('profileGrid');
+            const emptyState = document.getElementById('emptyState');
+            const badge = document.getElementById('searchSourceBadge');
+            const btn = document.getElementById('searchBtn');
+
+            // Show UI Loading
+            loadingState.classList.remove('hidden');
+            profileGrid.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+
+            try {
+                const systemPrompt = `คุณคือระบบค้นหาและสรุปประวัติบุคคลจากแหล่งข้อมูลสาธารณะแบบเปิด (Open Directory Agent) 
+โปรดค้นหาข้อมูลสาธารณะของบุคคลหรือตำแหน่งตามคำค้นหาของผู้ใช้ และสรุปผลออกมาในรูปแบบโครงสร้าง JSON Array ตาม Schema ที่กำหนดเท่านั้น 
+หากพบข้อมูลบุคคลหลายคน หรือบุคคลที่เป็นข่าว/สาธารณะ ให้ส่งกลับมา 1-3 รายการ
+โครงสร้าง JSON ต้องอยู่ในคีย์ตัวแปรอย่างถูกต้อง:
+[
+  {
+    "name": "ชื่อ-นามสกุล หรือ ฉายา",
+    "title": "ตำแหน่ง หรือ สายงานปัจจุบัน",
+    "category": " IT/Technology | Business/Management | Creative/Design | Education/Academic | Medical/Health | Other ",
+    "experienceYears": 10,
+    "status": "open หรือ busy",
+    "education": "การศึกษา หรือ สถาบันที่เกี่ยวข้อง",
+    "skills": ["ทักษะ1", "ทักษะ2", "ทักษะ3"],
+    "bio": "สรุปประวัติ ผลงาน โครงการ หรือประวัติย่อแบบละเอียด 2-3 ประโยค",
+    "email": "อีเมลสาธารณะ หรือ ไม่พบข้อมูล",
+    "phone": "เบอร์ติดต่อสาธารณะ หรือ ไม่พบข้อมูล",
+    "linkedin": "ลิงก์โซเชียล หรือ โปรไฟล์สาธารณะ"
+  }
+]`;
+
+                const userPrompt = `ค้นหาข้อมูลประวัติบุคคลสาธารณะ, ผู้เชี่ยวชาญ, หรือบุคคลตามคำค้นหานี้: "${query}"`;
+                const apiKey = ""; // Canvas runtime key handling
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const rawJson = candidate.content.parts[0].text;
+                    let parsedData = JSON.parse(rawJson);
+
+                    // Extract Grounding Attributions
+                    let sources = [];
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title);
+                    }
+
+                    if (Array.isArray(parsedData) && parsedData.length > 0) {
+                        liveSearchProfiles = parsedData.map((item, index) => ({
+                            id: `live_${Date.now()}_${index}`,
+                            name: item.name || query,
+                            title: item.title || 'บุคคลสาธารณะ',
+                            category: item.category || 'Other',
+                            experienceYears: item.experienceYears || 5,
+                            status: item.status || 'open',
+                            education: item.education || 'ข้อมูลสาธารณะ',
+                            skills: item.skills || ['ข้อมูลสาธารณะ'],
+                            bio: item.bio || 'ค้นพบข้อมูลจากอินเทอร์เน็ต',
+                            email: item.email || 'ไม่พบข้อมูลสาธารณะ',
+                            phone: item.phone || 'ไม่พบข้อมูลสาธารณะ',
+                            linkedin: item.linkedin || '',
+                            sources: sources,
+                            avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(item.name || query)}`
+                        }));
+
+                        isLiveSearchResults = true;
+                        badge.textContent = `แสดงผลจาก: Google Live Search (${sources.length} อ้างอิง)`;
+                        badge.className = "text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold";
+                        renderProfiles(liveSearchProfiles);
+                        showToast(`พบประวัติเจาะลึก ${liveSearchProfiles.length} รายการจากอินเทอร์เน็ต`);
+                    } else {
+                        throw new Error("No structured results found");
+                    }
+                } else {
+                    throw new Error("Invalid response format");
+                }
+            } catch (err) {
+                console.warn("Live Search fallback to local matching:", err);
+                showToast("ไม่พบข้อมูลแบบ Live จาก API กำลังแสดงผลจากฐานข้อมูลระบบ");
+                isLiveSearchResults = false;
+                applyFilters();
+            } finally {
+                loadingState.classList.add('hidden');
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+            }
         }
 
         function renderProfiles(dataList) {
@@ -410,6 +571,10 @@
                     ? `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium inline-flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>พร้อมรับงาน</span>`
                     : `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-medium inline-flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>มีงานประจำ</span>`;
 
+                const liveTag = profile.id.toString().startsWith('live_')
+                    ? `<span class="bg-amber-400/20 text-amber-800 border border-amber-300 text-[10px] px-2 py-0.5 rounded font-bold mr-1">REAL-TIME</span>`
+                    : '';
+
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between";
                 
@@ -418,7 +583,10 @@
                         <div class="flex items-start space-x-3 mb-3">
                             <img src="${profile.avatar}" alt="${profile.name}" class="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200">
                             <div class="flex-grow overflow-hidden">
-                                <h3 class="font-bold text-slate-900 text-base leading-tight truncate">${profile.name}</h3>
+                                <div class="flex items-center">
+                                    ${liveTag}
+                                    <h3 class="font-bold text-slate-900 text-base leading-tight truncate">${profile.name}</h3>
+                                </div>
                                 <p class="text-xs text-indigo-600 font-medium mt-0.5 truncate">${profile.title}</p>
                                 <div class="mt-1.5">${statusBadge}</div>
                             </div>
@@ -436,7 +604,7 @@
 
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
                         <span class="text-xs text-slate-400"><i class="fa-solid fa-clock-rotate-left mr-1"></i>ประสบการณ์ ${profile.experienceYears} ปี</span>
-                        <button onclick="openDetailModal(${profile.id})" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
+                        <button onclick="openDetailModal('${profile.id}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
                             <span>ดูประวัติเต็ม</span>
                             <i class="fa-solid fa-arrow-right text-[10px]"></i>
                         </button>
@@ -446,6 +614,95 @@
             });
         }
 
+        function handleSearch() {
+            if (!document.getElementById('liveSearchToggle').checked) {
+                applyFilters();
+            }
+        }
+
+        function applyFilters() {
+            if (isLiveSearchResults) {
+                renderProfiles(liveSearchProfiles);
+                return;
+            }
+
+            const badge = document.getElementById('searchSourceBadge');
+            badge.textContent = "แสดงผลจาก: ฐานข้อมูลในระบบ";
+            badge.className = "text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium";
+
+            const filtered = getFilteredData();
+            renderProfiles(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = 'ALL';
+            document.getElementById('sortFilter').value = 'newest';
+            document.querySelectorAll('.status-filter').forEach(cb => cb.checked = true);
+            isLiveSearchResults = false;
+            renderProfiles(profiles);
+        }
+
+        function openDetailModal(id) {
+            const profileList = isLiveSearchResults ? liveSearchProfiles : profiles;
+            const profile = profileList.find(p => p.id.toString() === id.toString());
+            if (!profile) return;
+
+            document.getElementById('modalAvatar').src = profile.avatar;
+            document.getElementById('modalName').textContent = profile.name;
+            document.getElementById('modalTitle').textContent = profile.title;
+            document.getElementById('modalCategory').textContent = getCategoryLabel(profile.category);
+            document.getElementById('modalBio').textContent = profile.bio || "ไม่ได้ระบุประวัติย่อ";
+            document.getElementById('modalExperience').textContent = `${profile.experienceYears} ปี`;
+            document.getElementById('modalEducation').textContent = profile.education || "ไม่ได้ระบุ";
+
+            // Status Badge
+            const statusContainer = document.getElementById('modalStatusBadge');
+            if (profile.status === 'open') {
+                statusContainer.innerHTML = `<span class="bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">พร้อมรับงาน</span>`;
+            } else {
+                statusContainer.innerHTML = `<span class="bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">มีงานประจำ</span>`;
+            }
+
+            // Skills
+            const skillsContainer = document.getElementById('modalSkills');
+            skillsContainer.innerHTML = profile.skills.map(s => `<span class="bg-indigo-50 text-indigo-700 text-xs px-3 py-1 rounded-full border border-indigo-100 font-medium">${s}</span>`).join('');
+
+            // Render Sources if available
+            const sourcesContainer = document.getElementById('modalSourcesContainer');
+            const sourcesList = document.getElementById('modalSources');
+            if (profile.sources && profile.sources.length > 0) {
+                sourcesContainer.classList.remove('hidden');
+                sourcesList.innerHTML = profile.sources.map(src => 
+                    `<div class="truncate"><a href="${src.uri}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline flex items-center"><i class="fa-solid fa-arrow-up-right-from-square mr-1.5 text-[10px]"></i>${src.title}</a></div>`
+                ).join('');
+            } else {
+                sourcesContainer.classList.add('hidden');
+            }
+
+            // Contacts
+            const contactsContainer = document.getElementById('modalContacts');
+            contactsContainer.innerHTML = `
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                    <i class="fa-solid fa-envelope text-indigo-600 text-base"></i>
+                    <div class="overflow-hidden">
+                        <p class="text-slate-400">อีเมล</p>
+                        <p class="font-medium text-slate-800 truncate">${profile.email || 'ไม่ได้ระบุ'}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                    <i class="fa-solid fa-phone text-indigo-600 text-base"></i>
+                    <div>
+                        <p class="text-slate-400">เบอร์โทรศัพท์</p>
+                        <p class="font-medium text-slate-800">${profile.phone || 'ไม่ได้ระบุ'}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        // Rest of helper logic remains unchanged
         function getFilteredData() {
             const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
             const category = document.getElementById('categoryFilter').value;
@@ -454,7 +711,6 @@
             const selectedStatuses = Array.from(document.querySelectorAll('.status-filter:checked')).map(cb => cb.value);
 
             return profiles.filter(profile => {
-                // Search matching
                 const matchesSearch = !searchText || 
                     profile.name.toLowerCase().includes(searchText) ||
                     profile.title.toLowerCase().includes(searchText) ||
@@ -462,10 +718,7 @@
                     profile.education.toLowerCase().includes(searchText) ||
                     profile.skills.some(s => s.toLowerCase().includes(searchText));
 
-                // Category matching
                 const matchesCategory = category === 'ALL' || profile.category === category;
-
-                // Status matching
                 const matchesStatus = selectedStatuses.includes(profile.status);
 
                 return matchesSearch && matchesCategory && matchesStatus;
@@ -475,7 +728,7 @@
                 } else if (sort === 'experience') {
                     return b.experienceYears - a.experienceYears;
                 } else {
-                    return b.id - a.id; // Newest first
+                    return b.id - a.id;
                 }
             });
         }
