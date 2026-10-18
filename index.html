@@ -1,89 +1,625 @@
 <!DOCTYPE html>
-<html lang="th" class="dark">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthShield VPN - Anti-IP Tracker & APK</title>
-    
-    <!-- PWA Manifest & Meta Tags -->
-    <meta name="theme-color" content="#070a14">
-    <meta name="description" content="Secure your connection and protect your privacy with StealthShield VPN, featuring advanced anti-IP tracking and secure tunneling.">
-    <link <link rel="manifest" href="./manifest.json">
-
-    <!-- Tailwind CSS CDN -->
+    <title>ระบบค้นหาและบันทึกประวัติบุคคล (Open People Directory)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts Prompt -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Prompt', sans-serif;
+            font-family: 'Kanit', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkbg: '#070a14',
-                        cardbg: '#101728',
-                        accent: '#2563eb',
-                        neon: '#059669',
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col justify-between p-4">
-    <div class="max-w-md mx-auto w-full bg-cardbg p-6 rounded-2xl shadow-2xl border border-gray-800 my-auto">
-        <div class="text-center mb-6">
-            <div class="inline-block p-4 bg-accent/10 rounded-full text-accent mb-3 text-3xl">
-                <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <h1 class="text-2xl font-bold tracking-wide">StealthShield VPN</h1>
-            <p class="text-xs text-gray-400 mt-1">Anti-IP Tracker & Secure Tunnel</p>
-        </div>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
 
-        <div class="space-y-4">
-            <div class="bg-darkbg/50 p-4 rounded-xl border border-gray-800 text-center">
-                <span class="text-xs text-gray-400 block">สถานะการเชื่อมต่อ</span>
-                <span id="status-text" class="text-neon font-semibold text-lg flex items-center justify-center gap-2 mt-1">
-                    <span class="w-3 h-3 rounded-full bg-neon animate-pulse"></span> พร้อมใช้งาน
+    <!-- Navigation Bar -->
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetSearch()">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-users-viewfinder text-xl"></i>
+                </div>
+                <span class="font-bold text-xl tracking-wide bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+                    OpenProfile
                 </span>
             </div>
+            
+            <div class="flex items-center space-x-3">
+                <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2 shadow">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span class="hidden sm:inline">เพิ่มประวัติใหม่</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
-            <button onclick="toggleVPN()" id="vpn-btn" class="w-full py-3.5 bg-accent hover:bg-blue-600 transition font-medium rounded-xl shadow-lg shadow-blue-500/20 text-white flex items-center justify-center gap-2">
-                <i class="fa-solid fa-power-off"></i> เชื่อมต่อ VPN
-            </button>
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- Search and Banner Section -->
+        <div class="bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-6 sm:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-10 text-white text-9xl">
+                <i class="fa-solid fa-address-book"></i>
+            </div>
+            <div class="relative z-10 max-w-3xl">
+                <h1 class="text-2xl sm:text-4xl font-bold mb-3">ค้นหาประวัติและข้อมูลบุคคลแบบเปิดกว้าง</h1>
+                <p class="text-indigo-100 text-sm sm:text-base mb-6">รวบรวมข้อมูลประวัติ การทำงาน ผลงาน และช่องทางติดต่อ ค้นหาสบาย ปราศจากการปิดกั้นข้อมูลสาธารณะ</p>
+                
+                <!-- Search Box -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="พิมพ์ชื่อ, สกุล, คำค้นหา, สายงาน, หรือความเชี่ยวชาญ..." 
+                               class="w-full pl-11 pr-4 py-3.5 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-300 shadow-inner">
+                    </div>
+                    <button onclick="handleSearch()" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-6 py-3.5 rounded-xl transition shadow flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-search"></i>
+                        <span>ค้นหา</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter and Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar / Filter Panel -->
+            <div class="lg:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 h-fit space-y-6">
+                <div>
+                    <h2 class="font-bold text-lg text-slate-800 border-b pb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-filter text-indigo-600 mr-2"></i>ตัวกรอง</span>
+                        <button onclick="resetFilters()" class="text-xs text-indigo-600 hover:underline font-normal">ล้างตัวกรอง</button>
+                    </h2>
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">กลุ่มอาชีพ / สายงาน</label>
+                    <select id="categoryFilter" onchange="applyFilters()" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="ALL">ทั้งหมด</option>
+                        <option value="IT/Technology">เทคโนโลยี / ไอที</option>
+                        <option value="Business/Management">บริหาร / ธุรกิจ</option>
+                        <option value="Creative/Design">สร้างสรรค์ / ออกแบบ</option>
+                        <option value="Education/Academic">การศึกษา / วิชาการ</option>
+                        <option value="Medical/Health">การแพทย์ / สาธารณสุข</option>
+                        <option value="Other">อื่นๆ</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">สถานะความพร้อมงาน</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center text-sm text-slate-600 cursor-pointer">
+                            <input type="checkbox" value="open" onchange="applyFilters()" class="status-filter rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mr-2" checked>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-2"></span>พร้อมรับงาน / สัมภาษณ์
+                        </label>
+                        <label class="flex items-center text-sm text-slate-600 cursor-pointer">
+                            <input type="checkbox" value="busy" onchange="applyFilters()" class="status-filter rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mr-2" checked>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block mr-2"></span>มีงานประจำ / ที่ปรึกษา
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Sort Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">เรียงลำดับตาม</label>
+                    <select id="sortFilter" onchange="applyFilters()" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="newest">อัปเดตล่าสุด</option>
+                        <option value="name">ชื่อ (ก-ฮ / A-Z)</option>
+                        <option value="experience">ประสบการณ์ (มากไปน้อย)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Main List Area -->
+            <div class="lg:col-span-3 space-y-4">
+                <!-- Status Header -->
+                <div class="flex items-center justify-between text-sm text-slate-500 px-1">
+                    <div>พบรายการทั้งสิ้น <span id="resultCount" class="font-bold text-indigo-600">0</span> รายการ</div>
+                </div>
+
+                <!-- Grid Results -->
+                <div id="profileGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic Profiles Will Be Injected Here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                    <i class="fa-solid fa-user-slash text-5xl text-slate-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-slate-700 mb-1">ไม่พบข้อมูลประวัติที่ตรงกัน</h3>
+                    <p class="text-sm text-slate-500 mb-4">ลองปรับคำค้นหา หรือเปลี่ยนเงื่อนไขตัวกรองใหม่</p>
+                    <button onclick="resetFilters()" class="text-sm bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-lg font-medium transition">
+                        ล้างเงื่อนไขการค้นหาทั้งหมด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in">
+            <!-- Modal Header -->
+            <div class="p-6 bg-gradient-to-r from-indigo-900 to-indigo-800 text-white relative">
+                <button onclick="closeDetailModal()" class="absolute right-4 top-4 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                <div class="flex items-start space-x-4">
+                    <img id="modalAvatar" src="" alt="Avatar" class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h2 id="modalName" class="text-2xl font-bold"></h2>
+                            <span id="modalStatusBadge"></span>
+                        </div>
+                        <p id="modalTitle" class="text-indigo-200 text-sm mt-0.5"></p>
+                        <p id="modalCategory" class="text-xs bg-indigo-700/60 text-indigo-100 inline-block px-2.5 py-0.5 rounded-full mt-2"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-6 overflow-y-auto space-y-6 custom-scrollbar text-slate-700">
+                <!-- Bio -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">เกี่ยวกับ / ประวัติย่อ</h3>
+                    <p id="modalBio" class="text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100"></p>
+                </div>
+
+                <!-- Skills -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">ทักษะและความเชี่ยวชาญ</h3>
+                    <div id="modalSkills" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Experience & Education -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-500 mb-1"><i class="fa-solid fa-briefcase text-indigo-500 mr-1.5"></i>ประสบการณ์</h4>
+                        <p id="modalExperience" class="text-sm font-semibold text-slate-800"></p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-500 mb-1"><i class="fa-solid fa-graduation-cap text-indigo-500 mr-1.5"></i>การศึกษา</h4>
+                        <p id="modalEducation" class="text-sm font-semibold text-slate-800"></p>
+                    </div>
+                </div>
+
+                <!-- Contact Channels -->
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">ช่องทางติดต่อสาธารณะ</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="modalContacts"></div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onclick="closeDetailModal()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium text-sm transition">
+                    ปิดหน้าต่าง
+                </button>
+            </div>
         </div>
     </div>
 
-    <script>
-        function toggleVPN() {
-            const statusText = document.getElementById('status-text');
-            const vpnBtn = document.getElementById('vpn-btn');
+    <!-- Add Profile Modal -->
+    <div id="addModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-5 bg-indigo-900 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-user-plus mr-2"></i>เพิ่มข้อมูลประวัติใหม่</h3>
+                <button onclick="closeAddModal()" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
             
-            if(vpnBtn.classList.contains('bg-accent')) {
-                vpnBtn.classList.remove('bg-accent', 'hover:bg-blue-600', 'shadow-blue-500/20');
-                vpnBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'shadow-red-500/20');
-                vpnBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> ตัดการเชื่อมต่อ';
-                statusText.innerHTML = '<span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> เชื่อมต่อแล้ว (ปลอดภัย)';
-                statusText.className = "text-red-400 font-semibold text-lg flex items-center justify-center gap-2 mt-1";
-            } else {
-                vpnBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'shadow-red-500/20');
-                vpnBtn.classList.add('bg-accent', 'hover:bg-blue-600', 'shadow-blue-500/20');
-                vpnBtn.innerHTML = '<i class="fa-solid fa-power-off"></i> เชื่อมต่อ VPN';
-                statusText.innerHTML = '<span class="w-3 h-3 rounded-full bg-neon animate-pulse"></span> พร้อมใช้งาน';
-                statusText.className = "text-neon font-semibold text-lg flex items-center justify-center gap-2 mt-1";
+            <form id="addProfileForm" onsubmit="saveProfile(event)" class="p-6 overflow-y-auto space-y-4 text-sm custom-scrollbar">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">ชื่อ-นามสกุล *</label>
+                    <input type="text" id="addName" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ดร. สมชาย ใจดี">
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">ตำแหน่ง / สายงาน *</label>
+                        <input type="text" id="addTitle" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น Senior Software Engineer">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">หมวดหมู่ *</label>
+                        <select id="addCategory" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="IT/Technology">เทคโนโลยี / ไอที</option>
+                            <option value="Business/Management">บริหาร / ธุรกิจ</option>
+                            <option value="Creative/Design">สร้างสรรค์ / ออกแบบ</option>
+                            <option value="Education/Academic">การศึกษา / วิชาการ</option>
+                            <option value="Medical/Health">การแพทย์ / สาธารณสุข</option>
+                            <option value="Other">อื่นๆ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">จำนวนปีประสบการณ์</label>
+                        <input type="number" id="addExp" min="0" value="1" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">สถานะ</label>
+                        <select id="addStatus" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="open">พร้อมรับงาน / สัมภาษณ์</option>
+                            <option value="busy">มีงานประจำ / ที่ปรึกษา</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">ระดับการศึกษาล่าสุด</label>
+                    <input type="text" id="addEducation" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น ปริญญาตรี วิทยาการคอมพิวเตอร์ ม.จุฬาฯ">
+                </div>
+
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">ทักษะความเชี่ยวชาญ (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
+                    <input type="text" id="addSkills" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น JavaScript, Project Management, Data Analysis">
+                </div>
+
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">ประวัติย่อ / บทสรุป</label>
+                    <textarea id="addBio" rows="3" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="อธิบายประวัติ ผลงาน หรือความสนใจเบื้องต้น..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">อีเมลติดต่อ</label>
+                        <input type="email" id="addEmail" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="example@email.com">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">เบอร์โทรศัพท์ (ถ้ามี)</label>
+                        <input type="text" id="addPhone" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="08X-XXX-XXXX">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3 border-t">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-700">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage" class="text-sm"></span>
+    </div>
+
+    <script>
+        // Initial Mock Profiles Data
+        const initialProfiles = [
+            {
+                id: 1,
+                name: "ดร. พรไพลิน วิทยากุล",
+                title: "ผู้เชี่ยวชาญด้านปัญญาประดิษฐ์ & Data Scientist",
+                category: "IT/Technology",
+                experienceYears: 8,
+                status: "open",
+                education: "ปริญญาเอก วิทยาการคอมพิวเตอร์ MIT",
+                skills: ["AI & Machine Learning", "Python", "Deep Learning", "Data Analytics"],
+                bio: "มีประสบการณ์วิจัยและพัฒนาโมเดล AI สำหรับระบบการแพทย์และธุรกิจสถาบันการเงิน สนใจงานวิจัยและเป็นที่ปรึกษาโครงการเทคโนโลยีขั้นสูง",
+                email: "phonpailin.v@example.com",
+                phone: "081-234-5678",
+                linkedin: "linkedin.com/in/phonpailin-demo",
+                avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 2,
+                name: "คุณกิตติศักดิ์ เจริญพาณิชย์",
+                title: "ผู้อำนวยการฝ่ายพัฒนาธุรกิจ (Business Development Director)",
+                category: "Business/Management",
+                experienceYears: 12,
+                status: "busy",
+                education: "ปริญญาโท บริหารธุรกิจ (MBA) ม.ธรรมศาสตร์",
+                skills: ["Strategic Planning", "Business Expansion", "Negotiation", "Team Leadership"],
+                bio: "ผู้เชี่ยวชาญการวางกลยุทธ์การตลาดและการขยายตลาดสู่ภูมิภาคอาเซียน เคยบริหารทีมขายและพัฒนาพันธมิตรทางธุรกิจระดับสากล",
+                email: "kittisak.c@example.com",
+                phone: "089-876-5432",
+                linkedin: "linkedin.com/in/kittisak-demo",
+                avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 3,
+                name: "คุณภัทรวดี มณีรัตน์",
+                title: "UX/UI Product Designer & Brand Strategist",
+                category: "Creative/Design",
+                experienceYears: 5,
+                status: "open",
+                education: "ปริญญาตรี ศิลปกรรมศาสตร์ ม.ศิลปากร",
+                skills: ["Figma", "Design System", "User Research", "Prototyping", "Design Thinking"],
+                bio: "เน้นการออกแบบประสบการณ์ผู้ใช้ที่ตอบโจทย์ธุรกิจและใช้งานง่าย มีผลงานออกแบบแอปพลิเคชันที่มีผู้ใช้มากกว่า 1 ล้านคน",
+                email: "pattrawadee.m@example.com",
+                phone: "086-555-4321",
+                linkedin: "linkedin.com/in/pattra-design",
+                avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+                id: 4,
+                name: "ผศ.ดร. นพ. วีระชัย สุขสวัสดิ์",
+                title: "แพทย์ผู้เชี่ยวชาญด้านเวชศาสตร์ป้องกัน & อาจารย์แพทย์",
+                category: "Medical/Health",
+                experienceYears: 15,
+                status: "busy",
+                education: "แพทยศาสตรบัณฑิต จุฬาลงกรณ์มหาวิทยาลัย",
+                skills: ["Preventive Medicine", "Public Health", "Medical Research", "Healthcare Management"],
+                bio: "ทำงานวิจัยด้านสุขภาพชุมชนและเวชศาสตร์ป้องกัน ให้ความรู้ด้านการดูแลสุขภาพเชิงป้องกันแก่สาธารณะผ่านสื่อต่างๆ",
+                email: "veerachai.s@example.com",
+                phone: "082-111-2233",
+                linkedin: "linkedin.com/in/dr-veerachai",
+                avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150&auto=format&fit=crop&q=80"
             }
+        ];
+
+        let profiles = [];
+
+        window.onload = function() {
+            // Load saved profiles from localStorage if exist
+            const saved = localStorage.getItem('open_profiles_data');
+            if (saved) {
+                try {
+                    profiles = JSON.parse(saved);
+                } catch(e) {
+                    profiles = [...initialProfiles];
+                }
+            } else {
+                profiles = [...initialProfiles];
+            }
+            renderProfiles(profiles);
+        };
+
+        function saveToStorage() {
+            localStorage.setItem('open_profiles_data', JSON.stringify(profiles));
+        }
+
+        function renderProfiles(dataList) {
+            const grid = document.getElementById('profileGrid');
+            const emptyState = document.getElementById('emptyState');
+            const resultCount = document.getElementById('resultCount');
+
+            grid.innerHTML = '';
+            resultCount.textContent = dataList.length;
+
+            if (dataList.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            dataList.forEach(profile => {
+                const statusBadge = profile.status === 'open' 
+                    ? `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-medium inline-flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>พร้อมรับงาน</span>`
+                    : `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-medium inline-flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>มีงานประจำ</span>`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start space-x-3 mb-3">
+                            <img src="${profile.avatar}" alt="${profile.name}" class="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200">
+                            <div class="flex-grow overflow-hidden">
+                                <h3 class="font-bold text-slate-900 text-base leading-tight truncate">${profile.name}</h3>
+                                <p class="text-xs text-indigo-600 font-medium mt-0.5 truncate">${profile.title}</p>
+                                <div class="mt-1.5">${statusBadge}</div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-600 line-clamp-2 mb-3 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                            ${profile.bio || 'ไม่มีข้อมูลประวัติย่อ'}
+                        </p>
+
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            ${profile.skills.slice(0, 3).map(skill => `<span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded">${skill}</span>`).join('')}
+                            ${profile.skills.length > 3 ? `<span class="text-xs text-slate-400 py-0.5">+${profile.skills.length - 3}</span>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs text-slate-400"><i class="fa-solid fa-clock-rotate-left mr-1"></i>ประสบการณ์ ${profile.experienceYears} ปี</span>
+                        <button onclick="openDetailModal(${profile.id})" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
+                            <span>ดูประวัติเต็ม</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function getFilteredData() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const category = document.getElementById('categoryFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+            
+            const selectedStatuses = Array.from(document.querySelectorAll('.status-filter:checked')).map(cb => cb.value);
+
+            return profiles.filter(profile => {
+                // Search matching
+                const matchesSearch = !searchText || 
+                    profile.name.toLowerCase().includes(searchText) ||
+                    profile.title.toLowerCase().includes(searchText) ||
+                    profile.bio.toLowerCase().includes(searchText) ||
+                    profile.education.toLowerCase().includes(searchText) ||
+                    profile.skills.some(s => s.toLowerCase().includes(searchText));
+
+                // Category matching
+                const matchesCategory = category === 'ALL' || profile.category === category;
+
+                // Status matching
+                const matchesStatus = selectedStatuses.includes(profile.status);
+
+                return matchesSearch && matchesCategory && matchesStatus;
+            }).sort((a, b) => {
+                if (sort === 'name') {
+                    return a.name.localeCompare(b.name, 'th');
+                } else if (sort === 'experience') {
+                    return b.experienceYears - a.experienceYears;
+                } else {
+                    return b.id - a.id; // Newest first
+                }
+            });
+        }
+
+        function handleSearch() {
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const filtered = getFilteredData();
+            renderProfiles(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = 'ALL';
+            document.getElementById('sortFilter').value = 'newest';
+            document.querySelectorAll('.status-filter').forEach(cb => cb.checked = true);
+            renderProfiles(profiles);
+        }
+
+        function resetSearch() {
+            resetFilters();
+        }
+
+        function openDetailModal(id) {
+            const profile = profiles.find(p => p.id === id);
+            if (!profile) return;
+
+            document.getElementById('modalAvatar').src = profile.avatar;
+            document.getElementById('modalName').textContent = profile.name;
+            document.getElementById('modalTitle').textContent = profile.title;
+            document.getElementById('modalCategory').textContent = getCategoryLabel(profile.category);
+            document.getElementById('modalBio').textContent = profile.bio || "ไม่ได้ระบุประวัติย่อ";
+            document.getElementById('modalExperience').textContent = `${profile.experienceYears} ปี`;
+            document.getElementById('modalEducation').textContent = profile.education || "ไม่ได้ระบุ";
+
+            // Status Badge
+            const statusContainer = document.getElementById('modalStatusBadge');
+            if (profile.status === 'open') {
+                statusContainer.innerHTML = `<span class="bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">พร้อมรับงาน</span>`;
+            } else {
+                statusContainer.innerHTML = `<span class="bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">มีงานประจำ</span>`;
+            }
+
+            // Skills
+            const skillsContainer = document.getElementById('modalSkills');
+            skillsContainer.innerHTML = profile.skills.map(s => `<span class="bg-indigo-50 text-indigo-700 text-xs px-3 py-1 rounded-full border border-indigo-100 font-medium">${s}</span>`).join('');
+
+            // Contacts
+            const contactsContainer = document.getElementById('modalContacts');
+            contactsContainer.innerHTML = `
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                    <i class="fa-solid fa-envelope text-indigo-600 text-base"></i>
+                    <div class="overflow-hidden">
+                        <p class="text-slate-400">อีเมล</p>
+                        <p class="font-medium text-slate-800 truncate">${profile.email || 'ไม่ได้ระบุ'}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                    <i class="fa-solid fa-phone text-indigo-600 text-base"></i>
+                    <div>
+                        <p class="text-slate-400">เบอร์โทรศัพท์</p>
+                        <p class="font-medium text-slate-800">${profile.phone || 'ไม่ได้ระบุ'}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('addProfileForm').reset();
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('addName').value.trim();
+            const title = document.getElementById('addTitle').value.trim();
+            const category = document.getElementById('addCategory').value;
+            const exp = parseInt(document.getElementById('addExp').value) || 0;
+            const status = document.getElementById('addStatus').value;
+            const education = document.getElementById('addEducation').value.trim();
+            const skillsRaw = document.getElementById('addSkills').value;
+            const bio = document.getElementById('addBio').value.trim();
+            const email = document.getElementById('addEmail').value.trim();
+            const phone = document.getElementById('addPhone').value.trim();
+
+            const skills = skillsRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+            const newProfile = {
+                id: Date.now(),
+                name: name,
+                title: title,
+                category: category,
+                experienceYears: exp,
+                status: status,
+                education: education || 'ไม่ได้ระบุ',
+                skills: skills.length > 0 ? skills : ['ทั่วไป'],
+                bio: bio,
+                email: email,
+                phone: phone,
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
+            };
+
+            profiles.unshift(newProfile);
+            saveToStorage();
+            applyFilters();
+            closeAddModal();
+            showToast("เพิ่มข้อมูลประวัติเรียบร้อยแล้ว");
+        }
+
+        // Helper Functions
+        function getCategoryLabel(catKey) {
+            const maps = {
+                'IT/Technology': 'เทคโนโลยี / ไอที',
+                'Business/Management': 'บริหาร / ธุรกิจ',
+                'Creative/Design': 'สร้างสรรค์ / ออกแบบ',
+                'Education/Academic': 'การศึกษา / วิชาการ',
+                'Medical/Health': 'การแพทย์ / สาธารณสุข',
+                'Other': 'อื่นๆ'
+            };
+            return maps[catKey] || catKey;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
         }
     </script>
 </body>
 </html>
+```
