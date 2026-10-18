@@ -392,8 +392,70 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-        
-        // Dynamic search YouTube function supporting public APIs and fallback options
+        let songs = [
+            { id: 1, ytId: "LsoLEjrDogU", title: "เพลงฮิตติดเทรนด์ 2026", artist: "Melody Trending", genre: "Thai Pop", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80" },
+            { id: 2, ytId: "jfKfPfyJRdk", title: "Lofi Hip Hop Radio - Beats to Relax", artist: "Lofi Girl", genre: "Lo-Fi", cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300&auto=format&fit=crop&q=80" },
+            { id: 3, ytId: "5qap5aO4i9A", title: "Lofi Sleep Beats", artist: "ChilledCow", genre: "Lo-Fi", cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" },
+            { id: 4, ytId: "2Vv-BfVoq4g", title: "Acoustic Covers Popular Songs", artist: "Acoustic Lounge", genre: "Acoustic", cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=300&auto=format&fit=crop&q=80" },
+            { id: 5, ytId: "dQw4w9WgXcQ", title: "Never Gonna Give You Up", artist: "Rick Astley", genre: "K-Pop", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&auto=format&fit=crop&q=80" }
+        ];
+
+        let playlists = ["My Favorites", "Work Flow", "Chill Vibes"];
+        let favorites = new Set([1]);
+
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let isShuffle = false;
+        let isRepeat = false;
+        let isVideoVisible = false;
+        let ytPlayer = null;
+        let isYTReady = false;
+        let progressInterval = null;
+
+        const moodPlaylists = [
+            { name: "เพลงไทยฮิต", icon: "fa-fire", bg: "from-orange-600 to-red-600", desc: "รวมเพลงฮิตประเทศไทย" },
+            { name: "Lo-Fi Chill", icon: "fa-mug-hot", bg: "from-blue-600 to-indigo-600", desc: "ฟังตอนทำงาน หรืออ่านหนังสือ" },
+            { name: "Acoustic Guitar", icon: "fa-guitar", bg: "from-amber-600 to-emerald-600", desc: "เพลงสบายๆ ฟังสบายใจ" }
+        ];
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('yt-player', {
+                height: '100%',
+                width: '100%',
+                videoId: songs[0].ytId,
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 1,
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            isYTReady = true;
+            loadSong(0, false);
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                isPlaying = true;
+                updatePlayPauseUI();
+                startProgressTimer();
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                isPlaying = false;
+                updatePlayPauseUI();
+                stopProgressTimer();
+            } else if (event.data === YT.PlayerState.ENDED) {
+                handleSongEnded();
+            }
+        }
+
         async function searchYouTube(query) {
             if (!query || !query.trim()) return;
             switchTab('home');
@@ -405,62 +467,77 @@
             resultsGrid.innerHTML = `
                 <div class="col-span-full py-10 text-center text-slate-400">
                     <i class="fa-solid fa-spinner animate-spin text-2xl text-red-500 mb-2 block"></i>
-                    <span>กำลังค้นหาเพลง "${query}" จาก YouTube ผ่านอินเทอร์เน็ต...</span>
+                    <span>กำลังค้นหาเพลง "${query}" จาก YouTube...</span>
                 </div>
             `;
 
-            // List of Invidious API instances for public searching without API keys
-            const instances = [
-                'https://vid.puffyan.us',
-                'https://invidious.nerdvpn.de',
-                'https://inv.tux.pizza',
-                'https://invidious.drgns.space',
-                'https://yt.artemislena.eu'
-            ];
-
             let searchTracks = [];
 
-            // Try public instances
-            for (let instance of instances) {
+            // Primary & Secondary Public Invidious and Piped instances
+            const apiEndpoints = [
+                `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=music_songs`,
+                `https://api.piped.privacydev.net/search?q=${encodeURIComponent(query)}&filter=all`,
+                `https://inv.tux.pizza/api/v1/search?q=${encodeURIComponent(query)}&type=video`,
+                `https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(query)}&type=video`,
+                `https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(query)}&type=video`
+            ];
+
+            for (let endpoint of apiEndpoints) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3500);
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
                     
-                    const res = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
-                        signal: controller.signal
-                    });
+                    const res = await fetch(endpoint, { signal: controller.signal });
                     clearTimeout(timeoutId);
 
                     if (res.ok) {
                         const data = await res.json();
-                        if (Array.isArray(data) && data.length > 0) {
-                            searchTracks = data.slice(0, 12).map(item => ({
+                        
+                        // Handle Piped API structure
+                        if (data.items && Array.isArray(data.items) && data.items.length > 0) {
+                            searchTracks = data.items.filter(item => item.type === 'stream' || item.url).slice(0, 10).map(item => {
+                                const id = item.url ? item.url.replace('/watch?v=', '') : (item.id || '');
+                                return {
+                                    ytId: id,
+                                    title: item.title,
+                                    artist: item.uploaderName || "YouTube Artist",
+                                    cover: item.thumbnail || `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+                                };
+                            });
+                            if (searchTracks.length > 0) break;
+                        } 
+                        // Handle Invidious API structure
+                        else if (Array.isArray(data) && data.length > 0) {
+                            searchTracks = data.slice(0, 10).map(item => ({
                                 ytId: item.videoId,
                                 title: item.title,
                                 artist: item.author || "YouTube Artist",
                                 cover: `https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`
                             }));
-                            break;
+                            if (searchTracks.length > 0) break;
                         }
                     }
                 } catch (e) {
-                    console.warn(`Search failed on ${instance}, trying next...`);
+                    console.warn(`Search failed on ${endpoint}, trying next endpoint...`);
                 }
             }
 
-            // Fallback: If network API calls are blocked by browser CORS, offer direct YouTube load option
+            // Fallback UI when public API proxy requests are blocked or offline
             if (searchTracks.length === 0) {
-                const cleanQuery = query.replace(/'/g, "\\'");
+                const escapedQuery = encodeURIComponent(query);
                 resultsGrid.innerHTML = `
                     <div class="col-span-full bg-slate-900/90 border border-slate-800 rounded-2xl p-6 text-center space-y-4">
                         <i class="fa-brands fa-youtube text-4xl text-red-500"></i>
-                        <h4 class="text-white font-semibold">ค้นหาแบบเร่งด่วนสำหรับ "${query}"</h4>
-                        <p class="text-xs text-slate-400 max-w-md mx-auto">
-                            หากเครือข่ายไม่อนุญาตให้ดึงผลลัพธ์อัตโนมัติ คุณสามารถนำ URL/ID วิดีโอจาก YouTube มาวางในเมนู "ดึงลิงก์ YouTube" หรือค้นหาเพลงตามตัวอย่างเพลงฮิตด้านล่างได้ทันที
+                        <h4 class="text-white font-semibold text-lg">ค้นหาเพลงบน YouTube ไม่พบผ่าน API สาธารณะ</h4>
+                        <p class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed">
+                            เนื่องจากนโยบายความปลอดภัยของเว็บบราวเซอร์ (CORS) หรือ Invidious Server สาธารณะถูกบล็อก คุณสามารถเปิด YouTube ค้นหาเพลงตรง แล้วก๊อปปี้ลิงก์เพลงมาวางเพื่อเล่นได้ทันที!
                         </p>
-                        <div class="flex justify-center gap-3 pt-2">
-                            <button onclick="switchTab('yt-import')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
-                                <i class="fa-brands fa-youtube mr-1"></i> ไปที่หน้าใส่ลิงก์ YouTube
+                        <div class="flex flex-wrap justify-center gap-3 pt-2">
+                            <a href="https://www.youtube.com/results?search_query=${escapedQuery}" target="_blank" class="bg-red-600 hover:bg-red-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> ค้นหา "${query}" บน YouTube
+                            </a>
+                            <button onclick="switchTab('yt-import')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition">
+                                <i class="fa-brands fa-youtube mr-1 text-red-500"></i> วาง URL เพื่อเล่นเพลง
                             </button>
                         </div>
                     </div>
@@ -469,16 +546,62 @@
             }
 
             // Render search results
-            resultsGrid.innerHTML = searchTracks.map(track => `
-                <div class="group bg-slate-900/80 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 flex flex-col cursor-pointer transition shadow-md hover:shadow-red-900/20" onclick="playDirectYt('${track.ytId}', '${track.title.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${track.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${track.cover}')">
-                    <div class="relative aspect-video rounded-lg overflow-hidden mb-2 bg-slate-950">
-                        <img src="${track.cover}" alt="${track.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                        <button class="absolute bottom-1.5 right-1.5 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg">
-                            <i class="fa-solid fa-play text-xs"></i>
-                        </button>
+            resultsGrid.innerHTML = searchTracks.map(track => {
+                const safeTitle = track.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeArtist = track.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                    <div class="group bg-slate-900/80 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 flex flex-col cursor-pointer transition shadow-md hover:shadow-red-900/20" onclick="playDirectYt('${track.ytId}', '${safeTitle}', '${safeArtist}', '${track.cover}')">
+                        <div class="relative aspect-video rounded-lg overflow-hidden mb-2 bg-slate-950">
+                            <img src="${track.cover}" alt="${track.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80'">
+                            <button class="absolute bottom-1.5 right-1.5 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </button>
+                        </div>
+                        <h4 class="font-semibold text-xs text-white truncate" title="${track.title}">${track.title}</h4>
+                        <p class="text-[11px] text-slate-400 truncate mt-0.5">${track.artist}</p>
                     </div>
-                    <h4 class="font-semibold text-xs text-white truncate" title="${track.title}">${track.title}</h4>
-                    <p class="text-[11px] text-slate-400 truncate mt-0.5">${track.artist}</p>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-tab').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-red-400', 'bg-slate-800/80');
+                btn.classList.add('text-slate-400');
+            });
+
+            const targetView = document.getElementById(`view-${tabId}`);
+            const targetNav = document.getElementById(`nav-${tabId}`);
+
+            if (targetView) targetView.classList.remove('hidden');
+            if (targetNav) {
+                targetNav.classList.add('active', 'text-red-400', 'bg-slate-800/80');
+                targetNav.classList.remove('text-slate-400');
+            }
+
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar.classList.contains('hidden') && window.innerWidth < 768) {
+                toggleMobileMenu();
+            }
+        }
+
+        function renderTopHits() {
+            const grid = document.getElementById('top-hits-grid');
+            grid.innerHTML = songs.map((song, index) => `
+                <div class="group bg-slate-900/60 hover:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition duration-300 flex flex-col justify-between cursor-pointer" onclick="playSong(${index})">
+                    <div class="relative aspect-square rounded-xl overflow-hidden mb-3 bg-slate-950">
+                        <img src="${song.cover}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
+                                <i class="fa-solid fa-play ml-0.5"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm text-white truncate group-hover:text-red-400 transition">${song.title}</h4>
+                        <p class="text-xs text-slate-400 truncate mt-0.5">${song.artist}</p>
+                    </div>
                 </div>
             `).join('');
         }
@@ -508,10 +631,12 @@
             list.innerHTML = songList.map((song) => {
                 const indexInMain = songs.findIndex(s => s.id === song.id);
                 const isFav = favorites.has(song.id);
+                const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 return `
                     <div class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-xl transition group">
-                        <div class="flex items-center gap-3.5 min-w-0 flex-1 cursor-pointer" onclick="${indexInMain !== -1 ? `playSong(${indexInMain})` : `playDirectYt('${song.ytId}', '${song.title.replace(/'/g, "\\'")}', '${song.artist.replace(/'/g, "\\'")}', '${song.cover}')`}">
-                            <img src="${song.cover}" class="w-14 h-10 rounded-lg object-cover">
+                        <div class="flex items-center gap-3.5 min-w-0 flex-1 cursor-pointer" onclick="${indexInMain !== -1 ? `playSong(${indexInMain})` : `playDirectYt('${song.ytId}', '${safeTitle}', '${safeArtist}', '${song.cover}')`}">
+                            <img src="${song.cover}" class="w-14 h-10 rounded-lg object-cover" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80'">
                             <div class="min-w-0">
                                 <h4 class="text-sm font-semibold text-white truncate group-hover:text-red-400 transition">${song.title}</h4>
                                 <p class="text-xs text-slate-400 truncate">${song.artist} • <span class="text-slate-500">${song.genre || 'YouTube'}</span></p>
@@ -567,62 +692,11 @@
             `).join('');
         }
 
-        // YouTube Search Integration (Public API fallback search simulator)
-        function searchYouTube(query) {
-            if (!query.trim()) return;
-            switchTab('home');
-
-            const resultsSection = document.getElementById('search-results-section');
-            const resultsGrid = document.getElementById('search-results-grid');
-            resultsSection.classList.remove('hidden');
-
-            resultsGrid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400"><i class="fa-solid fa-spinner animate-spin mr-2"></i> กำลังค้นหาบน YouTube...</div>`;
-
-            // Using Invidious / Public YouTube search API for direct streaming without API Key dependency
-            fetch(`https://invidious.io/api/v1/search?q=${encodeURIComponent(query)}&type=video`)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data || data.length === 0) throw new Error("No results");
-                    
-                    const searchTracks = data.slice(0, 10).map(item => ({
-                        ytId: item.videoId,
-                        title: item.title,
-                        artist: item.author,
-                        cover: `https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`
-                    }));
-
-                    resultsGrid.innerHTML = searchTracks.map(track => `
-                        <div class="group bg-slate-900/80 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 flex flex-col cursor-pointer transition" onclick="playDirectYt('${track.ytId}', '${track.title.replace(/'/g, "\\'")}', '${track.artist.replace(/'/g, "\\'")}', '${track.cover}')">
-                            <div class="relative aspect-video rounded-lg overflow-hidden mb-2">
-                                <img src="${track.cover}" class="w-full h-full object-cover">
-                                <button class="absolute bottom-1.5 right-1.5 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                                    <i class="fa-solid fa-play text-xs"></i>
-                                </button>
-                            </div>
-                            <h4 class="font-semibold text-xs text-white truncate">${track.title}</h4>
-                            <p class="text-[11px] text-slate-400 truncate">${track.artist}</p>
-                        </div>
-                    `).join('');
-                })
-                .catch(() => {
-                    // Fallback search filter in local list + simulated YouTube match
-                    const fallbackMatches = songs.filter(s => s.title.toLowerCase().includes(query.toLowerCase()) || s.artist.toLowerCase().includes(query.toLowerCase()));
-                    if(fallbackMatches.length > 0) {
-                        renderExploreSongs(fallbackMatches);
-                        resultsSection.classList.add('hidden');
-                        switchTab('explore');
-                    } else {
-                        resultsGrid.innerHTML = `<div class="col-span-full py-6 text-center text-slate-400 text-xs">ไม่พบเพลงตรงกับคำค้นหา ลองค้นด้วยคำอื่น หรือใช้ปุ่มดึงลิงก์ YouTube</div>`;
-                    }
-                });
-        }
-
         function clearSearch() {
             document.getElementById('search-results-section').classList.add('hidden');
             document.getElementById('search-input').value = '';
         }
 
-        // Direct YouTube Import
         function importYouTubeTrack() {
             const urlInput = document.getElementById('yt-url-input').value.trim();
             const titleInput = document.getElementById('yt-title-input').value.trim();
@@ -638,7 +712,7 @@
                 id: Date.now(),
                 ytId: ytId,
                 title: titleInput || `YouTube Stream (${ytId})`,
-                artist: artistInput || "YouTube",
+                artist: artistInput || "YouTube Artist",
                 genre: "Imported",
                 cover: `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
             };
@@ -894,6 +968,14 @@
             sidebar.classList.toggle('left-0');
             sidebar.classList.toggle('shadow-2xl');
         }
+
+        window.onload = function() {
+            renderTopHits();
+            renderMoods();
+            renderExploreSongs(songs);
+            renderFavoriteSongs();
+            renderPlaylists();
+        };
     </script>
 </body>
 </html>
