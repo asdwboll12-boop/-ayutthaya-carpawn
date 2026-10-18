@@ -82,8 +82,14 @@
                     </div>
                 </div>
 
+                <!-- API Key Config Button -->
+                <button onclick="openApiKeyModal()" class="w-full mb-3 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-medium text-xs py-2.5 px-3 rounded-xl border border-slate-700/60 transition flex items-center justify-between">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-key text-indigo-400"></i> ตั้งค่า API Key</span>
+                    <span id="api-status-badge" class="text-[9px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">ยังไม่ระบุ</span>
+                </button>
+
                 <!-- Footer Status -->
-                <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/50 text-xs mt-4 flex items-center gap-3">
+                <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/50 text-xs flex items-center gap-3">
                     <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
                     <div>
                         <p class="font-bold text-slate-200">Google Grounding Active</p>
@@ -109,6 +115,9 @@
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <button onclick="openApiKeyModal()" class="md:hidden text-indigo-400 p-2 text-sm">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
                     <button onclick="toggleTheme()" class="text-slate-400 hover:text-white p-2 text-sm transition">
                         <i class="fa-solid fa-moon" id="theme-icon"></i>
                     </button>
@@ -178,9 +187,64 @@
         </main>
     </div>
 
+    <!-- API Key Settings Modal -->
+    <div id="api-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-key text-indigo-400"></i> ตั้งค่า Gemini API Key
+                </h3>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                กรุณาระบุ **Gemini API Key** ของคุณเพื่อเปิดใช้งานการค้นหาเว็บเรียลไทม์ (สามารถรับ คีย์ฟรี ได้ที่ <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-indigo-400 underline hover:text-indigo-300">Google AI Studio</a>)
+            </p>
+            <div>
+                <input type="password" id="api-key-input" placeholder="วาง Gemini API Key ที่นี่ (AIzaSy...)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeApiKeyModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">ยกเลิก</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30">บันทึก Key</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let chatHistory = [];
         let isSearching = false;
+        let userApiKey = localStorage.getItem('NOVA_GEMINI_API_KEY') || "";
+
+        function updateApiKeyBadge() {
+            const badge = document.getElementById('api-status-badge');
+            if (badge) {
+                if (userApiKey.trim()) {
+                    badge.innerText = "บันทึกแล้ว";
+                    badge.className = "text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full";
+                } else {
+                    badge.innerText = "ยังไม่ระบุ";
+                    badge.className = "text-[9px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full";
+                }
+            }
+        }
+
+        function openApiKeyModal() {
+            document.getElementById('api-key-input').value = userApiKey;
+            document.getElementById('api-modal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('api-modal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            userApiKey = key;
+            localStorage.setItem('NOVA_GEMINI_API_KEY', key);
+            updateApiKeyBadge();
+            closeApiKeyModal();
+        }
 
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar');
@@ -216,10 +280,42 @@
             `;
         }
 
+        async function fetchWithFallback(url, options) {
+            // Direct Attempt
+            try {
+                const response = await fetch(url, options);
+                if (response.ok) return response;
+            } catch (err) {
+                console.warn("Direct fetch failed, attempting via proxy fallback...");
+            }
+
+            // CORS Proxy Fallbacks
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+                `https://corsproxy.io/?${encodeURIComponent(url)}`
+            ];
+
+            for (let proxyUrl of proxies) {
+                try {
+                    const res = await fetch(proxyUrl, options);
+                    if (res.ok) return res;
+                } catch (e) {
+                    console.warn(`Proxy failed: ${proxyUrl}`);
+                }
+            }
+
+            throw new Error("ไม่สามารถเชื่อมต่ออินเทอร์เน็ตหรือเครือข่ายได้ กรุณาตรวจสอบอินเทอร์เน็ตหรือ API Key ของคุณ");
+        }
+
         async function submitQuery() {
             const inputEl = document.getElementById('user-input');
             const query = inputEl.value.trim();
             if (!query || isSearching) return;
+
+            if (!userApiKey) {
+                openApiKeyModal();
+                return;
+            }
 
             inputEl.value = '';
             isSearching = true;
@@ -229,8 +325,7 @@
 
             const chatContainer = document.getElementById('chat-container');
 
-            // 1. Append User Bubble
-            const userMsgId = 'msg-' + Date.now();
+            // 1. Append User Message
             chatContainer.innerHTML += `
                 <div class="flex justify-end mb-4">
                     <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-xl text-xs md:text-sm shadow-md">
@@ -255,7 +350,6 @@
             `;
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            // Push to chat history
             chatHistory.push({ role: "user", parts: [{ text: query }] });
 
             try {
@@ -269,32 +363,15 @@
                     }
                 };
 
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${userApiKey}`;
 
-                let response = null;
-                let data = null;
+                const response = await fetchWithFallback(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-                // Exponential backoff retry loop
-                let retries = 3;
-                let delay = 1000;
-                for (let i = 0; i < retries; i++) {
-                    try {
-                        response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (response.ok) {
-                            data = await response.json();
-                            break;
-                        }
-                    } catch (err) {
-                        if (i === retries - 1) throw err;
-                        await new Promise(res => setTimeout(res, delay));
-                        delay *= 2;
-                    }
-                }
+                const data = await response.json();
 
                 const loaderEl = document.getElementById(loaderId);
                 if (loaderEl) loaderEl.remove();
@@ -303,7 +380,6 @@
                 if (candidate && candidate.content?.parts?.[0]?.text) {
                     const aiText = candidate.content.parts[0].text;
                     
-                    // Extract Grounding Sources
                     let sources = [];
                     const groundingMetadata = candidate.groundingMetadata;
                     if (groundingMetadata && groundingMetadata.groundingAttributions) {
@@ -315,10 +391,8 @@
                             .filter(s => s.title && s.uri);
                     }
 
-                    // Push model turn to history
                     chatHistory.push(candidate.content);
 
-                    // Render AI Response Card
                     let sourcesHTML = '';
                     if (sources.length > 0) {
                         sourcesHTML = `
@@ -351,7 +425,7 @@
                         </div>
                     `;
                 } else {
-                    throw new Error("Invalid response format");
+                    throw new Error("โครงสร้างการตอบกลับจาก API ไม่ถูกต้อง หรือ API Key ไม่สมบูรณ์");
                 }
 
             } catch (error) {
@@ -363,8 +437,12 @@
                         <div class="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center text-white text-xs flex-shrink-0">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <div class="glass-card rounded-2xl rounded-tl-sm px-4 py-3 max-w-xl text-xs md:text-sm text-red-300">
-                            เกิดข้อผิดพลาดในการเชื่อมต่ออินเทอร์เน็ต โปรดลองใหม่อีกครั้งในครู่ครู่
+                        <div class="glass-card rounded-2xl rounded-tl-sm px-4 py-3 max-w-xl text-xs md:text-sm text-red-300 space-y-2">
+                            <p class="font-bold">เกิดข้อผิดพลาดในการเชื่อมต่อ:</p>
+                            <p class="text-xs opacity-90">${escapeHtml(error.message)}</p>
+                            <button onclick="openApiKeyModal()" class="text-xs underline text-white font-medium hover:text-indigo-300">
+                                คลิกที่นี่เพื่อตรวจสอบหรือเปลี่ยน Gemini API Key
+                            </button>
                         </div>
                     </div>
                 `;
@@ -384,6 +462,10 @@
             icon.classList.toggle('fa-moon');
             icon.classList.toggle('fa-sun');
         }
+
+        window.onload = function() {
+            updateApiKeyBadge();
+        };
     </script>
 </body>
 </html>
